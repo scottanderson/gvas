@@ -8,7 +8,7 @@ env:
 
 jobs:
   build:
-    name: ${{ matrix.config.toolchain }} / ${{ matrix.config.os }}
+    name: ${{ matrix.config.toolchain }} / ${{ matrix.config.os }} / build
 
     runs-on: ${{ matrix.config.os }}
 
@@ -36,7 +36,7 @@ jobs:
           path: |
             ~/.cargo
             ~/.rustup
-          key: ${{ runner.os }}-${{ matrix.config.toolchain }}
+          key: ${{ runner.os }}-${{ matrix.config.toolchain }}-build
 
       - name: Install Rust ${{ matrix.config.toolchain }}
         uses: dtolnay/rust-toolchain@master
@@ -63,10 +63,17 @@ jobs:
         run: cargo clippy --all-features --all-targets -- -D warnings
 
   coverage:
-    name: Code Coverage
+    name: stable / ubuntu-latest / coverage
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo
+            ~/.rustup
+          key: ${{ runner.os }}-${{ matrix.config.toolchain }}-coverage
 
       - name: Security Audit
         uses: actions-rs/audit-check@v1
@@ -79,9 +86,15 @@ jobs:
           toolchain: stable
 
       - name: Coverage
+        env:
+          RUSTFLAGS: '-Cdebuginfo=2 -Cinline-threshold=0 -Clink-dead-code'
+          RUSTDOCFLAGS: '-Cdebuginfo=2 -Cinline-threshold=0 -Clink-dead-code'
         run: |
-          cargo install cargo-tarpaulin
-          cargo tarpaulin --all-features --timeout 300 --out Lcov --output-dir coverage
+          sudo apt install -y kcov
+          cargo clean
+          cargo test --no-run --all-features
+          find target/debug/deps -type f -executable ! -name "*.*" |
+          xargs -n1 kcov --exclude-pattern=tests/,/.cargo,/usr --verify coverage
 
       - name: Upload coverage report to Coveralls
         uses: coverallsapp/github-action@v2
