@@ -76,6 +76,11 @@ fn features_01() {
 }
 
 #[test]
+fn issue103() {
+    test_gvas_file_(ISSUE103_PATH, GameVersion::Default, &issue103::hints());
+}
+
+#[test]
 fn options() {
     assert_eq!(test_gvas_file(OPTIONS_PATH), options::expected());
 }

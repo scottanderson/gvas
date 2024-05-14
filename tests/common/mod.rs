@@ -2,6 +2,7 @@
 
 pub mod delegate;
 pub mod features;
+pub mod issue103;
 pub mod options;
 pub mod palworld;
 pub mod profile0;
@@ -15,6 +16,7 @@ pub const COMPONENT8_PATH: &str = "resources/test/component8.sav";
 pub const DELEGATE_PATH: &str = "resources/test/Delegate.sav";
 pub const ENUM_ARRAY_PATH: &str = "resources/test/enum_array.sav";
 pub const FEATURES_01_PATH: &str = "resources/test/features_01.bin";
+pub const ISSUE103_PATH: &str = "resources/test/issue103.sav";
 pub const OPTIONS_PATH: &str = "resources/test/Options.sav";
 pub const PACKAGE_VERSION_524_PATH: &str = "resources/test/package_version_524.sav";
 pub const PALWORLD_ZLIB_PATH: &str = "resources/test/palworld_zlib.sav";

@@ -457,7 +457,11 @@ impl MapProperty {
         for _ in 0..element_count {
             let properties_stack = &mut options.properties_stack;
             let key_stack_entry = ScopedStackEntry::new(properties_stack, "Key".to_string());
-            let key = Property::new(cursor, &key_type, false, options, None)?;
+            let suggested_length = match key_type.as_ref() {
+                "ByteProperty" => Some(u32::MAX),
+                _ => None,
+            };
+            let key = Property::new(cursor, &key_type, false, options, suggested_length)?;
             drop(key_stack_entry);
 
             let properties_stack = &mut options.properties_stack;
