@@ -44,4 +44,19 @@ pub enum EUnrealEngineObjectUE5Version {
 
     /// Added property tag complete type name and serialization type
     PropertyTagCompleteTypeName,
+
+    /// Changed UE::AssetRegistry::WritePackageData to include PackageBuildDependencies
+    AssetRegistryPackageBuildDependencies,
+
+    /// Added meta data serialization offset to for saved, versioned packages
+    MetadataSerializationOffset,
+
+    /// Added VCells to the object graph
+    VerseCells,
+
+    /// Changed PackageFileSummary to write FIoHash PackageSavedHash instead of FGuid Guid
+    PackageSavedHash,
+
+    /// OS shadow serialization of subobjects
+    OsSubObjectShadowSerialization,
 }

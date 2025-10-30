@@ -200,7 +200,7 @@ impl GvasHeader {
             let version = cursor.read_u32::<LittleEndian>()?;
             if !version.between(
                 EUnrealEngineObjectUE5Version::InitialVersion as u32,
-                EUnrealEngineObjectUE5Version::DataResources as u32,
+                EUnrealEngineObjectUE5Version::OsSubObjectShadowSerialization as u32,
             ) {
                 Err(DeserializeError::InvalidHeader(
                     format!("UE5 Package file version {version} is not supported").into_boxed_str(),
