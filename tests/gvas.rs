@@ -152,6 +152,12 @@ fn text_property_noarray() {
     test_gvas_file(TEXT_PROPERTY_NOARRAY);
 }
 
+#[ignore] // https://github.com/localcc/gvas/issues/134
+#[test]
+fn tlc() {
+    test_gvas_file_(TLC_PATH, GameVersion::ArchiveV2, &HashMap::new());
+}
+
 #[test]
 fn transform() {
     test_gvas_file(TRANSFORM_PATH);

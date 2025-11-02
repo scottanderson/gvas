@@ -30,6 +30,7 @@ pub const SLOT2_PATH: &str = "resources/test/Slot2.sav";
 pub const SLOT3_PATH: &str = "resources/test/Slot3.sav";
 pub const STRING_TABLE_ENTRY: &str = "resources/test/string_table_entry.sav";
 pub const TEXT_PROPERTY_NOARRAY: &str = "resources/test/text_property_noarray.bin";
+pub const TLC_PATH: &str = "resources/test/tlc.sav";
 pub const TRANSFORM_PATH: &str = "resources/test/transform.sav";
 pub const VECTOR2D_PATH: &str = "resources/test/vector2d.sav";
 pub const TAGCONTAINER_PATH: &str = "resources/test/tagcontainer.sav";

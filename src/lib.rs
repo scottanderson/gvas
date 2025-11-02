@@ -60,6 +60,8 @@
 //! # Ok::<(), Error>(())
 //! ```
 
+/// Compression types.
+pub mod compression;
 /// Extensions for `Cursor`.
 pub mod cursor_ext;
 /// Custom version information.
@@ -95,11 +97,15 @@ use flate2::read::ZlibDecoder;
 use flate2::write::ZlibEncoder;
 
 use crate::{
+    compression::FArchiveCompression,
     cursor_ext::{ReadExt, WriteExt},
     custom_version::FCustomVersion,
     engine_version::FEngineVersion,
-    error::{DeserializeError, Error},
-    game_version::{DeserializedGameVersion, GameVersion, PLZ_MAGIC, PalworldCompressionType},
+    error::{DeserializeError, Error, SerializeError},
+    game_version::{
+        ARCHIVE_V2_HEADER_TAG, DeserializedGameVersion, GameVersion, PLZ_MAGIC,
+        PalworldCompressionType,
+    },
     object_version::EUnrealEngineObjectUE5Version,
     ord_ext::OrdExt,
     properties::{Property, PropertyOptions, PropertyTrait},
@@ -456,6 +462,112 @@ impl GvasFile {
                     }
                 }
             }
+            GameVersion::ArchiveV2 => {
+                // TODO: Encapsulate this code
+
+                // Peek the first chunk header
+                let start = cursor.stream_position()?;
+                let tag = cursor.read_u64::<LittleEndian>()?;
+                if tag != ARCHIVE_V2_HEADER_TAG {
+                    Err(DeserializeError::InvalidHeader(
+                        format!("Invalid ArchiveV2 tag {tag:#018x}").into_boxed_str(),
+                    ))?
+                }
+                let chunk_size = cursor.read_u64::<LittleEndian>()?;
+                let compression_type = FArchiveCompression::read(cursor)?;
+                deserialized_game_version = DeserializedGameVersion::ArchiveV2 {
+                    chunk_size,
+                    compression_type,
+                };
+
+                // Return to the start of the first chunk header
+                cursor.seek(SeekFrom::Start(start))?;
+
+                // Read each chunk
+                let mut output = Vec::new();
+                let mut output_len: u64 = 0;
+                // let mut num_chunks: usize = 0;
+                while let Ok(tag) = cursor.read_u64::<LittleEndian>() {
+                    if tag != ARCHIVE_V2_HEADER_TAG {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Invalid ArchiveV2 tag {tag:#018x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    let current_chunk_size = cursor.read_u64::<LittleEndian>()?;
+                    if current_chunk_size != chunk_size {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Invalid chunk size {current_chunk_size:#x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    let compression_type = FArchiveCompression::read(cursor)?;
+                    if compression_type != FArchiveCompression::Zlib {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Unsupported compression_type {compression_type:?}")
+                                .into_boxed_str(),
+                        ))?
+                    }
+
+                    let compressed_len = cursor.read_u64::<LittleEndian>()?;
+                    let uncompressed_len = cursor.read_u64::<LittleEndian>()?;
+                    if chunk_size < uncompressed_len {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Chunk size {chunk_size:#018x} does not match {uncompressed_len:#018x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    let compressed_len2 = cursor.read_u64::<LittleEndian>()?;
+                    if compressed_len != compressed_len2 {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Compressed len {compressed_len:#018x} does not match {compressed_len2:#018x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    let uncompressed_len2 = cursor.read_u64::<LittleEndian>()?;
+                    if uncompressed_len != uncompressed_len2 {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Uncompressed len {uncompressed_len:#018x} does not match {uncompressed_len2:#018x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    let end_pos = cursor.stream_position()? + compressed_len;
+
+                    // Read the chunk into a separate buffer
+                    let mut compressed = vec![0u8; compressed_len as usize];
+                    cursor.read_exact(&mut compressed)?;
+
+                    // Decode the chunk
+                    let mut decoder = ZlibDecoder::new(&compressed[..]);
+                    let mut data = vec![0u8; uncompressed_len as usize];
+                    decoder.read_exact(&mut data)?;
+
+                    let pos = cursor.stream_position()?;
+                    if end_pos != pos {
+                        Err(DeserializeError::InvalidHeader(
+                            format!("Compressed chunk was not the correct length, pos {pos:#x}, expected {end_pos:#x}").into_boxed_str(),
+                        ))?
+                    }
+
+                    // num_chunks += 1;
+                    output_len += uncompressed_len;
+
+                    // Write the uncompressed data to the output buffer
+                    output.append(&mut data);
+                }
+                // println!("Read {output_len:#x} bytes in {num_chunks} chunks");
+                let mut cursor = Cursor::new(output);
+                let gvas_len = cursor.read_u32::<LittleEndian>()?;
+                if u64::from(gvas_len) + 4 != output_len {
+                    Err(DeserializeError::InvalidHeader(
+                        format!(
+                            "GVAS length {gvas_len:#x} did not match output length {output_len:#x}"
+                        )
+                        .into_boxed_str(),
+                    ))?
+                }
+                cursor
+            }
         };
 
         let header = GvasHeader::read(&mut cursor)?;
@@ -564,6 +676,22 @@ impl GvasFile {
                 cursor.seek(SeekFrom::Start(compressed_length_pos))?;
                 cursor.write_u32::<LittleEndian>((end_pos - (compressed_length_pos + 4)) as u32)?;
                 cursor.seek(SeekFrom::Start(end_pos))?;
+            }
+            DeserializedGameVersion::ArchiveV2 {
+                chunk_size,
+                compression_type,
+            } => {
+                if compression_type != FArchiveCompression::Zlib {
+                    Err(SerializeError::InvalidValue(
+                        format!("Unsupported compression_type {compression_type:?}")
+                            .into_boxed_str(),
+                    ))?
+                }
+
+                cursor.write_u64::<LittleEndian>(ARCHIVE_V2_HEADER_TAG)?;
+                cursor.write_u64::<LittleEndian>(chunk_size)?;
+                compression_type.write(cursor)?;
+                todo!()
             }
         }
         Ok(())

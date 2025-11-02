@@ -2,6 +2,8 @@
 
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
+use crate::compression::FArchiveCompression;
+
 /// Game version enumeration
 ///
 /// Used for specifying game versions if a game has custom serialization
@@ -9,6 +11,8 @@ use num_enum::{IntoPrimitive, TryFromPrimitive};
 pub enum GameVersion {
     /// Default GVAS serialization
     Default,
+    /// Unreal Engine Archive V2 serialization
+    ArchiveV2,
     /// Palworld serialization
     Palworld,
 }
@@ -34,6 +38,13 @@ pub enum PalworldCompressionType {
 pub enum DeserializedGameVersion {
     /// Default GVAS serialization
     Default,
+    /// Unreal Engine Archive V2 serialization
+    ArchiveV2 {
+        /// Chunk size
+        chunk_size: u64,
+        /// Compression type
+        compression_type: FArchiveCompression,
+    },
     /// Palworld serialization
     Palworld(PalworldCompressionType),
 }
@@ -55,3 +66,6 @@ impl DeserializedGameVersion {
 
 /// Palworld save magic
 pub(crate) const PLZ_MAGIC: &[u8; 3] = b"PlZ";
+
+/// Prevents incorrect files from being loaded.
+pub(crate) const ARCHIVE_V2_HEADER_TAG: u64 = 0x222222229E2A83C1;
