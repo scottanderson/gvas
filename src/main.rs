@@ -1,32 +1,44 @@
-use std::fs::File;
-use std::io::{Cursor, Read};
-
 use binrw::BinRead;
+use std::{
+    fs::File,
+    io::{Cursor, Read},
+    path::Path,
+};
 
-use crate::types::{FPropertyTag, FSaveGameHeader, ParsingOptions};
+use crate::types::{SaveGameFile, SaveGameFileVersion};
 
-mod object_verison;
+mod enums;
 mod types;
 
-const LE: binrw::Endian = binrw::Endian::Little;
+fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
+    path: P,
+) -> binrw::BinResult<SaveGameFile> {
+    // Open
+    let mut file = File::open(&path)?;
+
+    // Read
+    let mut buf = Vec::new();
+    let _len = file.read_to_end(&mut buf)?;
+
+    // Parse
+    let mut cursor = Cursor::new(buf);
+    let result = SaveGameFile::read(&mut cursor)?;
+
+    // Success
+    Ok(result)
+}
 
 fn main() {
-    let mut file = File::open("/home/scott/git/gvas/resources/test/complete_property_tag.sav")
-        .expect("File::open");
-    let mut buf = Vec::new();
-    let _len = file.read_to_end(&mut buf).expect("read_to_end");
-
-    let mut cursor = Cursor::new(buf);
-    let save_game_header = FSaveGameHeader::read(&mut cursor).expect("FSaveGameHeader::read");
-    println!("{:?}", save_game_header.save_game_file_version);
-    println!("{:?}", save_game_header.package_file_version);
-    println!("{:?}", save_game_header.engine_version);
-    println!("{:?}", save_game_header.save_game_class_name);
-
-    let options = ParsingOptions::from(save_game_header);
-    println!("{:?}", options);
-
-    let property =
-        FPropertyTag::read_options(&mut cursor, LE, (options,)).expect("FPropertyTag::read");
-    println!("{:?}", property);
+    let path = "/home/scott/git/gvas/resources/test/complete_property_tag.sav";
+    let save_game = read_save_game_file(path).expect(path);
+    println!("{:?}", save_game.header.save_game_file_version);
+    println!("{:?}", save_game.header.package_file_version);
+    if save_game.header.save_game_file_version
+        >= SaveGameFileVersion::PackageFileSummaryVersionChange
+    {
+        println!("{:?}", save_game.header.package_file_version_ue5);
+    }
+    println!("{:?}", save_game.header.engine_version);
+    println!("{:?}", save_game.header.save_game_class_name);
+    println!("{:?}", save_game.first);
 }

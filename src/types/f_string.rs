@@ -1,7 +1,7 @@
 use binrw::{BinRead, BinWrite};
 
-#[derive(Eq, PartialEq)]
-pub struct FString(Option<String>);
+#[derive(Default, Eq, PartialEq)]
+pub struct FString(pub Option<String>);
 
 impl std::fmt::Debug for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

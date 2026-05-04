@@ -33,6 +33,62 @@ pub struct TypeTree {
     pub children: Vec<TypeTree>,
 }
 
+// const NAME_ArrayProperty: &str = "ArrayProperty";
+// const NAME_MapProperty: &str = "MapProperty";
+// const NAME_SetProperty: &str = "SetProperty";
+// const NAME_StructProperty: &str = "StructProperty";
+
+#[binrw]
+#[derive(Debug)]
+#[br(import(prop_type: &str))]
+pub enum CollectionProperties {
+    #[br(pre_assert(matches!(prop_type, "ArrayProperty")))]
+    Array {
+        inner_type: FString,
+    },
+
+    #[br(pre_assert(matches!(prop_type, "BoolProperty")))]
+    Bool {
+        value: u8,
+    },
+
+    #[br(pre_assert(matches!(prop_type, "ByteProperty")))]
+    Byte {
+        enum_name: FString,
+    },
+
+    #[br(pre_assert(matches!(prop_type, "EnumProperty")))]
+    Enum {
+        enum_name: FString,
+    },
+
+    // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
+    #[br(pre_assert(matches!(prop_type, "MapProperty")))]
+    Map {
+        inner_type: FString,
+        value_type: FString,
+    },
+
+    #[br(pre_assert(matches!(prop_type, "OptionProperty")))]
+    Option {
+        inner_type: FString,
+    },
+
+    // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
+    #[br(pre_assert(matches!(prop_type, "SetProperty")))]
+    Set {
+        inner_type: FString,
+    },
+
+    #[br(pre_assert(matches!(prop_type, "StructProperty")))]
+    Struct {
+        type_name: FString,
+        guid: u128,
+    },
+
+    None,
+}
+
 #[binrw]
 #[br(little)]
 #[brw(import(options: ParsingOptions))]
@@ -41,12 +97,23 @@ pub enum FPropertyTag {
     #[br(pre_assert(!options.property_tag_complete_type_name))]
     Incomplete {
         name: FString,
-        _type: FString,
+        prop_type: FString,
+        // size: u32,
+        array_index: u32,
+
+        #[br(args(prop_type.0.as_deref().expect("prop_type")))]
+        extra: CollectionProperties,
+
+        size: u32,
+
+        #[br(assert(terminator == 0))]
+        terminator: u8,
     },
     #[br(pre_assert(options.property_tag_complete_type_name))]
     Complete {
         flags: PropertyTagFlags,
         name: FString,
-        _type: TypeTree,
+        prop_type: TypeTree,
+        size: u32,
     },
 }
