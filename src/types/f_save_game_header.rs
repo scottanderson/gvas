@@ -45,25 +45,25 @@ impl CustomVersions {
 #[brw(little, magic = b"GVAS")]
 #[derive(Debug)]
 pub struct FSaveGameHeader {
-    pub save_game_file_version: SaveGameFileVersion,
+    pub save_game_file_version: u32, //SaveGameFileVersion,
 
     pub package_file_version: u32, //EUnrealEngineObjectUE4Version,
 
-    #[br(if(save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange))]
-    #[bw(if(*save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange))]
+    #[br(if(save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange as u32))]
+    #[bw(if(*save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange as u32))]
     pub package_file_version_ue5: u32, //EUnrealEngineObjectUE5Version,
 
     pub engine_version: FEngineVersion,
 
-    #[br(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions))]
-    #[bw(if(*save_game_file_version >= SaveGameFileVersion::AddedCustomVersions))]
+    #[br(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
+    #[bw(if(*save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
     pub custom_versions: CustomVersions,
 
     pub save_game_class_name: FString,
 }
 
 #[allow(dead_code)]
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct ParsingOptions {
     pub property_tag_complete_type_name: bool,
     pub text_64bit_support: bool,
@@ -75,7 +75,7 @@ pub struct ParsingOptions {
 impl From<&FSaveGameHeader> for ParsingOptions {
     fn from(header: &FSaveGameHeader) -> Self {
         let property_tag_complete_type_name = header.save_game_file_version
-            >= SaveGameFileVersion::PackageFileSummaryVersionChange
+            >= SaveGameFileVersion::PackageFileSummaryVersionChange as u32
             && header.package_file_version_ue5
                 >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32;
 
@@ -111,7 +111,7 @@ pub struct SaveGameFile {
     #[bw(ignore)]
     options: ParsingOptions,
 
-    #[br(args(options.clone()))]
+    #[br(args(options))]
     pub first: FPropertyTag,
     // #[br(assert(footer == 0))]
     // pub footer: u32,

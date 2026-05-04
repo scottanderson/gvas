@@ -1,12 +1,12 @@
 use binrw::binrw;
-use modular_bitfield::{bitfield, prelude::B27};
+use modular_bitfield::{bitfield, prelude::B3};
 
 use crate::types::{FString, ParsingOptions};
 
 #[bitfield]
 #[binrw]
 #[br(map = Self::from_bytes)]
-#[bw(map = Self::read_bytes)]
+#[bw(map = |&x| Self::into_bytes(x))]
 #[derive(Clone, Copy, Debug, Default)]
 pub struct PropertyTagFlags {
     pub has_array_index: bool,
@@ -15,13 +15,7 @@ pub struct PropertyTagFlags {
     pub has_binary_or_native_serialize: bool,
     pub bool_true: bool,
     #[skip]
-    padding: B27,
-}
-
-impl PropertyTagFlags {
-    fn read_bytes(&self) -> [u8; 4] {
-        self.into_bytes()
-    }
+    padding: B3,
 }
 
 #[binrw]
@@ -98,7 +92,6 @@ pub enum FPropertyTag {
     Incomplete {
         name: FString,
         prop_type: FString,
-        // size: u32,
         array_index: u32,
 
         #[br(args(prop_type.0.as_deref().expect("prop_type")))]

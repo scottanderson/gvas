@@ -1,11 +1,11 @@
 use binrw::BinRead;
 use std::{
     fs::File,
-    io::{Cursor, Read},
+    io::{Cursor, Read, Seek},
     path::Path,
 };
 
-use crate::types::{SaveGameFile, SaveGameFileVersion};
+use crate::types::SaveGameFile;
 
 mod enums;
 mod types;
@@ -24,6 +24,9 @@ fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
     let mut cursor = Cursor::new(buf);
     let result = SaveGameFile::read(&mut cursor)?;
 
+    let pos = cursor.stream_position()?;
+    println!("0x{:04x}", pos);
+
     // Success
     Ok(result)
 }
@@ -31,14 +34,5 @@ fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
 fn main() {
     let path = "/home/scott/git/gvas/resources/test/complete_property_tag.sav";
     let save_game = read_save_game_file(path).expect(path);
-    println!("{:?}", save_game.header.save_game_file_version);
-    println!("{:?}", save_game.header.package_file_version);
-    if save_game.header.save_game_file_version
-        >= SaveGameFileVersion::PackageFileSummaryVersionChange
-    {
-        println!("{:?}", save_game.header.package_file_version_ue5);
-    }
-    println!("{:?}", save_game.header.engine_version);
-    println!("{:?}", save_game.header.save_game_class_name);
-    println!("{:?}", save_game.first);
+    println!("{:#?}", save_game);
 }
