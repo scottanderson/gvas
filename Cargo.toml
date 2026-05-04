@@ -1,0 +1,8 @@
+[package]
+name = "gvas-binrw"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+binrw = "0.15.1"
+modular-bitfield = "0.13.1"
