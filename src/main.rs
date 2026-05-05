@@ -1,14 +1,15 @@
 use binrw::BinRead;
 use std::{
     fs::File,
-    io::{Cursor, Read, Seek},
+    io::{Cursor, Read},
     path::Path,
 };
 
 use crate::types::SaveGameFile;
 
-mod enums;
+mod options;
 mod types;
+mod versions;
 
 fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
     path: P,
@@ -23,9 +24,6 @@ fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
     // Parse
     let mut cursor = Cursor::new(buf);
     let result = SaveGameFile::read(&mut cursor)?;
-
-    let pos = cursor.stream_position()?;
-    println!("0x{:04x}", pos);
 
     // Success
     Ok(result)

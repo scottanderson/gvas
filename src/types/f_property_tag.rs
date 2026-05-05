@@ -3,7 +3,8 @@ use std::ops::{Deref, DerefMut};
 use binrw::{BinRead, BinWrite, binrw};
 use modular_bitfield::{bitfield, prelude::B3};
 
-use crate::types::{FString, ParsingOptions};
+use crate::options::ParsingOptions;
+use crate::types::FString;
 
 #[bitfield]
 #[binrw]
