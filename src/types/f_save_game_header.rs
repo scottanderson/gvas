@@ -5,7 +5,7 @@ use crate::{
         EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE5Version,
         GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
     },
-    types::{FCustomVersion, FEngineVersion, FPropertyTag, FString},
+    types::{FCustomVersion, FEngineVersion, FPropertyTag, FString, PropertyTagList},
 };
 
 #[binrw]
@@ -112,7 +112,8 @@ pub struct SaveGameFile {
     options: ParsingOptions,
 
     #[br(args(options))]
-    pub first: FPropertyTag,
-    // #[br(assert(footer == 0))]
-    // pub footer: u32,
+    pub first: PropertyTagList,
+
+    #[br(assert(footer == 0))]
+    pub footer: u32,
 }

@@ -1,4 +1,4 @@
-use binrw::binrw;
+use binrw::{BinRead, BinWrite, binrw};
 use modular_bitfield::{bitfield, prelude::B3};
 
 use crate::types::{FString, ParsingOptions};
@@ -83,30 +83,199 @@ pub enum CollectionProperties {
     None,
 }
 
-#[binrw]
-#[br(little)]
-#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum FPropertyTag {
-    #[br(pre_assert(!options.property_tag_complete_type_name))]
+    None,
+
     Incomplete {
         name: FString,
         prop_type: FString,
+        // size: u32,
         array_index: u32,
-
-        #[br(args(prop_type.0.as_deref().expect("prop_type")))]
         extra: CollectionProperties,
-
-        size: u32,
-
-        #[br(assert(terminator == 0))]
-        terminator: u8,
+        // terminator: u8,
     },
-    #[br(pre_assert(options.property_tag_complete_type_name))]
+
     Complete {
-        flags: PropertyTagFlags,
+        // flags: PropertyTagFlags,
         name: FString,
         prop_type: TypeTree,
-        size: u32,
+        // size: u32,
+        array_index: u32,
+        guid: u128,
     },
+}
+
+impl BinRead for FPropertyTag {
+    type Args<'a> = ParsingOptions;
+
+    fn read_options<R: std::io::Read + std::io::Seek>(
+        reader: &mut R,
+        endian: binrw::Endian,
+        options: Self::Args<'_>,
+    ) -> binrw::BinResult<Self> {
+        let flags = if options.property_tag_complete_type_name {
+            Some(PropertyTagFlags::read_options(reader, endian, ())?)
+        } else {
+            None
+        };
+
+        let name = FString::read_options(reader, endian, ())?;
+
+        if name.0.as_deref() == Some("None") {
+            return Ok(Self::None);
+        }
+
+        // ---- read rest depending on mode
+        if options.property_tag_complete_type_name {
+            let flags = flags.expect("flags required in complete mode");
+
+            let prop_type = TypeTree::read_options(reader, endian, ())?;
+
+            let mut array_index = 0;
+
+            if flags.has_array_index() {
+                array_index = u32::read_options(reader, endian, ())?;
+            }
+
+            let guid = if flags.has_property_guid() {
+                u128::read_options(reader, endian, ())?
+            } else {
+                0u128
+            };
+
+            let size = u32::read_options(reader, endian, ())?;
+
+            let mut property = vec![0u8; size as usize];
+            reader.read_exact(&mut property)?;
+
+            Ok(FPropertyTag::Complete {
+                // flags,
+                name,
+                prop_type,
+                // size,
+                array_index,
+                guid,
+            })
+        } else {
+            let prop_type = FString::read_options(reader, endian, ())?;
+
+            let size = u32::read_options(reader, endian, ())?;
+
+            let array_index = u32::read_options(reader, endian, ())?;
+
+            let options = (prop_type.0.as_deref().expect("prop_type"),);
+            let extra = CollectionProperties::read_options(reader, endian, options)?;
+
+            let terminator = u8::read_options(reader, endian, ())?;
+
+            debug_assert_eq!(terminator, 0);
+
+            Ok(FPropertyTag::Incomplete {
+                name,
+                prop_type,
+                // size,
+                array_index,
+                extra,
+                // terminator,
+            })
+        }
+    }
+}
+
+#[binrw]
+#[brw(little, import(options: ParsingOptions))]
+#[derive(Debug)]
+pub struct PropertyTagList {
+    #[br(parse_with = read_property_tags, args(options))]
+    #[bw(write_with = write_property_tags, args(options))]
+    pub tags: Vec<FPropertyTag>,
+}
+
+fn read_property_tags<R: std::io::Read + std::io::Seek>(
+    reader: &mut R,
+    endian: binrw::Endian,
+    (options,): (ParsingOptions,),
+) -> binrw::BinResult<Vec<FPropertyTag>> {
+    let mut out = Vec::new();
+
+    loop {
+        let tag = FPropertyTag::read_options(reader, endian, options)?;
+        match (tag) {
+            FPropertyTag::None => break,
+            _ => out.push(tag),
+        }
+    }
+
+    Ok(out)
+}
+
+fn write_property_tags<W: std::io::Write + std::io::Seek>(
+    tags: &Vec<FPropertyTag>,
+    writer: &mut W,
+    endian: binrw::Endian,
+    (options,): (ParsingOptions,),
+) -> binrw::BinResult<()> {
+    for tag in tags {
+        match tag {
+            FPropertyTag::Complete {
+                flags,
+                name,
+                prop_type,
+                size,
+                array_index,
+                guid,
+            } => {
+                assert!(options.property_tag_complete_type_name);
+
+                flags.write_options(writer, endian, ())?;
+                name.write_options(writer, endian, ())?;
+                prop_type.write_options(writer, endian, ())?;
+
+                if flags.has_array_index() {
+                    array_index.write_options(writer, endian, ())?;
+                }
+
+                if flags.has_property_guid() {
+                    guid.write_options(writer, endian, ())?;
+                }
+
+                size.write_options(writer, endian, ())?;
+            }
+
+            FPropertyTag::Incomplete {
+                name,
+                prop_type,
+                array_index,
+                extra,
+                size,
+                ..
+            } => {
+                assert!(!options.property_tag_complete_type_name);
+
+                name.write_options(writer, endian, ())?;
+                prop_type.write_options(writer, endian, ())?;
+
+                array_index.write_options(writer, endian, ())?;
+
+                // let prop_type_str = prop_type.0.as_deref().expect("prop_type");
+                // extra.write_options(writer, endian, (prop_type_str,))?;
+                extra.write_options(writer, endian, ())?;
+
+                size.write_options(writer, endian, ())?;
+
+                0u8.write_options(writer, endian, ())?;
+            }
+
+            FPropertyTag::None => todo!(),
+        }
+    }
+
+    if options.property_tag_complete_type_name {
+        let flags = PropertyTagFlags::default();
+        flags.write_options(writer, endian, ())?;
+    }
+    FString(Some("None".to_string())).write_options(writer, endian, ())?;
+
+    Ok(())
 }

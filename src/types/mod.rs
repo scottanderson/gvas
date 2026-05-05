@@ -9,7 +9,7 @@ mod int_point;
 
 pub use f_custom_version::FCustomVersion;
 pub use f_engine_version::FEngineVersion;
-pub use f_property_tag::FPropertyTag;
+pub use f_property_tag::*;
 pub use f_save_game_header::*;
 pub use f_string::FString;
 
