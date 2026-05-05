@@ -1,3 +1,5 @@
+use std::ops::{Deref, DerefMut};
+
 use binrw::{BinRead, BinWrite, binrw};
 use modular_bitfield::{bitfield, prelude::B3};
 
@@ -183,99 +185,77 @@ impl BinRead for FPropertyTag {
     }
 }
 
-#[binrw]
-#[brw(little, import(options: ParsingOptions))]
+impl BinWrite for FPropertyTag {
+    type Args<'a> = ParsingOptions;
+
+    fn write_options<W: std::io::Write + std::io::Seek>(
+        &self,
+        writer: &mut W,
+        endian: binrw::Endian,
+        args: Self::Args<'_>,
+    ) -> binrw::BinResult<()> {
+        todo!()
+    }
+}
+
 #[derive(Debug)]
-pub struct PropertyTagList {
-    #[br(parse_with = read_property_tags, args(options))]
-    #[bw(write_with = write_property_tags, args(options))]
-    pub tags: Vec<FPropertyTag>,
+pub struct TaggedProperties(pub Vec<FPropertyTag>);
+
+impl BinRead for TaggedProperties {
+    type Args<'a> = (ParsingOptions,);
+
+    fn read_options<R: std::io::Read + std::io::Seek>(
+        reader: &mut R,
+        endian: binrw::Endian,
+        (options,): Self::Args<'_>,
+    ) -> binrw::BinResult<Self> {
+        let mut properties = Vec::new();
+
+        loop {
+            let property = FPropertyTag::read_options(reader, endian, options)?;
+            match (property) {
+                FPropertyTag::None => break,
+                _ => properties.push(property),
+            }
+        }
+
+        Ok(TaggedProperties(properties))
+    }
 }
 
-fn read_property_tags<R: std::io::Read + std::io::Seek>(
-    reader: &mut R,
-    endian: binrw::Endian,
-    (options,): (ParsingOptions,),
-) -> binrw::BinResult<Vec<FPropertyTag>> {
-    let mut out = Vec::new();
+impl BinWrite for TaggedProperties {
+    type Args<'a> = (ParsingOptions,);
 
-    loop {
-        let tag = FPropertyTag::read_options(reader, endian, options)?;
-        match (tag) {
-            FPropertyTag::None => break,
-            _ => out.push(tag),
+    fn write_options<W: std::io::Write + std::io::Seek>(
+        &self,
+        writer: &mut W,
+        endian: binrw::Endian,
+        (options,): Self::Args<'_>,
+    ) -> binrw::BinResult<()> {
+        for tag in &self.0 {
+            tag.write_options(writer, endian, options)?;
         }
-    }
 
-    Ok(out)
+        if options.property_tag_complete_type_name {
+            let flags = PropertyTagFlags::default();
+            flags.write_options(writer, endian, ())?;
+        }
+        FString(Some("None".to_string())).write_options(writer, endian, ())?;
+
+        Ok(())
+    }
 }
 
-fn write_property_tags<W: std::io::Write + std::io::Seek>(
-    tags: &Vec<FPropertyTag>,
-    writer: &mut W,
-    endian: binrw::Endian,
-    (options,): (ParsingOptions,),
-) -> binrw::BinResult<()> {
-    for tag in tags {
-        match tag {
-            FPropertyTag::Complete {
-                flags,
-                name,
-                prop_type,
-                size,
-                array_index,
-                guid,
-            } => {
-                assert!(options.property_tag_complete_type_name);
+impl Deref for TaggedProperties {
+    type Target = Vec<FPropertyTag>;
 
-                flags.write_options(writer, endian, ())?;
-                name.write_options(writer, endian, ())?;
-                prop_type.write_options(writer, endian, ())?;
-
-                if flags.has_array_index() {
-                    array_index.write_options(writer, endian, ())?;
-                }
-
-                if flags.has_property_guid() {
-                    guid.write_options(writer, endian, ())?;
-                }
-
-                size.write_options(writer, endian, ())?;
-            }
-
-            FPropertyTag::Incomplete {
-                name,
-                prop_type,
-                array_index,
-                extra,
-                size,
-                ..
-            } => {
-                assert!(!options.property_tag_complete_type_name);
-
-                name.write_options(writer, endian, ())?;
-                prop_type.write_options(writer, endian, ())?;
-
-                array_index.write_options(writer, endian, ())?;
-
-                // let prop_type_str = prop_type.0.as_deref().expect("prop_type");
-                // extra.write_options(writer, endian, (prop_type_str,))?;
-                extra.write_options(writer, endian, ())?;
-
-                size.write_options(writer, endian, ())?;
-
-                0u8.write_options(writer, endian, ())?;
-            }
-
-            FPropertyTag::None => todo!(),
-        }
+    fn deref(&self) -> &Self::Target {
+        &self.0
     }
+}
 
-    if options.property_tag_complete_type_name {
-        let flags = PropertyTagFlags::default();
-        flags.write_options(writer, endian, ())?;
+impl DerefMut for TaggedProperties {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
-    FString(Some("None".to_string())).write_options(writer, endian, ())?;
-
-    Ok(())
 }
