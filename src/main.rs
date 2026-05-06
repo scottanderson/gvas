@@ -1,12 +1,14 @@
 use binrw::BinRead;
 use std::{
     fs::{self, File},
-    io::{self, Cursor, Read},
+    io::{Cursor, Read},
     path::Path,
 };
 
+use crate::error::Result;
 use crate::types::SaveGameFile;
 
+mod error;
 mod options;
 mod types;
 mod versions;
@@ -29,7 +31,7 @@ fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
     Ok(result)
 }
 
-fn visit_dirs<P: AsRef<Path>>(dir: P) -> io::Result<()> {
+fn visit_dirs<P: AsRef<Path>>(dir: P) -> Result<()> {
     let dir = dir.as_ref();
     if dir.is_dir() {
         for entry in fs::read_dir(dir)? {
@@ -40,19 +42,14 @@ fn visit_dirs<P: AsRef<Path>>(dir: P) -> io::Result<()> {
             } else {
                 // cb(&entry);
                 print!("{}", &path.display());
-                match read_save_game_file(&path) {
-                    Ok(save_game) => print!("{:#?}", save_game),
-                    Err(e) => {
-                        print!("{}", e);
-                        break;
-                    }
-                }
+                let save_game = read_save_game_file(&path)?;
+                print!("{:#?}", save_game);
             }
         }
     }
     Ok(())
 }
 
-fn main() -> io::Result<()> {
+fn main() -> Result<()> {
     visit_dirs("/home/scott/git/gvas/resources/test/")
 }
