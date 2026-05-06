@@ -22,12 +22,29 @@ pub struct PropertyTagFlags {
 }
 
 #[binrw]
-#[derive(Debug)]
 pub struct TypeTree {
     pub name: FString,
     pub child_count: u32,
     #[br(count = child_count)]
     pub children: Vec<TypeTree>,
+}
+
+impl std::fmt::Debug for TypeTree {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = self.name.0.as_deref().unwrap_or("None");
+        write!(f, "{}", name)?;
+        if !self.children.is_empty() {
+            write!(f, "<")?;
+            for (i, child) in self.children.iter().enumerate() {
+                if i > 0 {
+                    write!(f, ", ")?;
+                }
+                write!(f, "{:?}", child)?;
+            }
+            write!(f, ">")?;
+        }
+        Ok(())
+    }
 }
 
 // const NAME_ArrayProperty: &str = "ArrayProperty";
