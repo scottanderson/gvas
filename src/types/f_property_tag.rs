@@ -263,17 +263,3 @@ impl BinWrite for TaggedProperties {
         Ok(())
     }
 }
-
-impl Deref for TaggedProperties {
-    type Target = Vec<FPropertyTag>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.0
-    }
-}
-
-impl DerefMut for TaggedProperties {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.0
-    }
-}
