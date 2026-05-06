@@ -1,7 +1,7 @@
 use binrw::BinRead;
 use std::{
-    fs::File,
-    io::{Cursor, Read},
+    fs::{self, File},
+    io::{self, Cursor, Read},
     path::Path,
 };
 
@@ -29,8 +29,30 @@ fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
     Ok(result)
 }
 
-fn main() {
-    let path = "/home/scott/git/gvas/resources/test/complete_property_tag.sav";
-    let save_game = read_save_game_file(path).expect(path);
-    println!("{:#?}", save_game);
+fn visit_dirs<P: AsRef<Path>>(dir: P) -> io::Result<()> {
+    let dir = dir.as_ref();
+    if dir.is_dir() {
+        for entry in fs::read_dir(dir)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                visit_dirs(&path)?;
+            } else {
+                // cb(&entry);
+                print!("{}", &path.display());
+                match read_save_game_file(&path) {
+                    Ok(save_game) => print!("{:#?}", save_game),
+                    Err(e) => {
+                        print!("{}", e);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn main() -> io::Result<()> {
+    visit_dirs("/home/scott/git/gvas/resources/test/")
 }
