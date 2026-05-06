@@ -7,7 +7,7 @@ impl std::fmt::Debug for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.0 {
             None => f.write_str("null"),
-            Some(str) => f.write_fmt(format_args!("{:?}", str)),
+            Some(s) => s.fmt(f),
         }
     }
 }
