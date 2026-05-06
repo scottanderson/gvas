@@ -13,9 +13,7 @@ mod options;
 mod types;
 mod versions;
 
-fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(
-    path: P,
-) -> binrw::BinResult<SaveGameFile> {
+fn read_save_game_file<P: AsRef<Path> + std::fmt::Debug>(path: P) -> Result<SaveGameFile> {
     // Open
     let mut file = File::open(&path)?;
 
@@ -38,10 +36,9 @@ fn visit_dirs<P: AsRef<Path>>(dir: P) -> Result<()> {
             let entry = entry?;
             let path = entry.path();
             if path.is_dir() {
-                visit_dirs(&path)?;
+                // visit_dirs(&path)?;
             } else {
-                // cb(&entry);
-                print!("{}", &path.display());
+                println!("{}", &path.display());
                 let save_game = read_save_game_file(&path)?;
                 print!("{:#?}", save_game);
             }
