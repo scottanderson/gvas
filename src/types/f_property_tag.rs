@@ -159,13 +159,10 @@ impl BinRead for FPropertyTag {
             Some(name) if name == "None" => return Ok(Self::None),
             Some(name) => name,
         };
-        println!("Name = {:?}", name);
 
         let property_type = PropertyType::read_options(reader, endian, (options, flags))?;
-        println!("Type = {:?}", property_type);
 
         let property = Property::read_options(reader, endian, (options, &property_type))?;
-        println!("Property = {:?}", property);
 
         Ok(FPropertyTag::Some {
             name,
