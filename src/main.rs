@@ -10,6 +10,7 @@ use crate::types::SaveGameFile;
 
 mod error;
 mod options;
+mod properties;
 mod types;
 mod versions;
 

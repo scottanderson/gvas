@@ -4,6 +4,10 @@ use binrw::{BinRead, BinWrite, binrw};
 use modular_bitfield::{bitfield, prelude::B3};
 
 use crate::options::ParsingOptions;
+use crate::properties::{
+    NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
+    NAME_MAP_PROPERTY, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, Property,
+};
 use crate::types::FString;
 
 #[bitfield]
@@ -47,54 +51,49 @@ impl std::fmt::Debug for TypeTree {
     }
 }
 
-// const NAME_ArrayProperty: &str = "ArrayProperty";
-// const NAME_MapProperty: &str = "MapProperty";
-// const NAME_SetProperty: &str = "SetProperty";
-// const NAME_StructProperty: &str = "StructProperty";
-
 #[binrw]
 #[derive(Debug)]
 #[br(import(prop_type: &str))]
 pub enum CollectionProperties {
-    #[br(pre_assert(matches!(prop_type, "ArrayProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_ARRAY_PROPERTY)))]
     Array {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, "BoolProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_BOOL_PROPERTY)))]
     Bool {
         value: u8,
     },
 
-    #[br(pre_assert(matches!(prop_type, "ByteProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_BYTE_PROPERTY)))]
     Byte {
         enum_name: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, "EnumProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_ENUM_PROPERTY)))]
     Enum {
         enum_name: FString,
     },
 
     // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(prop_type, "MapProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_MAP_PROPERTY)))]
     Map {
         inner_type: FString,
         value_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, "OptionProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_OPTION_PROPERTY)))]
     Option {
         inner_type: FString,
     },
 
     // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(prop_type, "SetProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_SET_PROPERTY)))]
     Set {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, "StructProperty")))]
+    #[br(pre_assert(matches!(prop_type, NAME_STRUCT_PROPERTY)))]
     Struct {
         type_name: FString,
         guid: u128,
@@ -103,26 +102,40 @@ pub enum CollectionProperties {
     None,
 }
 
+#[binrw]
+#[br(import(options: ParsingOptions, flags: PropertyTagFlags))]
+#[derive(Debug)]
+pub enum PropertyType {
+    #[br(pre_assert(!options.property_tag_complete_type_name))]
+    Incomplete {
+        prop_type: FString,
+        size: u32,
+        array_index: u32,
+        #[br(args(prop_type.0.as_deref().unwrap_or("")))]
+        extra: CollectionProperties,
+        #[br(temp, assert(footer == 0))]
+        #[bw(calc(0))]
+        footer: u8,
+    },
+
+    #[br(pre_assert(options.property_tag_complete_type_name))]
+    Complete {
+        prop_type: TypeTree,
+        #[br(if(flags.has_array_index()))]
+        array_index: u32,
+        #[br(if(flags.has_property_guid()))]
+        guid: u128,
+        size: u32,
+    },
+}
+
 #[derive(Debug)]
 pub enum FPropertyTag {
     None,
-
-    Incomplete {
-        name: FString,
-        prop_type: FString,
-        // size: u32,
-        array_index: u32,
-        extra: CollectionProperties,
-        // terminator: u8,
-    },
-
-    Complete {
-        // flags: PropertyTagFlags,
-        name: FString,
-        prop_type: TypeTree,
-        // size: u32,
-        array_index: u32,
-        guid: u128,
+    Some {
+        name: String,
+        prop_type: PropertyType,
+        property: Property,
     },
 }
 
@@ -135,71 +148,30 @@ impl BinRead for FPropertyTag {
         options: Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let flags = if options.property_tag_complete_type_name {
-            Some(PropertyTagFlags::read_options(reader, endian, ())?)
+            PropertyTagFlags::read_options(reader, endian, ())?
         } else {
-            None
+            PropertyTagFlags::default()
         };
 
         let name = FString::read_options(reader, endian, ())?;
+        let name = match name.0 {
+            None => return Ok(Self::None),
+            Some(name) if name == "None" => return Ok(Self::None),
+            Some(name) => name,
+        };
+        println!("Name = {:?}", name);
 
-        if name.0.as_deref() == Some("None") {
-            return Ok(Self::None);
-        }
+        let prop_type = PropertyType::read_options(reader, endian, (options, flags))?;
+        println!("Type = {:?}", prop_type);
 
-        // ---- read rest depending on mode
-        if options.property_tag_complete_type_name {
-            let flags = flags.expect("flags required in complete mode");
+        let property = Property::read_options(reader, endian, (options, &prop_type))?;
+        println!("Property = {:?}", property);
 
-            let prop_type = TypeTree::read_options(reader, endian, ())?;
-
-            let mut array_index = 0;
-
-            if flags.has_array_index() {
-                array_index = u32::read_options(reader, endian, ())?;
-            }
-
-            let guid = if flags.has_property_guid() {
-                u128::read_options(reader, endian, ())?
-            } else {
-                0u128
-            };
-
-            let size = u32::read_options(reader, endian, ())?;
-
-            let mut property = vec![0u8; size as usize];
-            reader.read_exact(&mut property)?;
-
-            Ok(FPropertyTag::Complete {
-                // flags,
-                name,
-                prop_type,
-                // size,
-                array_index,
-                guid,
-            })
-        } else {
-            let prop_type = FString::read_options(reader, endian, ())?;
-
-            let size = u32::read_options(reader, endian, ())?;
-
-            let array_index = u32::read_options(reader, endian, ())?;
-
-            let options = (prop_type.0.as_deref().expect("prop_type"),);
-            let extra = CollectionProperties::read_options(reader, endian, options)?;
-
-            let terminator = u8::read_options(reader, endian, ())?;
-
-            debug_assert_eq!(terminator, 0);
-
-            Ok(FPropertyTag::Incomplete {
-                name,
-                prop_type,
-                // size,
-                array_index,
-                extra,
-                // terminator,
-            })
-        }
+        Ok(FPropertyTag::Some {
+            name,
+            prop_type,
+            property,
+        })
     }
 }
 
