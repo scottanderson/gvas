@@ -29,12 +29,12 @@ impl BinRead for Property {
         let mut reader = Cursor::new(&buf);
         // read_typed_property(options, t, buf);
 
-        let prop_type = match t {
-            PropertyType::Incomplete { prop_type, .. } => prop_type,
-            PropertyType::Complete { prop_type, .. } => &prop_type.name,
+        let property_type = match t {
+            PropertyType::Incomplete { property_type, .. } => property_type,
+            PropertyType::Complete { property_type, .. } => &property_type.name,
         };
 
-        let result = match &prop_type.0 {
+        let result = match &property_type.0 {
             Some(s) if s == "StrProprty" => {
                 let value = StrProperty::read_options(&mut reader, endian, ())?;
                 Property::Str(value)

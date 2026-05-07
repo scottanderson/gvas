@@ -53,47 +53,47 @@ impl std::fmt::Debug for TypeTree {
 
 #[binrw]
 #[derive(Debug)]
-#[br(import(prop_type: &str))]
+#[br(import(property_type: &str))]
 pub enum CollectionProperties {
-    #[br(pre_assert(matches!(prop_type, NAME_ARRAY_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
     Array {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, NAME_BOOL_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_BOOL_PROPERTY)))]
     Bool {
         value: u8,
     },
 
-    #[br(pre_assert(matches!(prop_type, NAME_BYTE_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_BYTE_PROPERTY)))]
     Byte {
         enum_name: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, NAME_ENUM_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_ENUM_PROPERTY)))]
     Enum {
         enum_name: FString,
     },
 
     // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(prop_type, NAME_MAP_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY)))]
     Map {
         inner_type: FString,
         value_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, NAME_OPTION_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_OPTION_PROPERTY)))]
     Option {
         inner_type: FString,
     },
 
     // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(prop_type, NAME_SET_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY)))]
     Set {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(prop_type, NAME_STRUCT_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
     Struct {
         type_name: FString,
         guid: u128,
@@ -108,10 +108,10 @@ pub enum CollectionProperties {
 pub enum PropertyType {
     #[br(pre_assert(!options.property_tag_complete_type_name))]
     Incomplete {
-        prop_type: FString,
+        property_type: FString,
         size: u32,
         array_index: u32,
-        #[br(args(prop_type.0.as_deref().unwrap_or("")))]
+        #[br(args(property_type.0.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
         #[br(temp, assert(footer == 0))]
         #[bw(calc(0))]
@@ -120,7 +120,7 @@ pub enum PropertyType {
 
     #[br(pre_assert(options.property_tag_complete_type_name))]
     Complete {
-        prop_type: TypeTree,
+        property_type: TypeTree,
         #[br(if(flags.has_array_index()))]
         array_index: u32,
         #[br(if(flags.has_property_guid()))]
@@ -134,7 +134,7 @@ pub enum FPropertyTag {
     None,
     Some {
         name: String,
-        prop_type: PropertyType,
+        property_type: PropertyType,
         property: Property,
     },
 }
@@ -161,15 +161,15 @@ impl BinRead for FPropertyTag {
         };
         println!("Name = {:?}", name);
 
-        let prop_type = PropertyType::read_options(reader, endian, (options, flags))?;
-        println!("Type = {:?}", prop_type);
+        let property_type = PropertyType::read_options(reader, endian, (options, flags))?;
+        println!("Type = {:?}", property_type);
 
-        let property = Property::read_options(reader, endian, (options, &prop_type))?;
+        let property = Property::read_options(reader, endian, (options, &property_type))?;
         println!("Property = {:?}", property);
 
         Ok(FPropertyTag::Some {
             name,
-            prop_type,
+            property_type,
             property,
         })
     }
