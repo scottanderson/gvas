@@ -1,7 +1,9 @@
 use binrw::{BinRead, binrw};
 
 use crate::{
-    types::{FCustomVersion, FEngineVersion, FPropertyTag, FString, TaggedProperties},
+    types::{
+        FCustomVersion, FCustomVersionContainer, FEngineVersion, FPackageFileVersion, FPropertyTag, FString, TaggedProperties
+    },
     versions::{
         EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE5Version,
         GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
@@ -19,27 +21,6 @@ pub enum SaveGameFileVersion {
     PackageFileSummaryVersionChange = 3,
 }
 
-#[binrw]
-#[derive(Debug, Default)]
-pub struct CustomVersions {
-    custom_version_format: i32,
-
-    #[bw(try_calc(i32::try_from(custom_versions.len())))]
-    custom_version_length: i32,
-
-    #[br(count = custom_version_length)]
-    custom_versions: Vec<FCustomVersion>,
-}
-
-impl CustomVersions {
-    pub fn get(&self, version: u128) -> u32 {
-        self.custom_versions
-            .iter()
-            .find(|v| v.key == version)
-            .map(|v| v.value)
-            .unwrap_or(0)
-    }
-}
 
 #[binrw]
 #[brw(little, magic = b"GVAS")]
@@ -47,17 +28,17 @@ impl CustomVersions {
 pub struct FSaveGameHeader {
     pub save_game_file_version: u32, //SaveGameFileVersion,
 
-    pub package_file_version: u32, //EUnrealEngineObjectUE4Version,
-
-    #[br(if(save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange as u32))]
-    #[bw(if(*save_game_file_version >= SaveGameFileVersion::PackageFileSummaryVersionChange as u32))]
-    pub package_file_version_ue5: u32, //EUnrealEngineObjectUE5Version,
+    #[br(args(save_game_file_version))]
+    pub package_file_version: FPackageFileVersion,
 
     pub engine_version: FEngineVersion,
 
+    custom_version_format: i32,
+
+    #[br(args(custom_version_format))]
     #[br(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
     #[bw(if(*save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
-    pub custom_versions: CustomVersions,
+    pub custom_versions: FCustomVersionContainer,
 
     pub save_game_class_name: FString,
 }

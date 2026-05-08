@@ -40,8 +40,8 @@ fn visit_dirs<P: AsRef<Path>>(dir: P) -> Result<()> {
                 // visit_dirs(&path)?;
             } else {
                 println!("{}", &path.display());
-                let save_game = read_save_game_file(&path)?;
-                print!("{:#?}", save_game);
+                let _save_game = read_save_game_file(&path)?;
+                // println!("{:#?}", save_game);
             }
         }
     }

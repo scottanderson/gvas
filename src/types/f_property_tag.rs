@@ -6,7 +6,8 @@ use modular_bitfield::{bitfield, prelude::B3};
 use crate::options::ParsingOptions;
 use crate::properties::{
     NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
-    NAME_MAP_PROPERTY, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, Property,
+    NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
+    Property,
 };
 use crate::types::FString;
 
@@ -28,6 +29,8 @@ pub struct PropertyTagFlags {
 #[binrw]
 pub struct TypeTree {
     pub name: FString,
+    #[br(temp)]
+    #[bw(try_calc(u32::try_from(children.len())))]
     pub child_count: u32,
     #[br(count = child_count)]
     pub children: Vec<TypeTree>,
@@ -35,7 +38,7 @@ pub struct TypeTree {
 
 impl std::fmt::Debug for TypeTree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = self.name.0.as_deref().unwrap_or("None");
+        let name = self.name.0.as_deref().unwrap_or(NAME_NONE);
         write!(f, "{}", name)?;
         if !self.children.is_empty() {
             write!(f, "<")?;
@@ -129,12 +132,72 @@ pub enum PropertyType {
     },
 }
 
+impl PropertyType {
+    #[inline]
+    pub fn property_type(&self) -> Option<&str> {
+        match self {
+            PropertyType::Incomplete { property_type, .. } => property_type,
+            PropertyType::Complete { property_type, .. } => &property_type.name,
+        }
+        .0
+        .as_deref()
+    }
+
+    #[inline]
+    pub fn size(&self) -> u32 {
+        match self {
+            PropertyType::Incomplete { size, .. } => *size,
+            PropertyType::Complete { size, .. } => *size,
+        }
+    }
+
+    pub fn inner_type(&self) -> Option<&str> {
+        match self {
+            PropertyType::Incomplete {
+                extra:
+                    CollectionProperties::Array { inner_type, .. }
+                    | CollectionProperties::Map { inner_type, .. }
+                    | CollectionProperties::Option { inner_type, .. }
+                    | CollectionProperties::Set { inner_type, .. },
+                ..
+            } => inner_type.0.as_deref(),
+            PropertyType::Complete {
+                property_type:
+                    TypeTree {
+                        name,
+                        children,
+                    },
+                ..
+            } => todo!("{:?} {:?}", name, children),
+            _ => None,
+        }
+    }
+
+    #[inline]
+    pub fn type_name(&self) -> Option<&str> {
+        match self {
+            PropertyType::Incomplete {
+                extra: CollectionProperties::Struct { type_name, guid },
+                ..
+            } => type_name.0.as_deref(),
+            PropertyType::Complete {
+                property_type:
+                    TypeTree {
+                        name,
+                        children,
+                    },
+                ..
+            } => todo!("{:?} {:?}", name, children),
+            _ => None,
+        }
+    }
+}
+
 #[derive(Debug)]
 pub enum FPropertyTag {
     None,
     Some {
         name: String,
-        property_type: PropertyType,
         property: Property,
     },
 }
@@ -156,7 +219,7 @@ impl BinRead for FPropertyTag {
         let name = FString::read_options(reader, endian, ())?;
         let name = match name.0 {
             None => return Ok(Self::None),
-            Some(name) if name == "None" => return Ok(Self::None),
+            Some(name) if name == NAME_NONE => return Ok(Self::None),
             Some(name) => name,
         };
 
@@ -166,7 +229,6 @@ impl BinRead for FPropertyTag {
 
         Ok(FPropertyTag::Some {
             name,
-            property_type,
             property,
         })
     }
@@ -227,7 +289,7 @@ impl BinWrite for TaggedProperties {
             let flags = PropertyTagFlags::default();
             flags.write_options(writer, endian, ())?;
         }
-        FString(Some("None".to_string())).write_options(writer, endian, ())?;
+        FString(Some(NAME_NONE.to_string())).write_options(writer, endian, ())?;
 
         Ok(())
     }
