@@ -1,12 +1,18 @@
 #![allow(unused)]
-
 use binrw::binrw;
 
+mod array_property;
 mod property;
+mod struct_property;
 
+pub use array_property::*;
 pub use property::*;
+pub use struct_property::*;
 
-use crate::{options::ParsingOptions, types::FString};
+use crate::{
+    options::ParsingOptions,
+    types::{CollectionProperties, FString, PropertyType},
+};
 
 pub const NAME_NONE: &str = "None";
 
@@ -36,7 +42,6 @@ pub const NAME_UINT16_PROPERTY: &str = "UInt16Property";
 pub const NAME_UINT32_PROPERTY: &str = "UInt32Property";
 pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 
-// #[binrw] #[derive(Debug)] pub struct ArrayProperty();
 // #[binrw] #[derive(Debug)] pub struct BoolProperty();
 // #[binrw] #[derive(Debug)] pub struct ByteProperty();
 
@@ -90,17 +95,6 @@ pub struct ObjectProperty(pub FString);
 // #[binrw] #[derive(Debug)] pub struct OptionProperty();
 // #[binrw] #[derive(Debug)] pub struct SetProperty();
 // #[binrw] #[derive(Debug)] pub struct SoftObjectProperty();
-
-#[binrw]
-#[br(import(options: ParsingOptions, struct_type: &str, size: u32))]
-#[derive(Debug)]
-pub enum StructProperty {
-    #[rustfmt::skip] #[br(pre_assert(struct_type == "DateTime"))] DateTime(u64),
-    #[rustfmt::skip] #[br(pre_assert(struct_type == "Guid"))] Guid(u128),
-
-    #[br(pre_assert(false, "Unknown type {:?}", struct_type))]
-    Unknown(#[br(count = size)] Vec<u8>),
-}
 
 #[binrw]
 #[derive(Debug)]

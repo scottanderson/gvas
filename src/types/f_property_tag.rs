@@ -98,6 +98,7 @@ pub enum CollectionProperties {
 
     #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
     Struct {
+        #[br(dbg)]
         type_name: FString,
         guid: u128,
     },
@@ -151,6 +152,7 @@ impl PropertyType {
         }
     }
 
+    #[inline]
     pub fn inner_type(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete {
@@ -162,14 +164,31 @@ impl PropertyType {
                 ..
             } => inner_type.0.as_deref(),
             PropertyType::Complete {
+                property_type: TypeTree { name, children },
+                ..
+            } => todo!("inner_type {:?} {:?}", name, children),
+            _ => None,
+        }
+    }
+
+    #[inline]
+    pub fn array_struct_type_name(&self) -> Option<String> {
+        match self {
+            PropertyType::Incomplete { .. } => None,
+            PropertyType::Complete {
                 property_type:
                     TypeTree {
-                        name,
+                        name: FString(Some(base_name)),
                         children,
                     },
-                ..
-            } => todo!("{:?} {:?}", name, children),
-            _ => None,
+                array_index,
+                guid,
+                size,
+            } if base_name == "ArrayProperty" => {
+                todo!("children {:?}", self);
+                Some(base_name.to_owned())
+            }
+            _ => todo!("type {:?}", self),
         }
     }
 
@@ -181,13 +200,9 @@ impl PropertyType {
                 ..
             } => type_name.0.as_deref(),
             PropertyType::Complete {
-                property_type:
-                    TypeTree {
-                        name,
-                        children,
-                    },
+                property_type: TypeTree { name, children },
                 ..
-            } => todo!("{:?} {:?}", name, children),
+            } => todo!("type_name {:?} {:?}", name, children),
             _ => None,
         }
     }
@@ -196,10 +211,7 @@ impl PropertyType {
 #[derive(Debug)]
 pub enum FPropertyTag {
     None,
-    Some {
-        name: String,
-        property: Property,
-    },
+    Some { name: String, property: Property },
 }
 
 impl BinRead for FPropertyTag {
@@ -227,10 +239,7 @@ impl BinRead for FPropertyTag {
 
         let property = Property::read_options(reader, endian, (options, &property_type))?;
 
-        Ok(FPropertyTag::Some {
-            name,
-            property,
-        })
+        Ok(FPropertyTag::Some { name, property })
     }
 }
 

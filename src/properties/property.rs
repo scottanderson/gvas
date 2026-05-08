@@ -7,6 +7,7 @@ use crate::{options::ParsingOptions, properties::*, types::PropertyType};
 #[binwrite]
 #[derive(Debug)]
 pub enum Property {
+    Array(ArrayProperty),
     Delegate(DelegateProperty),
     Double(DoubleProperty),
     Enum(EnumProperty),
@@ -46,7 +47,7 @@ impl BinRead for Property {
 
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
-            // NAME_ARRAY_PROPERTY  => Property::Array ( ArrayProperty::read_options(&mut reader, endian, (options, inner_type, size))?),
+            NAME_ARRAY_PROPERTY  => Property::Array ( ArrayProperty::read_options(&mut reader, endian, (options, t, inner_type))?),
             // NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(&mut reader, endian, ())?),
             // NAME_BYTE_PROPERTY   => Property::Byte  (  ByteProperty::read_options(&mut reader, endian, ())?),
             NAME_DELEGATE_PROPERTY => Property::Delegate(DelegateProperty::read_options(&mut reader, endian, ())?),
@@ -65,7 +66,7 @@ impl BinRead for Property {
             // NAME_OPTION_PROPERTY => Property::Option(OptionProperty::read_options(&mut reader, endian, ())?),
             // NAME_SET_PROPERTY    => Property::Set   (   SetProperty::read_options(&mut reader, endian, (options, t))?),
             // NAME_SOFT_OBJECT_PROPERTY => Property::SoftObject(SoftObjectProperty::read_options(&mut reader, endian, ())?),
-            NAME_STRUCT_PROPERTY => Property::Struct(StructProperty::read_options(&mut reader, endian, (options, type_name, size))?),
+            NAME_STRUCT_PROPERTY => Property::Struct(StructProperty::read_options(&mut reader, endian, (options, type_name))?),
             NAME_STR_PROPERTY    => Property::Str   (   StrProperty::read_options(&mut reader, endian, ())?),
             // NAME_TEXT_PROPERTY   => Property::Text  (  TextProperty::read_options(&mut reader, endian, (options))?),
             NAME_UINT16_PROPERTY => Property::UInt16(UInt16Property::read_options(&mut reader, endian, ())?),
@@ -81,8 +82,7 @@ impl BinRead for Property {
         let pos = reader.stream_position()?;
         if pos != size as u64 {
             println!(
-                "Warning: Reader position does not match size: 0x{:04X} 0x{:04X}",
-                pos, size
+                "Warning: Reader position does not match size: 0x{pos:04X} 0x{size:04X}\n{property_type:?} {inner_type:?} {type_name:?}",
             );
         }
 

@@ -2,7 +2,8 @@ use binrw::{BinRead, binrw};
 
 use crate::{
     types::{
-        FCustomVersion, FCustomVersionContainer, FEngineVersion, FPackageFileVersion, FPropertyTag, FString, TaggedProperties
+        FCustomVersion, FCustomVersionContainer, FEngineVersion, FPackageFileVersion, FPropertyTag,
+        FString, TaggedProperties,
     },
     versions::{
         EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE5Version,
@@ -20,7 +21,6 @@ pub enum SaveGameFileVersion {
     // added a new UE5 version number to FPackageFileSummary
     PackageFileSummaryVersionChange = 3,
 }
-
 
 #[binrw]
 #[brw(little, magic = b"GVAS")]
