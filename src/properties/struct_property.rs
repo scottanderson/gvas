@@ -38,7 +38,7 @@ mod structs {
     #[derive(Debug)]
     pub enum Quat {
         #[br(pre_assert(!options.large_world_coordinates))]
-        QuatF(f64, f32, f32, f32),
+        QuatF(f32, f32, f32, f32),
         #[br(pre_assert(options.large_world_coordinates))]
         QuatD(f64, f64, f64, f64),
     }
@@ -46,10 +46,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct Timespan(f64);
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct Transform();
 
     #[binrw]
     #[derive(Debug)]
@@ -93,7 +89,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "LinearColor"))]
     LinearColor(LinearColor),
     #[br(pre_assert(struct_type == "Quat"))]
-    Quat(Quat),
+    Quat(#[br(args(options))] Quat),
     #[br(pre_assert(struct_type == "Rotator"))]
     Rotator(#[br(args(options))] Rotator),
     #[br(pre_assert(struct_type == "Timespan"))]
@@ -102,5 +98,5 @@ pub enum StructProperty {
     Vector(#[br(args(options))] Vector),
     #[br(pre_assert(struct_type == "Vector2D"))]
     Vector2D(Vector2D),
-    Custom(TaggedProperties),
+    Custom(#[br(args(options))] TaggedProperties),
 }

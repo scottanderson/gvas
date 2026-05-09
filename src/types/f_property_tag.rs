@@ -98,7 +98,6 @@ pub enum CollectionProperties {
 
     #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
     Struct {
-        #[br(dbg)]
         type_name: FString,
         guid: u128,
     },
@@ -164,9 +163,9 @@ impl PropertyType {
                 ..
             } => inner_type.0.as_deref(),
             PropertyType::Complete {
-                property_type: TypeTree { name, children },
+                property_type: TypeTree { children, .. },
                 ..
-            } => todo!("inner_type {:?} {:?}", name, children),
+            } => children.first().and_then(|head| head.name.0.as_deref()),
             _ => None,
         }
     }
@@ -200,9 +199,15 @@ impl PropertyType {
                 ..
             } => type_name.0.as_deref(),
             PropertyType::Complete {
-                property_type: TypeTree { name, children },
+                property_type:
+                    TypeTree {
+                        name: FString(Some(name)),
+                        children,
+                    },
                 ..
-            } => todo!("type_name {:?} {:?}", name, children),
+            } if name == NAME_STRUCT_PROPERTY => {
+                todo!("type_name {:?} {:?}", name, children)
+            }
             _ => None,
         }
     }
@@ -237,7 +242,7 @@ impl BinRead for FPropertyTag {
 
         let property_type = PropertyType::read_options(reader, endian, (options, flags))?;
 
-        let property = Property::read_options(reader, endian, (options, &property_type))?;
+        let property = Property::read_options(reader, endian, (options, flags, &property_type))?;
 
         Ok(FPropertyTag::Some { name, property })
     }

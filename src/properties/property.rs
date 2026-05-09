@@ -2,12 +2,17 @@ use std::io::{Cursor, Seek};
 
 use binrw::{BinRead, binwrite};
 
-use crate::{options::ParsingOptions, properties::*, types::PropertyType};
+use crate::{
+    options::ParsingOptions,
+    properties::*,
+    types::{PropertyTagFlags, PropertyType},
+};
 
 #[binwrite]
 #[derive(Debug)]
 pub enum Property {
     Array(ArrayProperty),
+    Bool(BoolProperty),
     Delegate(DelegateProperty),
     Double(DoubleProperty),
     Enum(EnumProperty),
@@ -27,12 +32,12 @@ pub enum Property {
 }
 
 impl BinRead for Property {
-    type Args<'a> = (ParsingOptions, &'a PropertyType);
+    type Args<'a> = (ParsingOptions, PropertyTagFlags, &'a PropertyType);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (options, t): Self::Args<'_>,
+        (options, flags, t): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let size = t.size();
         let mut buf = vec![0u8; size as usize];
@@ -48,7 +53,7 @@ impl BinRead for Property {
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
             NAME_ARRAY_PROPERTY  => Property::Array ( ArrayProperty::read_options(&mut reader, endian, (options, t, inner_type))?),
-            // NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(&mut reader, endian, ())?),
+            NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(&mut reader, endian, (flags, t))?),
             // NAME_BYTE_PROPERTY   => Property::Byte  (  ByteProperty::read_options(&mut reader, endian, ())?),
             NAME_DELEGATE_PROPERTY => Property::Delegate(DelegateProperty::read_options(&mut reader, endian, ())?),
             NAME_DOUBLE_PROPERTY => Property::Double(DoubleProperty::read_options(&mut reader, endian, ())?),
@@ -82,7 +87,7 @@ impl BinRead for Property {
         let pos = reader.stream_position()?;
         if pos != size as u64 {
             println!(
-                "Warning: Reader position does not match size: 0x{pos:04X} 0x{size:04X}\n{property_type:?} {inner_type:?} {type_name:?}",
+                "Warning: Reader position does not match size: 0x{pos:04X} 0x{size:04X} {property_type:?} {inner_type:?} {type_name:?}",
             );
         }
 

@@ -1,5 +1,5 @@
 #![allow(unused)]
-use binrw::binrw;
+use binrw::{BinRead, BinWrite, binrw};
 
 mod array_property;
 mod property;
@@ -11,7 +11,7 @@ pub use struct_property::*;
 
 use crate::{
     options::ParsingOptions,
-    types::{CollectionProperties, FString, PropertyType},
+    types::{CollectionProperties, FString, PropertyTagFlags, PropertyType},
 };
 
 pub const NAME_NONE: &str = "None";
@@ -42,7 +42,42 @@ pub const NAME_UINT16_PROPERTY: &str = "UInt16Property";
 pub const NAME_UINT32_PROPERTY: &str = "UInt32Property";
 pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 
-// #[binrw] #[derive(Debug)] pub struct BoolProperty();
+#[derive(Debug)]
+pub struct BoolProperty(bool);
+
+impl BinRead for BoolProperty {
+    type Args<'a> = (PropertyTagFlags, &'a PropertyType);
+
+    fn read_options<R: std::io::Read + std::io::Seek>(
+        reader: &mut R,
+        endian: binrw::Endian,
+        (flags, t): Self::Args<'_>,
+    ) -> binrw::BinResult<Self> {
+        match t {
+            PropertyType::Incomplete {
+                extra: CollectionProperties::Bool { value },
+                ..
+            } => Ok(Self(*value != 0)),
+            PropertyType::Complete { .. } => Ok(Self(flags.bool_true())),
+            _ => panic!("Expected BoolProperty type {t:?}"),
+        }
+    }
+}
+
+impl BinWrite for BoolProperty {
+    // type Args<'a> = (PropertyTagFlags, &'a PropertyType);
+    type Args<'a> = ();
+
+    fn write_options<W: std::io::Write + std::io::Seek>(
+        &self,
+        writer: &mut W,
+        endian: binrw::Endian,
+        args: Self::Args<'_>,
+    ) -> binrw::BinResult<()> {
+        todo!()
+    }
+}
+
 // #[binrw] #[derive(Debug)] pub struct ByteProperty();
 
 #[binrw]

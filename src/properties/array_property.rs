@@ -6,7 +6,7 @@ use crate::{
         CollectionProperties, FString, FloatProperty, IntProperty, NAME_BOOL_PROPERTY,
         NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY,
         NAME_NAME_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        PropertyType, StrProperty, StructProperty,
+        NameProperty, PropertyType, StrProperty, StructProperty,
     },
 };
 
@@ -22,6 +22,9 @@ struct StructPropertyArrayTag {
     array_index: u32,
     #[br(args(NAME_STRUCT_PROPERTY))]
     extra: CollectionProperties,
+    #[br(temp, assert(footer == 0))]
+    #[bw(calc(0))]
+    footer: u8,
 }
 
 impl StructPropertyArrayTag {
@@ -38,12 +41,12 @@ impl StructPropertyArrayTag {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &str/*, size: u32*/))]
+#[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &str))]
 #[derive(Debug)]
 pub enum ArrayProperty {
-    // #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))] Bool(#[br(count = size)] Vec<u8>),
-    // #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))] Byte(#[br(count = size)] Vec<u8>),
-    // #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))] Enum(#[br(count = size)] Vec<u8>),
+    // #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))] Bool(#[br(count = t.size())] Vec<u8>),
+    // #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))] Byte(#[br(count = t.size())] Vec<u8>),
+    // #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))] Enum(#[br(count = t.size())] Vec<u8>),
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
     Float {
         #[br(temp)]
@@ -68,7 +71,7 @@ pub enum ArrayProperty {
         #[bw(try_calc(u32::try_from(values.len())))]
         count: u32,
         #[br(count = count)]
-        values: Vec<IntProperty>,
+        values: Vec<NameProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
@@ -80,7 +83,7 @@ pub enum ArrayProperty {
         values: Vec<StrProperty>,
     },
 
-    // #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))] Text(#[br(count = size)] Vec<u8>),
+    // #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))] Text(#[br(count = t.size())] Vec<u8>),
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY))]
     Struct {
         #[br(temp)]
