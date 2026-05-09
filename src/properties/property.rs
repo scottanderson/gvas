@@ -1,4 +1,4 @@
-use std::io::{Cursor, Seek};
+use std::io::{Cursor, Read, Seek};
 
 use binrw::{BinRead, binwrite};
 
@@ -83,9 +83,7 @@ impl BinRead for Property {
             _ => {
                 println!("Warning: Unrecognized property type {:?}", property_type);
                 let mut buf = vec![0u8; size as usize];
-                std::io::Read::read_exact(&mut reader, &mut buf)?;
-
-                let mut reader = Cursor::new(&buf);
+                reader.read_exact(&mut buf);
                 return Ok(Property::Unknown(buf));
             }
         };
