@@ -119,8 +119,26 @@ pub struct Int8Property(pub i8);
 pub struct IntProperty(pub i32);
 
 // #[binrw] #[derive(Debug)] pub struct MapProperty();
-// #[binrw] #[derive(Debug)] pub struct MulticastInlineDelegateProperty();
-// #[binrw] #[derive(Debug)] pub struct MulticastSparseDelegateProperty();
+
+#[binrw]
+#[derive(Debug)]
+pub struct MulticastInlineDelegateProperty {
+    #[br(temp)]
+    #[bw(try_calc(u32::try_from(delegates.len())))]
+    count: u32,
+    #[br(count = count)]
+    delegates: Vec<DelegateProperty>,
+}
+
+#[binrw]
+#[derive(Debug)]
+pub struct MulticastSparseDelegateProperty {
+    #[br(temp)]
+    #[bw(try_calc(u32::try_from(delegates.len())))]
+    count: u32,
+    #[br(count = count)]
+    delegates: Vec<DelegateProperty>,
+}
 
 #[binrw]
 #[derive(Debug)]
