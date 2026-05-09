@@ -66,7 +66,7 @@ impl BinRead for Property {
             // NAME_MAP_PROPERTY    => Property::Map   (   MapProperty::read_options(&mut reader, endian, (options, t))?),
             // NAME_MULTICAST_INLINE_DELGATE_PROPERTY => Property::MulticastInlineDelegate(MulticastInlineDelegateProperty::read_options(&mut reader, endian, ())?),
             // NAME_MULTICAST_SPARSE_DELGATE_PROPERTY => Property::MulticastSparseDelegate(MulticastSparseDelegateProperty::read_options(&mut reader, endian, ())?),
-            NAME_NAME_PROPERTY   => Property::Name  (  NameProperty::read_options(&mut reader, endian, ())?),
+            // NAME_NAME_PROPERTY   => Property::Name  (  NameProperty::read_options(&mut reader, endian, ())?),
             NAME_OBJECT_PROPERTY => Property::Object(ObjectProperty::read_options(&mut reader, endian, ())?),
             // NAME_OPTION_PROPERTY => Property::Option(OptionProperty::read_options(&mut reader, endian, ())?),
             // NAME_SET_PROPERTY    => Property::Set   (   SetProperty::read_options(&mut reader, endian, (options, t))?),

@@ -171,23 +171,51 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn array_struct_type_name(&self) -> Option<String> {
+    pub fn array_struct_type_name(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete { .. } => None,
             PropertyType::Complete {
                 property_type:
                     TypeTree {
-                        name: FString(Some(base_name)),
+                        name: FString(Some(name)),
                         children,
                     },
                 array_index,
                 guid,
                 size,
-            } if base_name == "ArrayProperty" => {
-                todo!("children {:?}", self);
-                Some(base_name.to_owned())
+            } if name == "ArrayProperty" => {
+                let [
+                    TypeTree {
+                        name: FString(Some(name)),
+                        children,
+                    },
+                ] = children.as_slice()
+                else {
+                    panic!("children={children:?}");
+                    return None;
+                };
+                if name != NAME_STRUCT_PROPERTY {
+                    panic!("name={name:?}");
+                    return None;
+                }
+                let [inner, guid] = children.as_slice() else {
+                    panic!("Expected children len 2, got {children:?}");
+                    return None;
+                };
+                let [class] = inner.children.as_slice() else {
+                    panic!("Expected inner children len 1, got {:?}", inner.children);
+                    return None;
+                };
+                if (!class.children.is_empty()) {
+                    println!("Class children not empty: {:?}", class.children);
+                    return None;
+                }
+                // if class.name.0.as_deref() != Some("/Script/CoreUObject") {
+                //     return None;
+                // }
+                inner.name.0.as_deref()
             }
-            _ => todo!("type {:?}", self),
+            _ => None,
         }
     }
 
@@ -206,7 +234,21 @@ impl PropertyType {
                     },
                 ..
             } if name == NAME_STRUCT_PROPERTY => {
-                todo!("type_name {:?} {:?}", name, children)
+                let [inner] = children.as_slice() else {
+                    // panic!("Expected children len 1");
+                    return None;
+                };
+                let [class] = inner.children.as_slice() else {
+                    // panic!("Expected first children len 1 with empty inner children");
+                    return None;
+                };
+                if (!class.children.is_empty()) {
+                    return None;
+                }
+                if class.name.0.as_deref() != Some("/Script/CoreUObject") {
+                    return None;
+                }
+                inner.name.0.as_deref()
             }
             _ => None,
         }
