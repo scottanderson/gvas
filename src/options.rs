@@ -12,6 +12,7 @@ use crate::{
 #[derive(Clone, Copy, Debug, Default)]
 pub struct ParsingOptions {
     pub property_tag_complete_type_name: bool,
+    pub fsoftobjectpath_remove_asset_path_fnames: bool,
     pub text_64bit_support: bool,
     pub large_world_coordinates: bool,
     pub include_always_sign: bool,
@@ -40,6 +41,8 @@ impl From<&FSaveGameHeader> for ParsingOptions {
         ParsingOptions {
             property_tag_complete_type_name: package_file_version_ue5
                 >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32,
+            fsoftobjectpath_remove_asset_path_fnames: package_file_version_ue5
+                >= EUnrealEngineObjectUE5Version::FsoftobjectpathRemoveAssetPathFnames as u32,
             text_64bit_support: release_version
                 >= EUE5ReleaseStreamObjectVersion::TextFormatArgumentData64bitSupport as u32,
             large_world_coordinates: release_version

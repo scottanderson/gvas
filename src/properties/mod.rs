@@ -132,7 +132,16 @@ pub struct ObjectProperty(pub FString);
 
 // #[binrw] #[derive(Debug)] pub struct OptionProperty();
 // #[binrw] #[derive(Debug)] pub struct SetProperty();
-// #[binrw] #[derive(Debug)] pub struct SoftObjectProperty();
+
+#[binrw]
+#[br(import(options: ParsingOptions))]
+#[derive(Debug)]
+pub enum SoftObjectProperty {
+    #[br(pre_assert(!options.fsoftobjectpath_remove_asset_path_fnames))]
+    Old(FString, FString),
+    #[br(pre_assert(options.fsoftobjectpath_remove_asset_path_fnames))]
+    New(FString, FString, FString),
+}
 
 #[binrw]
 #[derive(Debug)]
