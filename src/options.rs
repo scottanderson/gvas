@@ -1,3 +1,5 @@
+use binrw::BinWrite;
+
 use crate::{
     types::FSaveGameHeader,
     versions::{
@@ -14,6 +16,20 @@ pub struct ParsingOptions {
     pub large_world_coordinates: bool,
     pub include_always_sign: bool,
     pub culture_invariant_stability: bool,
+}
+
+impl BinWrite for ParsingOptions {
+    type Args<'a> = ();
+
+    fn write_options<W: std::io::Write + std::io::Seek>(
+        &self,
+        _writer: &mut W,
+        _endian: binrw::Endian,
+        _args: Self::Args<'_>,
+    ) -> binrw::BinResult<()> {
+        // Required to allow ParsingOptions to be used with br(calc)
+        todo!()
+    }
 }
 
 impl From<&FSaveGameHeader> for ParsingOptions {

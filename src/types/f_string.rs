@@ -33,7 +33,7 @@ impl BinRead for FString {
             if terminator != 0 {
                 Err(binrw::Error::AssertFail {
                     pos,
-                    message: "Invalid terminator value".into(),
+                    message: format!("Invalid terminator value for string length {length}"),
                 })?
             }
 

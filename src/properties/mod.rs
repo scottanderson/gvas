@@ -46,20 +46,23 @@ pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 pub struct BoolProperty(bool);
 
 impl BinRead for BoolProperty {
-    type Args<'a> = (PropertyTagFlags, &'a PropertyType);
+    type Args<'a> = (&'a PropertyType);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (flags, t): Self::Args<'_>,
+        (t): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         match t {
             PropertyType::Incomplete {
                 extra: CollectionProperties::Bool { value },
                 ..
             } => Ok(Self(*value != 0)),
-            PropertyType::Complete { .. } => Ok(Self(flags.bool_true())),
-            _ => panic!("Expected BoolProperty type {t:?}"),
+            PropertyType::Complete { flags, .. } => Ok(Self(flags.bool_true())),
+            _ => Err(binrw::Error::AssertFail {
+                pos: 0,
+                message: "BoolProperty type not found".to_string(),
+            }),
         }
     }
 }

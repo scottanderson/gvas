@@ -106,7 +106,7 @@ pub enum CollectionProperties {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions, flags: PropertyTagFlags))]
+#[br(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum PropertyType {
     #[br(pre_assert(!options.property_tag_complete_type_name))]
@@ -124,11 +124,12 @@ pub enum PropertyType {
     #[br(pre_assert(options.property_tag_complete_type_name))]
     Complete {
         property_type: TypeTree,
+        size: u32,
+        flags: PropertyTagFlags,
         #[br(if(flags.has_array_index()))]
         array_index: u32,
         #[br(if(flags.has_property_guid()))]
         guid: u128,
-        size: u32,
     },
 }
 
@@ -180,9 +181,7 @@ impl PropertyType {
                         name: FString(Some(name)),
                         children,
                     },
-                array_index,
-                guid,
-                size,
+                ..
             } if name == "ArrayProperty" => {
                 let [
                     TypeTree {
@@ -269,12 +268,6 @@ impl BinRead for FPropertyTag {
         endian: binrw::Endian,
         options: Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
-        let flags = if options.property_tag_complete_type_name {
-            PropertyTagFlags::read_options(reader, endian, ())?
-        } else {
-            PropertyTagFlags::default()
-        };
-
         let name = FString::read_options(reader, endian, ())?;
         let name = match name.0 {
             None => return Ok(Self::None),
@@ -282,9 +275,9 @@ impl BinRead for FPropertyTag {
             Some(name) => name,
         };
 
-        let property_type = PropertyType::read_options(reader, endian, (options, flags))?;
+        let property_type = PropertyType::read_options(reader, endian, (options,))?;
 
-        let property = Property::read_options(reader, endian, (options, flags, &property_type))?;
+        let property = Property::read_options(reader, endian, (options, &property_type))?;
 
         Ok(FPropertyTag::Some { name, property })
     }
