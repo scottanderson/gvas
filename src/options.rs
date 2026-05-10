@@ -36,8 +36,14 @@ impl BinWrite for ParsingOptions {
 impl From<&FSaveGameHeader> for ParsingOptions {
     fn from(header: &FSaveGameHeader) -> Self {
         let package_file_version_ue5 = header.package_file_version.version_ue5();
-        let release_version = header.custom_versions.get(GUID_UE5_RELEASE_STREAM);
-        let editor_version = header.custom_versions.get(GUID_EDITOR);
+        fn get_custom_version(header: &FSaveGameHeader, version: u128) -> u32 {
+            match &header.custom_versions {
+                Some(container) => container.get(version),
+                None => 0,
+            }
+        }
+        let release_version = get_custom_version(header, GUID_UE5_RELEASE_STREAM);
+        let editor_version = get_custom_version(header, GUID_EDITOR);
         ParsingOptions {
             property_tag_complete_type_name: package_file_version_ue5
                 >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32,

@@ -8,6 +8,7 @@ use crate::{
         NAME_NAME_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
         NameProperty, PropertyType, StrProperty, StructProperty,
     },
+    types::StaticArray,
 };
 
 // A special FPropertyTag for Array<Struct<...>> used by UE4 and older UE5 versions
@@ -48,40 +49,16 @@ pub enum ArrayProperty {
     // #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))] Byte(#[br(count = t.size())] Vec<u8>),
     // #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))] Enum(#[br(count = t.size())] Vec<u8>),
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
-    Float {
-        #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
-        count: u32,
-        #[br(count = count)]
-        values: Vec<FloatProperty>,
-    },
+    Float(StaticArray<FloatProperty>),
 
     #[br(pre_assert(inner_type == NAME_INT_PROPERTY))]
-    Int {
-        #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
-        count: u32,
-        #[br(count = count)]
-        values: Vec<IntProperty>,
-    },
+    Int(StaticArray<IntProperty>),
 
     #[br(pre_assert(inner_type == NAME_NAME_PROPERTY))]
-    Name {
-        #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
-        count: u32,
-        #[br(count = count)]
-        values: Vec<NameProperty>,
-    },
+    Name(StaticArray<NameProperty>),
 
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
-    Str {
-        #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
-        count: u32,
-        #[br(count = count)]
-        values: Vec<StrProperty>,
-    },
+    Str(StaticArray<StrProperty>),
 
     // #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))] Text(#[br(count = t.size())] Vec<u8>),
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY))]

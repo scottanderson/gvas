@@ -1,5 +1,7 @@
 use binrw::binrw;
 
+use crate::types::{FSaveGameHeader, StaticArray};
+
 #[binrw]
 #[derive(Debug)]
 pub struct FCustomVersion {
@@ -11,13 +13,10 @@ pub struct FCustomVersion {
 
 #[binrw]
 #[br(import(custom_version_format: i32))]
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct FCustomVersionContainer {
-    #[bw(try_calc(i32::try_from(custom_versions.len())))]
-    custom_version_length: i32,
-
-    #[br(count = custom_version_length)]
-    custom_versions: Vec<FCustomVersion>,
+    custom_version_format: i32,
+    custom_versions: StaticArray<FCustomVersion>,
 }
 
 impl FCustomVersionContainer {

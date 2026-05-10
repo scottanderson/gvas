@@ -33,12 +33,9 @@ pub struct FSaveGameHeader {
 
     pub engine_version: FEngineVersion,
 
-    custom_version_format: i32,
-
-    #[br(args(custom_version_format))]
     #[br(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
     #[bw(if(*save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
-    pub custom_versions: FCustomVersionContainer,
+    pub custom_versions: Option<FCustomVersionContainer>,
 
     pub save_game_class_name: FString,
 }

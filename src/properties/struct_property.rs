@@ -5,7 +5,7 @@ use crate::{options::ParsingOptions, types::TaggedProperties};
 mod structs {
     use binrw::binrw;
 
-    use crate::{options::ParsingOptions, types::FString};
+    use crate::{options::ParsingOptions, types::{FString, StaticArray}};
 
     #[binrw]
     #[derive(Debug)]
@@ -13,13 +13,7 @@ mod structs {
 
     #[binrw]
     #[derive(Debug)]
-    pub struct GameplayTagContainer {
-        #[br(temp)]
-        #[bw(try_calc(u32::try_from(tags.len())))]
-        count: u32,
-        #[br(count = count)]
-        tags: Vec<FString>,
-    }
+    pub struct GameplayTagContainer(StaticArray<FString>);
 
     #[binrw]
     #[derive(Debug)]
