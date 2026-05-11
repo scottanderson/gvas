@@ -259,7 +259,10 @@ impl PropertyType {
 #[derive(Debug)]
 pub enum FPropertyTag {
     None,
-    Some { name: String, property: Property },
+    Some {
+        name: String,
+        property_type: PropertyType,
+    },
 }
 
 impl BinRead for FPropertyTag {
@@ -279,9 +282,10 @@ impl BinRead for FPropertyTag {
 
         let property_type = PropertyType::read_options(reader, endian, (options,))?;
 
-        let property = Property::read_options(reader, endian, (options, &property_type))?;
-
-        Ok(FPropertyTag::Some { name, property })
+        Ok(FPropertyTag::Some {
+            name,
+            property_type,
+        })
     }
 }
 
@@ -299,7 +303,7 @@ impl BinWrite for FPropertyTag {
 }
 
 #[derive(Debug)]
-pub struct TaggedProperties(pub Vec<FPropertyTag>);
+pub struct TaggedProperties(pub Vec<(String, Property)>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (ParsingOptions,);
@@ -310,16 +314,20 @@ impl BinRead for TaggedProperties {
         (options,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let mut properties = Vec::new();
-
         loop {
-            let property = FPropertyTag::read_options(reader, endian, options)?;
-            // println!("Read {property:?}");
-            match (property) {
+            match FPropertyTag::read_options(reader, endian, options)? {
                 FPropertyTag::None => break,
-                _ => properties.push(property),
+                FPropertyTag::Some {
+                    name,
+                    property_type,
+                } => {
+                    let property =
+                        Property::read_options(reader, endian, (options, &property_type))?;
+                    // println!("Read {property:?}");
+                    properties.push((name, property));
+                }
             }
         }
-
         Ok(TaggedProperties(properties))
     }
 }
@@ -333,16 +341,11 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (options,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for tag in &self.0 {
-            tag.write_options(writer, endian, options)?;
-        }
-
-        if options.property_tag_complete_type_name {
-            let flags = PropertyTagFlags::default();
-            flags.write_options(writer, endian, ())?;
+        for (name, tag) in &self.0 {
+            FString(Some(name.to_string())).write_options(writer, endian, ())?;
+            tag.write_options(writer, endian, ())?;
         }
         FString(Some(NAME_NONE.to_string())).write_options(writer, endian, ())?;
-
         Ok(())
     }
 }
