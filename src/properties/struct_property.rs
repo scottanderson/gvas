@@ -5,7 +5,10 @@ use crate::{options::ParsingOptions, types::TaggedProperties};
 mod structs {
     use binrw::binrw;
 
-    use crate::{options::ParsingOptions, types::{FString, StaticArray}};
+    use crate::{
+        options::ParsingOptions,
+        types::{FString, StaticArray},
+    };
 
     #[binrw]
     #[derive(Debug)]

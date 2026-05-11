@@ -307,6 +307,7 @@ impl BinRead for TaggedProperties {
 
         loop {
             let property = FPropertyTag::read_options(reader, endian, options)?;
+            // println!("Read {property:?}");
             match (property) {
                 FPropertyTag::None => break,
                 _ => properties.push(property),

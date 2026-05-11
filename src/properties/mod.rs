@@ -11,7 +11,7 @@ pub use struct_property::*;
 
 use crate::{
     options::ParsingOptions,
-    types::{CollectionProperties, FString, PropertyTagFlags, PropertyType, StaticArray},
+    types::{CollectionProperties, FString, FText, PropertyTagFlags, PropertyType, StaticArray},
 };
 
 pub const NAME_NONE: &str = "None";
@@ -153,7 +153,10 @@ pub enum SoftObjectProperty {
 #[derive(Debug)]
 pub struct StrProperty(pub FString);
 
-// #[binrw] #[derive(Debug)] pub struct TextProperty();
+#[binrw]
+#[br(import(options: ParsingOptions))]
+#[derive(Debug)]
+pub struct TextProperty(#[br(args(options))] pub FText);
 
 #[binrw]
 #[derive(Debug)]

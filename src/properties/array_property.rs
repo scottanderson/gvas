@@ -3,10 +3,11 @@ use binrw::binrw;
 use crate::{
     options::ParsingOptions,
     properties::{
-        CollectionProperties, FString, FloatProperty, IntProperty, NAME_BOOL_PROPERTY,
-        NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY,
-        NAME_NAME_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        NameProperty, PropertyType, StrProperty, StructProperty,
+        CollectionProperties, EnumProperty, FString, FloatProperty, IntProperty,
+        NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY,
+        NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY, NAME_SOFT_OBJECT_PROPERTY,
+        NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NameProperty, ObjectProperty,
+        PropertyType, SoftObjectProperty, StrProperty, StructProperty, TextProperty,
     },
     types::StaticArray,
 };
@@ -45,9 +46,15 @@ impl StructPropertyArrayTag {
 #[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &str))]
 #[derive(Debug)]
 pub enum ArrayProperty {
-    // #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))] Bool(#[br(count = t.size())] Vec<u8>),
-    // #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))] Byte(#[br(count = t.size())] Vec<u8>),
-    // #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))] Enum(#[br(count = t.size())] Vec<u8>),
+    #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
+    Bool(#[br(count = t.size())] Vec<u8>),
+
+    #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))]
+    Byte(#[br(count = t.size())] Vec<u8>),
+
+    #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
+    Enum(StaticArray<EnumProperty>),
+
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
     Float(StaticArray<FloatProperty>),
 
@@ -57,10 +64,15 @@ pub enum ArrayProperty {
     #[br(pre_assert(inner_type == NAME_NAME_PROPERTY))]
     Name(StaticArray<NameProperty>),
 
+    #[br(pre_assert(inner_type == NAME_OBJECT_PROPERTY))]
+    Object(StaticArray<ObjectProperty>),
+
+    #[br(pre_assert(inner_type == NAME_SOFT_OBJECT_PROPERTY))]
+    SoftObject(#[br(args(options))] StaticArray<SoftObjectProperty>),
+
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
     Str(StaticArray<StrProperty>),
 
-    // #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))] Text(#[br(count = t.size())] Vec<u8>),
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY))]
     Struct {
         #[br(temp)]
@@ -83,6 +95,9 @@ pub enum ArrayProperty {
         values: Vec<StructProperty>,
     },
 
-    // #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
+    #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
+    Text(#[br(args(options))] StaticArray<TextProperty>),
+
+    #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
     Unknown(#[br(count = t.size())] Vec<u8>),
 }
