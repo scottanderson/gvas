@@ -9,7 +9,7 @@ use crate::{
 };
 
 #[allow(dead_code)]
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct ParsingOptions {
     pub property_tag_complete_type_name: bool,
     pub fsoftobjectpath_remove_asset_path_fnames: bool,
@@ -17,6 +17,12 @@ pub struct ParsingOptions {
     pub large_world_coordinates: bool,
     pub include_always_sign: bool,
     pub culture_invariant_stability: bool,
+}
+
+impl Default for ParsingOptions {
+    fn default() -> Self {
+        panic!("ParsingOptions must be explicitly provided")
+    }
 }
 
 impl BinWrite for ParsingOptions {

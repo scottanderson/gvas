@@ -15,7 +15,7 @@ use crate::types::{FString, StaticArray};
 #[binrw]
 #[br(map = Self::from_bytes)]
 #[bw(map = |&x| Self::into_bytes(x))]
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Copy, Debug)]
 pub struct PropertyTagFlags {
     pub has_array_index: bool,
     pub has_property_guid: bool,
@@ -24,6 +24,12 @@ pub struct PropertyTagFlags {
     pub bool_true: bool,
     #[skip]
     padding: B3,
+}
+
+impl Default for PropertyTagFlags {
+    fn default() -> Self {
+        panic!("ParsingOptions must be explicitly provided")
+    }
 }
 
 #[binrw]

@@ -2,10 +2,9 @@ use binrw::binrw;
 
 #[binrw]
 #[brw(repr = u32)]
-#[derive(Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub enum EUnrealEngineObjectUE5Version {
     /// The original UE5 version, at the time this was added the UE4 version was 522, so UE5 will start from 1000 to show a clear difference
-    #[default]
     InitialVersion = 1000,
 
     /// Support stripping names that are not referenced from export data
