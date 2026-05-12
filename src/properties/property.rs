@@ -5,7 +5,7 @@ use binrw::{BinRead, binwrite};
 use crate::{
     options::ParsingOptions,
     properties::*,
-    types::{PropertyTagFlags, PropertyType},
+    types::{PropertyTagFlags, PropertyType, TypeTree},
 };
 
 #[binwrite]
@@ -33,6 +33,170 @@ pub enum Property {
     UInt32(UInt32Property),
     UInt64(UInt64Property),
     Unknown(Vec<u8>),
+}
+
+impl Property {
+    fn property_type_name(&self) -> &str {
+        match &self {
+            Property::Array(..) => NAME_ARRAY_PROPERTY,
+            Property::Bool(..) => NAME_BOOL_PROPERTY,
+            Property::Delegate(..) => NAME_DELEGATE_PROPERTY,
+            Property::Double(..) => NAME_DOUBLE_PROPERTY,
+            Property::Enum(..) => NAME_ENUM_PROPERTY,
+            Property::Float(..) => NAME_FLOAT_PROPERTY,
+            Property::Int(..) => NAME_INT_PROPERTY,
+            Property::Int16(..) => NAME_INT16_PROPERTY,
+            Property::Int64(..) => NAME_INT64_PROPERTY,
+            Property::Int8(..) => NAME_INT8_PROPERTY,
+            Property::MulticastInlineDelegate(..) => NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
+            Property::MulticastSparseDelegate(..) => NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
+            Property::Name(..) => NAME_NAME_PROPERTY,
+            Property::Object(..) => NAME_OBJECT_PROPERTY,
+            Property::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
+            Property::Str(..) => NAME_STR_PROPERTY,
+            Property::Struct(..) => NAME_STRUCT_PROPERTY,
+            Property::Text(..) => NAME_TEXT_PROPERTY,
+            Property::UInt16(..) => NAME_UINT16_PROPERTY,
+            Property::UInt32(..) => NAME_UINT32_PROPERTY,
+            Property::UInt64(..) => NAME_UINT64_PROPERTY,
+            _ => todo!(),
+        }
+    }
+
+    fn inner_type_name(&self) -> Option<&str> {
+        match &self {
+            Property::Array(array_property) => Some(match array_property {
+                ArrayProperty::Bool(..) => NAME_BOOL_PROPERTY,
+                ArrayProperty::Byte(..) => NAME_BYTE_PROPERTY,
+                ArrayProperty::Enum(..) => NAME_ENUM_PROPERTY,
+                ArrayProperty::Float(..) => NAME_FLOAT_PROPERTY,
+                ArrayProperty::Int(..) => NAME_INT_PROPERTY,
+                ArrayProperty::Name(..) => NAME_NAME_PROPERTY,
+                ArrayProperty::Object(..) => NAME_OBJECT_PROPERTY,
+                ArrayProperty::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
+                ArrayProperty::Str(..) => NAME_STR_PROPERTY,
+                ArrayProperty::Struct { .. } => NAME_STRUCT_PROPERTY,
+                ArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
+                _ => todo!(),
+            }),
+            // Property::Map(map_property) = match map_property { ... },
+            // Property::Option(option_property) = match option_property { ... },
+            // Property::Set(set_property) => match set_property { ... },
+            Property::Bool(..)
+            | Property::Delegate(..)
+            | Property::Double(..)
+            | Property::Enum(..)
+            | Property::Float(..)
+            | Property::Int(..)
+            | Property::Int16(..)
+            | Property::Int64(..)
+            | Property::Int8(..)
+            | Property::MulticastInlineDelegate(..)
+            | Property::MulticastSparseDelegate(..)
+            | Property::Name(..)
+            | Property::Object(..)
+            | Property::SoftObject(..)
+            | Property::Str(..)
+            | Property::Struct(..)
+            | Property::Text(..)
+            | Property::UInt16(..)
+            | Property::UInt32(..)
+            | Property::UInt64(..) => None,
+            _ => todo!(),
+        }
+    }
+
+    pub fn tag(&self, options: ParsingOptions, size: u32) -> PropertyType {
+        let property_type_name = self.property_type_name();
+        let property_type = FString(Some(property_type_name.to_string()));
+        let array_index = 0;
+        let guid = 0;
+        let inner_type = FString(self.inner_type_name().map(|s| s.to_string()));
+        match options.property_tag_complete_type_name {
+            false => PropertyType::Incomplete {
+                property_type,
+                size,
+                array_index,
+                extra: match &self {
+                    Property::Array(..) => CollectionProperties::Array { inner_type },
+                    // Property::Map(map_property) = match map_property { ... },
+                    // Property::Option(option_property) = match option_property { ... },
+                    // Property::Set(set_property) => match set_property { ... },
+                    Property::Bool(..)
+                    | Property::Delegate(..)
+                    | Property::Double(..)
+                    | Property::Enum(..)
+                    | Property::Float(..)
+                    | Property::Int(..)
+                    | Property::Int16(..)
+                    | Property::Int64(..)
+                    | Property::Int8(..)
+                    | Property::MulticastInlineDelegate(..)
+                    | Property::MulticastSparseDelegate(..)
+                    | Property::Name(..)
+                    | Property::Object(..)
+                    | Property::SoftObject(..)
+                    | Property::Str(..)
+                    | Property::Struct(..)
+                    | Property::Text(..)
+                    | Property::UInt16(..)
+                    | Property::UInt32(..)
+                    | Property::UInt64(..) => CollectionProperties::None,
+                    _ => todo!(),
+                },
+            },
+            true => {
+                let mut flags = PropertyTagFlags::new();
+                flags.set_has_property_guid(guid != 0);
+                flags.set_has_array_index(array_index != 0);
+                PropertyType::Complete {
+                    property_type: TypeTree {
+                        name: property_type,
+                        children: match &self {
+                            Property::Array(array_property) => StaticArray(Vec::from([TypeTree {
+                                name: inner_type,
+
+                                children: StaticArray(Vec::new()),
+                            }])),
+                            Property::Bool(bool_property) => todo!(),
+                            Property::Delegate(delegate_property) => todo!(),
+                            Property::Double(double_property) => todo!(),
+                            Property::Enum(enum_property) => todo!(),
+                            Property::Float(float_property) => todo!(),
+                            Property::Int(int_property) => todo!(),
+                            Property::Int16(int16_property) => todo!(),
+                            Property::Int64(int64_property) => todo!(),
+                            Property::Int8(int8_property) => todo!(),
+                            Property::MulticastInlineDelegate(
+                                multicast_inline_delegate_property,
+                            ) => {
+                                todo!()
+                            }
+                            Property::MulticastSparseDelegate(
+                                multicast_sparse_delegate_property,
+                            ) => {
+                                todo!()
+                            }
+                            Property::Name(name_property) => todo!(),
+                            Property::Object(object_property) => todo!(),
+                            Property::SoftObject(soft_object_property) => todo!(),
+                            Property::Str(str_property) => todo!(),
+                            Property::Struct(struct_property) => todo!(),
+                            Property::Text(text_property) => todo!(),
+                            Property::UInt16(uint16_property) => todo!(),
+                            Property::UInt32(uint32_property) => todo!(),
+                            Property::UInt64(uint64_property) => todo!(),
+                            _ => todo!(),
+                        },
+                    },
+                    size,
+                    flags,
+                    array_index,
+                    guid,
+                }
+            }
+        }
+    }
 }
 
 impl BinRead for Property {

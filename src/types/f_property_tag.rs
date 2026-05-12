@@ -1,3 +1,4 @@
+use std::io::Cursor;
 use std::ops::{Deref, DerefMut};
 
 use binrw::{BinRead, BinWrite, binrw};
@@ -341,11 +342,19 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (options,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for (name, tag) in &self.0 {
-            FString(Some(name.to_string())).write_options(writer, endian, ())?;
-            tag.write_options(writer, endian, ())?;
+        for (name, property) in &self.0 {
+            let mut buf = Cursor::new(Vec::new());
+            property.write_options(&mut buf, endian, ())?;
+            let buf = buf.into_inner();
+            let len = buf.len() as u32;
+
+            let property_name = FString(Some(name.to_string()));
+            let property_tag = property.tag(options, len);
+            property_name.write_options(writer, endian, ())?;
+            property_tag.write_options(writer, endian, ())?;
         }
-        FString(Some(NAME_NONE.to_string())).write_options(writer, endian, ())?;
+        let none = FString(Some(NAME_NONE.to_string()));
+        none.write_options(writer, endian, ())?;
         Ok(())
     }
 }
