@@ -9,36 +9,25 @@ use crate::{
         NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NameProperty, ObjectProperty,
         PropertyType, SoftObjectProperty, StrProperty, StructProperty, TextProperty,
     },
-    types::StaticArray,
+    types::{FPropertyTag, StaticArray},
 };
 
-// A special FPropertyTag for Array<Struct<...>> used by UE4 and older UE5 versions
-#[binrw]
-#[derive(Debug)]
-struct StructPropertyArrayTag {
-    field_name: FString,
-    #[br(temp, assert(property_type.0.as_deref() == Some(NAME_STRUCT_PROPERTY)))]
-    #[bw(calc(FString(Some(NAME_STRUCT_PROPERTY.to_string()))))]
-    property_type: FString,
-    size: u32,
-    array_index: u32,
-    #[br(args(NAME_STRUCT_PROPERTY))]
-    extra: CollectionProperties,
-    #[br(temp, assert(footer == 0))]
-    #[bw(calc(0))]
-    footer: u8,
-}
-
-impl StructPropertyArrayTag {
+impl FPropertyTag {
     #[inline]
     fn array_struct_type_name(&self) -> Option<String> {
-        match &self.extra {
-            CollectionProperties::Struct {
-                type_name: FString(Some(type_name)),
-                ..
-            } => Some(type_name.to_owned()),
-            _ => None,
-        }
+        let FPropertyTag::Some { property_type, .. } = &self else {
+            return None;
+        };
+        let PropertyType::Incomplete { extra, .. } = property_type else {
+            return None;
+        };
+        let CollectionProperties::Struct { type_name, .. } = extra else {
+            return None;
+        };
+        let FString(Some(type_name)) = type_name else {
+            return None;
+        };
+        Some(type_name.to_owned())
     }
 }
 
@@ -81,8 +70,9 @@ pub enum ArrayProperty {
         count: u32,
 
         #[br(temp, if(!options.property_tag_complete_type_name))]
+        #[br(args(options))]
         #[bw(calc(None))]
-        struct_tag: Option<StructPropertyArrayTag>,
+        struct_tag: Option<FPropertyTag>,
 
         #[br(temp)]
         #[br(calc = struct_tag
