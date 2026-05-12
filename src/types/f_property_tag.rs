@@ -27,12 +27,6 @@ pub struct PropertyTagFlags {
     padding: B3,
 }
 
-impl Default for PropertyTagFlags {
-    fn default() -> Self {
-        panic!("ParsingOptions must be explicitly provided")
-    }
-}
-
 #[binrw]
 pub struct TypeTree {
     pub name: FString,
