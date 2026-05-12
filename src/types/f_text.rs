@@ -102,7 +102,8 @@ pub enum FormatArgumentValueUInt {
 #[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub struct NumberFormattingOptions {
-    always_include_sign: i32,
+    #[brw(if(options.include_always_sign))]
+    always_sign: i32,
     use_grouping: i32,
     roudning_mode: RoundingMode,
     minimum_integral_digits: i32,
