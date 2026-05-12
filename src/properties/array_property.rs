@@ -44,6 +44,7 @@ impl StructPropertyArrayTag {
 
 #[binrw]
 #[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &str))]
+#[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum ArrayProperty {
     #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
@@ -92,11 +93,12 @@ pub enum ArrayProperty {
 
         #[br(count = count)]
         #[br(args { inner: (options, &type_name,) })]
+        #[bw(args(options))]
         values: Vec<StructProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
-    Text(#[br(args(options))] StaticArray<TextProperty>),
+    Text(#[brw(args(options))] StaticArray<TextProperty>),
 
     #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
     Unknown(#[br(count = t.size())] Vec<u8>),

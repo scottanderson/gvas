@@ -73,6 +73,7 @@ pub use structs::*;
 
 #[binrw]
 #[br(import(options: ParsingOptions, struct_type: &str))]
+#[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum StructProperty {
     #[br(pre_assert(struct_type == "DateTime"))]
@@ -95,5 +96,5 @@ pub enum StructProperty {
     Vector(#[br(args(options))] Vector),
     #[br(pre_assert(struct_type == "Vector2D"))]
     Vector2D(Vector2D),
-    Custom(#[br(args(options))] TaggedProperties),
+    Custom(#[brw(args(options))] TaggedProperties),
 }

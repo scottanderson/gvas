@@ -154,9 +154,9 @@ pub enum SoftObjectProperty {
 pub struct StrProperty(pub FString);
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub struct TextProperty(#[br(args(options))] pub FText);
+pub struct TextProperty(#[brw(args(options))] pub FText);
 
 #[binrw]
 #[derive(Debug)]

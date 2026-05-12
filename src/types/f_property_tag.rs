@@ -267,12 +267,12 @@ pub enum FPropertyTag {
 }
 
 impl BinRead for FPropertyTag {
-    type Args<'a> = ParsingOptions;
+    type Args<'a> = (ParsingOptions,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        options: Self::Args<'_>,
+        (options,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let name = FString::read_options(reader, endian, ())?;
         let name = match name.0 {
@@ -291,7 +291,7 @@ impl BinRead for FPropertyTag {
 }
 
 impl BinWrite for FPropertyTag {
-    type Args<'a> = ParsingOptions;
+    type Args<'a> = ();
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
@@ -316,7 +316,7 @@ impl BinRead for TaggedProperties {
     ) -> binrw::BinResult<Self> {
         let mut properties = Vec::new();
         loop {
-            match FPropertyTag::read_options(reader, endian, options)? {
+            match FPropertyTag::read_options(reader, endian, (options,))? {
                 FPropertyTag::None => break,
                 FPropertyTag::Some {
                     name,
@@ -344,7 +344,7 @@ impl BinWrite for TaggedProperties {
     ) -> binrw::BinResult<()> {
         for (name, property) in &self.0 {
             let mut buf = Cursor::new(Vec::new());
-            property.write_options(&mut buf, endian, ())?;
+            property.write_options(&mut buf, endian, (options,))?;
             let buf = buf.into_inner();
             let len = buf.len() as u32;
 

@@ -9,9 +9,10 @@ use crate::{
 };
 
 #[binwrite]
+#[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum Property {
-    Array(ArrayProperty),
+    Array(#[bw(args(options))] ArrayProperty),
     Bool(BoolProperty),
     Delegate(DelegateProperty),
     Double(DoubleProperty),
@@ -27,8 +28,8 @@ pub enum Property {
     Object(ObjectProperty),
     SoftObject(SoftObjectProperty),
     Str(StrProperty),
-    Struct(StructProperty),
-    Text(TextProperty),
+    Struct(#[bw(args(options))] StructProperty),
+    Text(#[bw(args(options))] TextProperty),
     UInt16(UInt16Property),
     UInt32(UInt32Property),
     UInt64(UInt64Property),

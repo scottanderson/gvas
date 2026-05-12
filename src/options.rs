@@ -8,7 +8,6 @@ use crate::{
     },
 };
 
-#[allow(dead_code)]
 #[derive(Clone, Copy, Debug)]
 pub struct ParsingOptions {
     pub property_tag_complete_type_name: bool,
@@ -17,12 +16,6 @@ pub struct ParsingOptions {
     pub large_world_coordinates: bool,
     pub include_always_sign: bool,
     pub culture_invariant_stability: bool,
-}
-
-impl Default for ParsingOptions {
-    fn default() -> Self {
-        panic!("ParsingOptions must be explicitly provided")
-    }
 }
 
 impl BinWrite for ParsingOptions {
@@ -34,8 +27,8 @@ impl BinWrite for ParsingOptions {
         _endian: binrw::Endian,
         _args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        // Required to allow ParsingOptions to be used with br(calc)
-        todo!()
+        // Required to allow ParsingOptions to be used with bw(calc)
+        Ok(())
     }
 }
 

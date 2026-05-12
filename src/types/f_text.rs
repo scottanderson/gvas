@@ -6,17 +6,17 @@ use crate::{
 };
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub struct FText {
     flags: u32,
     // #[br(dbg)]
-    #[br(args(options))]
+    #[brw(args(options))]
     history: FTextHistory,
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum FTextHistory {
     // #[brw(magic = -1i8)]
@@ -31,13 +31,13 @@ pub enum FTextHistory {
     // #[brw(magic = 2i8)] OrderedFormat(Box<FText>, StaticArray<FormatArgumentValue>),
     #[brw(magic = 3i8)]
     ArgumentFormat(
-        #[br(args(options))] Box<FText>,
-        #[br(args(options))] StaticArray<ArgumentFormatEntry>,
+        #[brw(args(options))] Box<FText>,
+        #[brw(args(options))] StaticArray<ArgumentFormatEntry>,
     ),
     #[brw(magic = 4i8)]
     AsNumber(
-        #[br(args(options))] Box<FormatArgumentValue>,
-        StaticOption<NumberFormattingOptions>,
+        #[brw(args(options))] Box<FormatArgumentValue>,
+        #[brw(args(options))] StaticOption<NumberFormattingOptions>,
         FString,
     ),
     // #[brw(magic = 5i8)] AsPercent(FormatArgumentValue, StaticOption<NumberFormattingOptions>, FString),
@@ -63,12 +63,12 @@ pub enum FTextHistoryNone {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub struct ArgumentFormatEntry(FString, #[br(args(options))] FormatArgumentValue);
+pub struct ArgumentFormatEntry(FString, #[brw(args(options))] FormatArgumentValue);
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 #[rustfmt::skip]
 pub enum FormatArgumentValue {
@@ -76,7 +76,7 @@ pub enum FormatArgumentValue {
     #[brw(magic = 1i8)] UInt(#[br(args(options))] FormatArgumentValueUInt),
     #[brw(magic = 2i8)] Float(f32),
     #[brw(magic = 3i8)] Double(f64),
-    #[brw(magic = 4i8)] Text(#[br(args(options))] FText),
+    #[brw(magic = 4i8)] Text(#[brw(args(options))] FText),
     #[brw(magic = 5i8)] UI(i32),
 }
 
@@ -99,6 +99,7 @@ pub enum FormatArgumentValueUInt {
 }
 
 #[binrw]
+#[brw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub struct NumberFormattingOptions {
     always_include_sign: i32,
