@@ -1,5 +1,3 @@
-use std::io::{Cursor, Read, Seek};
-
 use binrw::{BinRead, binwrite};
 
 use crate::{
@@ -154,39 +152,31 @@ impl Property {
                     property_type: TypeTree {
                         name: property_type,
                         children: match &self {
-                            Property::Array(array_property) => StaticArray(Vec::from([TypeTree {
+                            Property::Array(_) => StaticArray(Vec::from([TypeTree {
                                 name: inner_type,
 
                                 children: StaticArray(Vec::new()),
                             }])),
-                            Property::Bool(bool_property) => todo!(),
-                            Property::Delegate(delegate_property) => todo!(),
-                            Property::Double(double_property) => todo!(),
-                            Property::Enum(enum_property) => todo!(),
-                            Property::Float(float_property) => todo!(),
-                            Property::Int(int_property) => todo!(),
-                            Property::Int16(int16_property) => todo!(),
-                            Property::Int64(int64_property) => todo!(),
-                            Property::Int8(int8_property) => todo!(),
-                            Property::MulticastInlineDelegate(
-                                multicast_inline_delegate_property,
-                            ) => {
-                                todo!()
-                            }
-                            Property::MulticastSparseDelegate(
-                                multicast_sparse_delegate_property,
-                            ) => {
-                                todo!()
-                            }
-                            Property::Name(name_property) => todo!(),
-                            Property::Object(object_property) => todo!(),
-                            Property::SoftObject(soft_object_property) => todo!(),
-                            Property::Str(str_property) => todo!(),
-                            Property::Struct(struct_property) => todo!(),
-                            Property::Text(text_property) => todo!(),
-                            Property::UInt16(uint16_property) => todo!(),
-                            Property::UInt32(uint32_property) => todo!(),
-                            Property::UInt64(uint64_property) => todo!(),
+                            // Property::Bool(_) => todo!(),
+                            // Property::Delegate(_) => todo!(),
+                            // Property::Double(_) => todo!(),
+                            // Property::Enum(_) => todo!(),
+                            // Property::Float(_) => todo!(),
+                            // Property::Int(_) => todo!(),
+                            // Property::Int16(_) => todo!(),
+                            // Property::Int64(_) => todo!(),
+                            // Property::Int8(_) => todo!(),
+                            // Property::MulticastInlineDelegate(_) => todo!(),
+                            // Property::MulticastSparseDelegate(_) => todo!(),
+                            // Property::Name(_) => todo!(),
+                            // Property::Object(_) => todo!(),
+                            // Property::SoftObject(_) => todo!(),
+                            // Property::Str(_) => todo!(),
+                            // Property::Struct(_) => todo!(),
+                            // Property::Text(_) => todo!(),
+                            // Property::UInt16(_) => todo!(),
+                            // Property::UInt32(_) => todo!(),
+                            // Property::UInt64(_) => todo!(),
                             _ => todo!(),
                         },
                     },
@@ -219,7 +209,7 @@ impl BinRead for Property {
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
             NAME_ARRAY_PROPERTY  => Property::Array ( ArrayProperty::read_options(reader, endian, (options, t, inner_type))?),
-            NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(reader, endian, (t))?),
+            NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(reader, endian, (t,))?),
             // NAME_BYTE_PROPERTY   => Property::Byte  (  ByteProperty::read_options(reader, endian, ())?),
             NAME_DELEGATE_PROPERTY => Property::Delegate(DelegateProperty::read_options(reader, endian, ())?),
             NAME_DOUBLE_PROPERTY => Property::Double(DoubleProperty::read_options(reader, endian, ())?),

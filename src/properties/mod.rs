@@ -1,4 +1,3 @@
-#![allow(unused)]
 use binrw::{BinRead, BinWrite, binrw};
 
 mod array_property;
@@ -11,7 +10,7 @@ pub use struct_property::*;
 
 use crate::{
     options::ParsingOptions,
-    types::{CollectionProperties, FString, FText, PropertyTagFlags, PropertyType, StaticArray},
+    types::{CollectionProperties, FString, FText, PropertyType, StaticArray},
 };
 
 pub const NAME_NONE: &str = "None";
@@ -46,12 +45,12 @@ pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 pub struct BoolProperty(bool);
 
 impl BinRead for BoolProperty {
-    type Args<'a> = (&'a PropertyType);
+    type Args<'a> = (&'a PropertyType,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
-        reader: &mut R,
-        endian: binrw::Endian,
-        (t): Self::Args<'_>,
+        _reader: &mut R,
+        _endian: binrw::Endian,
+        (t,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         match t {
             PropertyType::Incomplete {
@@ -73,9 +72,9 @@ impl BinWrite for BoolProperty {
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
-        writer: &mut W,
-        endian: binrw::Endian,
-        args: Self::Args<'_>,
+        _writer: &mut W,
+        _endian: binrw::Endian,
+        _args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
         todo!()
     }
