@@ -2,6 +2,7 @@ use binrw::{BinRead, BinWrite, binrw};
 
 use crate::{
     options::ParsingOptions,
+    properties::DateTime,
     types::{FString, StaticArray, StaticOption},
 };
 
@@ -42,8 +43,8 @@ pub enum FTextHistory {
     ),
     // #[brw(magic = 5i8)] AsPercent(FormatArgumentValue, StaticOption<NumberFormattingOptions>, FString),
     // #[brw(magic = 6i8)] AsCurrency(FString, FormatArgumentValue, StaticOption<NumberFormattingOptions>, FString),
-    // #[brw(magic = 7i8)] AsDate(DateTime, DateTimeStyle, FString),
-    // #[brw(magic = 8i8)] AsTime(DateTime, DateTimeStyle, FString, FString),
+    // #[brw(magic = 7i8)] AsDate(DateTime, DateTimeStyle, #[brw(if(options.ftext_history_date_timezone))] FString, FString),
+    // #[brw(magic = 8i8)] AsTime(DateTime, EDateTimeStyle, FString, FString),
     // #[brw(magic = 9i8)] AsDateTime(DateTime, DateTimeStyle, DateTimeStyle, FString, FString),
     // #[brw(magic = 10i8)] Transform(Box<FText>, TransformType),
     #[brw(magic = 11i8)]
