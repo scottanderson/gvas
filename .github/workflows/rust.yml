@@ -1,0 +1,35 @@
+name: Rust
+on:
+  push:
+  pull_request:
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  build:
+    name: ${{ matrix.config.toolchain }} / ${{ matrix.config.os }}
+    runs-on: ${{ matrix.config.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - { os:  ubuntu-latest, toolchain: beta }
+          - { os:   macos-latest, toolchain: stable }
+          - { os:  ubuntu-latest, toolchain: stable }
+          - { os: windows-latest, toolchain: stable }
+    steps:
+    - uses: actions/checkout@v5
+    - uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo
+          ~/.rustup
+        key: ${{ runner.os }}-${{ matrix.config.toolchain }}
+    - name: Install Rust ${{ matrix.config.toolchain }}
+      uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.config.toolchain }}
+        components: clippy, rustfmt
+    - run: cargo build --verbose
+    - run: cargo test --verbose
+    - run: cargo fmt --check --all
+    - run: cargo clippy --all-features --all-targets -- -D warnings
