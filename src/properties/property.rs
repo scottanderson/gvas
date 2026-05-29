@@ -66,7 +66,7 @@ impl Property {
         }
     }
 
-    fn array_inner_type_name(&self) -> Option<&str> {
+    fn container_inner_type_name(&self) -> Option<&str> {
         match &self {
             Property::Array(array_property) => Some(match array_property {
                 ArrayProperty::Bool(..) => NAME_BOOL_PROPERTY,
@@ -82,6 +82,9 @@ impl Property {
                 ArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
                 _ => todo!("{array_property:?}"),
             }),
+            // Property::Map(map_property) => todo!("{map_property:?}"),
+            // Property::Option(option_property) => todo!("{option_property:?}"),
+            // Property::Set(set_property) => todo!("{set_property:?}"),
             _ => None,
         }
     }
@@ -91,7 +94,7 @@ impl Property {
         let property_type = FString(Some(property_type_name.to_string()));
         let array_index = 0;
         let guid = 0;
-        let inner_type = FString(self.array_inner_type_name().map(&str::to_string));
+        let inner_type = FString(self.container_inner_type_name().map(&str::to_string));
         match options.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
                 property_type,
@@ -99,9 +102,9 @@ impl Property {
                 array_index,
                 extra: match &self {
                     Property::Array(..) => CollectionProperties::Array { inner_type },
-                    // Property::Map(map_property) = match map_property { ... },
-                    // Property::Option(option_property) = match option_property { ... },
-                    // Property::Set(set_property) => match set_property { ... },
+                    // Property::Map(..) => CollectionProperties::Map { inner_type, value_type },
+                    // Property::Option(option_property) => CollectionProperties::Option { inner_type },
+                    // Property::Set(set_property) => CollectionProperties::Set { inner_type },
                     Property::Bool(..)
                     | Property::Delegate(..)
                     | Property::Double(..)

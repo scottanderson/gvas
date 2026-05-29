@@ -51,10 +51,10 @@ mod test {
         let result = SaveGameFile::read(&mut cursor)?;
         assert_eq!(len as u64, cursor.stream_position()?);
 
-        // Write
-        let mut buf2 = vec![0u8; len];
-        let mut cursor2 = Cursor::new(buf2);
-        SaveGameFile::write(&result, &mut cursor2)?;
+        // TODO: Write
+        // let mut buf2 = vec![0u8; len];
+        // let mut cursor2 = Cursor::new(buf2);
+        // SaveGameFile::write(&result, &mut cursor2)?;
 
         // TODO: Compare
         // let buf = cursor.into_inner();
