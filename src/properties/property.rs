@@ -102,11 +102,15 @@ impl Property {
                 array_index,
                 extra: match &self {
                     Property::Array(..) => CollectionProperties::Array { inner_type },
+                    Property::Bool(BoolProperty(value)) => CollectionProperties::Bool {
+                        value: *value as u8,
+                    },
+                    // Property::Byte(..) => Collection::Byte {},
+                    // Property::Enum(..) => Collection::Enum {},
                     // Property::Map(..) => CollectionProperties::Map { inner_type, value_type },
                     // Property::Option(option_property) => CollectionProperties::Option { inner_type },
                     // Property::Set(set_property) => CollectionProperties::Set { inner_type },
-                    Property::Bool(..)
-                    | Property::Delegate(..)
+                    Property::Delegate(..)
                     | Property::Double(..)
                     | Property::Enum(..)
                     | Property::Float(..)
@@ -138,10 +142,12 @@ impl Property {
                         children: match &self {
                             Property::Array(_) => TArray(Vec::from([TypeTree {
                                 name: inner_type,
-
                                 children: TArray(Vec::new()),
                             }])),
-                            // Property::Bool(_) => todo!(),
+                            Property::Bool(BoolProperty(value)) => {
+                                flags.set_bool_true(*value);
+                                TArray(Vec::new())
+                            }
                             // Property::Delegate(_) => todo!(),
                             // Property::Double(_) => todo!(),
                             // Property::Enum(_) => todo!(),
