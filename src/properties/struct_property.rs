@@ -1,6 +1,9 @@
 use binrw::binrw;
 
-use crate::{options::ParsingOptions, types::{PropertyType, TaggedProperties}};
+use crate::{
+    options::ParsingOptions,
+    types::{PropertyType, TaggedProperties},
+};
 
 mod structs {
     use binrw::binrw;
