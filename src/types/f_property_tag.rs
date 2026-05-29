@@ -28,6 +28,7 @@ pub struct PropertyTagFlags {
 }
 
 #[binrw]
+#[derive(Clone)]
 pub struct TypeTree {
     pub name: FString,
     pub children: StaticArray<TypeTree>,
@@ -132,6 +133,94 @@ pub enum PropertyType {
 
 impl PropertyType {
     #[inline]
+    fn synthetic_incomplete(name: &str, size: u32) -> Self {
+        PropertyType::Incomplete {
+            property_type: FString(Some(name.to_string())),
+            size,
+            array_index: 0,
+            extra: CollectionProperties::None,
+        }
+    }
+
+    #[inline]
+    fn synthetic_complete(property_type: TypeTree, size: u32) -> Self {
+        PropertyType::Complete {
+            property_type,
+            size,
+            flags: PropertyTagFlags::new(),
+            array_index: 0,
+            guid: 0,
+        }
+    }
+
+    #[inline]
+    pub fn map_key_type(&self) -> Self {
+        let size = 0;
+        match self {
+            PropertyType::Incomplete {
+                extra: CollectionProperties::Map { inner_type, .. },
+                ..
+            } => Self::synthetic_incomplete(inner_type.0.as_deref().unwrap_or(""), size),
+            PropertyType::Complete {
+                property_type: TypeTree { children, .. },
+                ..
+            } => children
+                .first()
+                .cloned()
+                .map(|t| Self::synthetic_complete(t, size))
+                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
+            _ => Self::synthetic_incomplete("", size),
+        }
+    }
+
+    #[inline]
+    pub fn map_value_type(&self) -> Self {
+        let size = 0;
+        match self {
+            PropertyType::Incomplete {
+                extra:
+                    CollectionProperties::Map {
+                        value_type: FString(Some(name)),
+                        ..
+                    },
+                ..
+            } => Self::synthetic_incomplete(name, size),
+            PropertyType::Complete {
+                property_type: TypeTree { children, .. },
+                ..
+            } => children
+                .get(1)
+                .cloned()
+                .map(|t| Self::synthetic_complete(t, size))
+                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
+            _ => Self::synthetic_incomplete("", size),
+        }
+    }
+
+    #[inline]
+    pub fn set_element_type(&self) -> Self {
+        let size = 0;
+        match self {
+            PropertyType::Incomplete {
+                extra:
+                    CollectionProperties::Set {
+                        inner_type: FString(Some(name)),
+                    },
+                ..
+            } => Self::synthetic_incomplete(name, size),
+            PropertyType::Complete {
+                property_type: TypeTree { children, .. },
+                ..
+            } => children
+                .first()
+                .cloned()
+                .map(|t| Self::synthetic_complete(t, size))
+                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
+            _ => Self::synthetic_incomplete("", size),
+        }
+    }
+
+    #[inline]
     pub fn property_type(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete { property_type, .. } => property_type,
@@ -150,7 +239,7 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn inner_type(&self) -> Option<&str> {
+    pub fn array_inner_type(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete {
                 extra:
@@ -216,7 +305,7 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn type_name(&self) -> Option<&str> {
+    pub fn struct_type_name(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete {
                 extra: CollectionProperties::Struct { type_name, guid },
@@ -231,11 +320,9 @@ impl PropertyType {
                 ..
             } if name == NAME_STRUCT_PROPERTY => {
                 let [inner] = children.as_slice() else {
-                    // panic!("Expected children len 1");
                     return None;
                 };
                 let [class] = inner.children.as_slice() else {
-                    // panic!("Expected first children len 1 with empty inner children");
                     return None;
                 };
                 if (!class.children.is_empty()) {

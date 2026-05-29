@@ -2,7 +2,7 @@ use std::num::TryFromIntError;
 
 use binrw::{BinRead, BinWrite};
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct StaticArray<T>(pub Vec<T>);
 
 impl<T: BinRead> BinRead for StaticArray<T>

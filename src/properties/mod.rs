@@ -1,11 +1,15 @@
 use binrw::{BinRead, BinWrite, binrw};
 
 mod array_property;
+mod map_property;
 mod property;
+mod set_property;
 mod struct_property;
 
 pub use array_property::*;
+pub use map_property::*;
 pub use property::*;
+pub use set_property::*;
 pub use struct_property::*;
 
 use crate::{
@@ -116,8 +120,6 @@ pub struct Int8Property(pub i8);
 #[binrw]
 #[derive(Debug)]
 pub struct IntProperty(pub i32);
-
-// #[binrw] #[derive(Debug)] pub struct MapProperty();
 
 #[binrw]
 #[derive(Debug)]

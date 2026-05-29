@@ -20,10 +20,12 @@ pub enum Property {
     Int16(Int16Property),
     Int64(Int64Property),
     Int8(Int8Property),
+    Map(#[bw(args(options))] MapProperty),
     MulticastInlineDelegate(MulticastInlineDelegateProperty),
     MulticastSparseDelegate(MulticastSparseDelegateProperty),
     Name(NameProperty),
     Object(ObjectProperty),
+    Set(#[bw(args(options))] SetProperty),
     SoftObject(SoftObjectProperty),
     Str(StrProperty),
     Struct(#[bw(args(options))] StructProperty),
@@ -201,10 +203,9 @@ impl BinRead for Property {
         let size = t.size();
         let start = reader.stream_position()?;
 
-        // TODO: Improve handling of None results
         let property_type = t.property_type().unwrap_or_default();
-        let inner_type = t.inner_type().unwrap_or_default();
-        let type_name = t.type_name().unwrap_or_default();
+        let inner_type = t.array_inner_type().unwrap_or_default();
+        let type_name = t.struct_type_name().unwrap_or_default();
 
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
@@ -219,22 +220,22 @@ impl BinRead for Property {
             NAME_INT64_PROPERTY  => Property::Int64 ( Int64Property::read_options(reader, endian, ())?),
             NAME_INT8_PROPERTY   => Property::Int8  (  Int8Property::read_options(reader, endian, ())?),
             NAME_INT_PROPERTY    => Property::Int   (   IntProperty::read_options(reader, endian, ())?),
-            // NAME_MAP_PROPERTY    => Property::Map   (   MapProperty::read_options(reader, endian, (options, t))?),
+            NAME_MAP_PROPERTY    => Property::Map   (   MapProperty::read_options(reader, endian, (options, t))?),
             NAME_MULTICAST_INLINE_DELGATE_PROPERTY => Property::MulticastInlineDelegate(MulticastInlineDelegateProperty::read_options(reader, endian, ())?),
             NAME_MULTICAST_SPARSE_DELGATE_PROPERTY => Property::MulticastSparseDelegate(MulticastSparseDelegateProperty::read_options(reader, endian, ())?),
             NAME_NAME_PROPERTY   => Property::Name  (  NameProperty::read_options(reader, endian, ())?),
             NAME_OBJECT_PROPERTY => Property::Object(ObjectProperty::read_options(reader, endian, ())?),
             // NAME_OPTION_PROPERTY => Property::Option(OptionProperty::read_options(reader, endian, ())?),
-            // NAME_SET_PROPERTY    => Property::Set   (   SetProperty::read_options(reader, endian, (options, t))?),
+            NAME_SET_PROPERTY    => Property::Set   (   SetProperty::read_options(reader, endian, (options, t))?),
             NAME_SOFT_OBJECT_PROPERTY => Property::SoftObject(SoftObjectProperty::read_options(reader, endian, (options,))?),
-            NAME_STRUCT_PROPERTY => Property::Struct(StructProperty::read_options(reader, endian, (options, type_name))?),
+            NAME_STRUCT_PROPERTY => Property::Struct(StructProperty::read_options(reader, endian, (options, t, type_name))?),
             NAME_STR_PROPERTY    => Property::Str   (   StrProperty::read_options(reader, endian, ())?),
             NAME_TEXT_PROPERTY   => Property::Text  (  TextProperty::read_options(reader, endian, (options,))?),
             NAME_UINT16_PROPERTY => Property::UInt16(UInt16Property::read_options(reader, endian, ())?),
             NAME_UINT32_PROPERTY => Property::UInt32(UInt32Property::read_options(reader, endian, ())?),
             NAME_UINT64_PROPERTY => Property::UInt64(UInt64Property::read_options(reader, endian, ())?),
             _ => {
-                println!("Warning: Unrecognized property type {:?}", property_type);
+                println!("Warning: Unrecognized property type {property_type}");
                 let mut buf = vec![0u8; size as usize];
                 reader.read_exact(&mut buf)?;
                 return Ok(Property::Unknown(buf));
@@ -246,7 +247,7 @@ impl BinRead for Property {
         let size = size as i64;
         let pos = reader.stream_position()? as i64;
         let bytes_read = pos - start;
-        if bytes_read != size {
+        if size != 0 && bytes_read != size {
             let remaining = size - bytes_read;
             reader.seek_relative(remaining)?;
             println!(

@@ -1,6 +1,6 @@
 use binrw::binrw;
 
-use crate::{options::ParsingOptions, types::TaggedProperties};
+use crate::{options::ParsingOptions, types::{PropertyType, TaggedProperties}};
 
 mod structs {
     use binrw::binrw;
@@ -72,7 +72,7 @@ mod structs {
 pub use structs::*;
 
 #[binrw]
-#[br(import(options: ParsingOptions, struct_type: &str))]
+#[br(import(options: ParsingOptions, t: &PropertyType, struct_type: &str))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum StructProperty {
@@ -97,4 +97,5 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "Vector2D"))]
     Vector2D(Vector2D),
     Custom(#[brw(args(options))] TaggedProperties),
+    Unknown(#[br(count = t.size())] Vec<u8>),
 }

@@ -20,6 +20,6 @@ pub use f_property_tag::{
 pub use f_save_game_header::{FSaveGameHeader, SaveGameFileVersion};
 pub use f_string::FString;
 pub use f_text::FText;
-pub use save_game_file::*;
+pub use save_game_file::SaveGameFile;
 pub use static_array::StaticArray;
 pub use static_option::StaticOption;

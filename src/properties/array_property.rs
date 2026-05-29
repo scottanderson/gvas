@@ -82,7 +82,7 @@ pub enum ArrayProperty {
         type_name: String,
 
         #[br(count = count)]
-        #[br(args { inner: (options, &type_name,) })]
+        #[br(args { inner: (options, t, &type_name,) })]
         #[bw(args(options))]
         values: Vec<StructProperty>,
     },
