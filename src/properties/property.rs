@@ -237,10 +237,14 @@ impl BinRead for Property {
         let bytes_read = pos - start;
         if size != 0 && bytes_read != size {
             let remaining = size - bytes_read;
-            reader.seek_relative(remaining)?;
+            reader.seek_relative(-bytes_read)?;
             println!(
-                "Warning: Reader position does not match size: 0x{pos:04X} 0x{size:04X} ({remaining}) {property_type:?} {inner_type:?} {type_name:?}",
+                "Warning: Reader position 0x{pos:04X} does not match size 0x{size:04X} for {property_type:?}: 0x{remaining:04X} remaining",
             );
+            let mut buf = vec![0u8; size as usize];
+            reader.read_exact(&mut buf)?;
+            let result = Property::Unknown(buf);
+            return Ok(result);
         }
 
         Ok(result)

@@ -53,7 +53,7 @@ impl std::fmt::Debug for TypeTree {
 }
 
 #[binrw]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 #[br(import(property_type: &str))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
@@ -105,7 +105,7 @@ pub enum CollectionProperties {
 
 #[binrw]
 #[br(import(options: ParsingOptions))]
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum PropertyType {
     #[br(pre_assert(!options.property_tag_complete_type_name))]
     Incomplete {
