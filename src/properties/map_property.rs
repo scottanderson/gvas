@@ -1,7 +1,7 @@
 use crate::{
     options::ParsingOptions,
     properties::Property,
-    types::{PropertyType, StaticArray},
+    types::{PropertyType, TArray},
 };
 use binrw::binrw;
 
@@ -14,7 +14,7 @@ pub enum MapProperty {
         allocation_flags: u32,
         #[br(args(options, &t.map_key_type(), &t.map_value_type()))]
         #[bw(args(options))]
-        properties: StaticArray<MapEntry>,
+        properties: TArray<MapEntry>,
     },
     Unknown(#[br(count = t.size())] Vec<u8>),
 }

@@ -136,10 +136,10 @@ impl Property {
                     property_type: TypeTree {
                         name: property_type,
                         children: match &self {
-                            Property::Array(_) => StaticArray(Vec::from([TypeTree {
+                            Property::Array(_) => TArray(Vec::from([TypeTree {
                                 name: inner_type,
 
-                                children: StaticArray(Vec::new()),
+                                children: TArray(Vec::new()),
                             }])),
                             // Property::Bool(_) => todo!(),
                             // Property::Delegate(_) => todo!(),

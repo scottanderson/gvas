@@ -1,7 +1,7 @@
 use crate::{
     options::ParsingOptions,
     properties::Property,
-    types::{PropertyType, StaticArray},
+    types::{PropertyType, TArray},
 };
 use binrw::binrw;
 
@@ -14,7 +14,7 @@ pub enum SetProperty {
         allocation_flags: u32,
         #[br(args(options, &t.set_element_type()))]
         #[bw(args(options))]
-        properties: StaticArray<Property>,
+        properties: TArray<Property>,
     },
     Unknown(#[br(count = t.size())] Vec<u8>),
 }

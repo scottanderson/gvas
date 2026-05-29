@@ -9,7 +9,7 @@ use crate::{
         NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NameProperty, ObjectProperty,
         PropertyType, SoftObjectProperty, StrProperty, StructProperty, TextProperty,
     },
-    types::{FPropertyTag, StaticArray},
+    types::{FPropertyTag, TArray},
 };
 
 impl FPropertyTag {
@@ -43,25 +43,25 @@ pub enum ArrayProperty {
     Byte(#[br(count = t.size())] Vec<u8>),
 
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
-    Enum(StaticArray<EnumProperty>),
+    Enum(TArray<EnumProperty>),
 
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
-    Float(StaticArray<FloatProperty>),
+    Float(TArray<FloatProperty>),
 
     #[br(pre_assert(inner_type == NAME_INT_PROPERTY))]
-    Int(StaticArray<IntProperty>),
+    Int(TArray<IntProperty>),
 
     #[br(pre_assert(inner_type == NAME_NAME_PROPERTY))]
-    Name(StaticArray<NameProperty>),
+    Name(TArray<NameProperty>),
 
     #[br(pre_assert(inner_type == NAME_OBJECT_PROPERTY))]
-    Object(StaticArray<ObjectProperty>),
+    Object(TArray<ObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_SOFT_OBJECT_PROPERTY))]
-    SoftObject(#[br(args(options))] StaticArray<SoftObjectProperty>),
+    SoftObject(#[br(args(options))] TArray<SoftObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
-    Str(StaticArray<StrProperty>),
+    Str(TArray<StrProperty>),
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY))]
     Struct {
@@ -88,7 +88,7 @@ pub enum ArrayProperty {
     },
 
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
-    Text(#[brw(args(options))] StaticArray<TextProperty>),
+    Text(#[brw(args(options))] TArray<TextProperty>),
 
     #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
     Unknown(#[br(count = t.size())] Vec<u8>),

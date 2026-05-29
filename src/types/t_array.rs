@@ -3,9 +3,9 @@ use std::num::TryFromIntError;
 use binrw::{BinRead, BinWrite};
 
 #[derive(Clone, Debug)]
-pub struct StaticArray<T>(pub Vec<T>);
+pub struct TArray<T>(pub Vec<T>);
 
-impl<T: BinRead> BinRead for StaticArray<T>
+impl<T: BinRead> BinRead for TArray<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -21,11 +21,11 @@ where
         for _ in 0..count {
             items.push(T::read_options(reader, endian, args)?);
         }
-        Ok(StaticArray(items))
+        Ok(TArray(items))
     }
 }
 
-impl<T: BinWrite> BinWrite for StaticArray<T>
+impl<T: BinWrite> BinWrite for TArray<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -51,14 +51,14 @@ where
     }
 }
 
-impl<T> std::ops::Deref for StaticArray<T> {
+impl<T> std::ops::Deref for TArray<T> {
     type Target = Vec<T>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<T> std::ops::DerefMut for StaticArray<T> {
+impl<T> std::ops::DerefMut for TArray<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

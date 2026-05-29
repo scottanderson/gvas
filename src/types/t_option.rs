@@ -1,11 +1,11 @@
 use binrw::{BinRead, BinWrite};
 
-use crate::types::StaticArray;
+use crate::types::TArray;
 
 #[derive(Debug)]
-pub struct StaticOption<T>(pub Option<T>);
+pub struct TOption<T>(pub Option<T>);
 
-impl<T: BinRead + std::fmt::Debug> BinRead for StaticOption<T>
+impl<T: BinRead + std::fmt::Debug> BinRead for TOption<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -25,15 +25,15 @@ where
                 pos,
                 err: Box::new(std::io::Error::new(
                     std::io::ErrorKind::InvalidData,
-                    format!("StaticOption expected 0 or 1 elements, got {n}"),
+                    format!("TOption expected 0 or 1 elements, got {n}"),
                 )),
             })?,
         };
-        Ok(StaticOption(value))
+        Ok(TOption(value))
     }
 }
 
-impl<T: BinWrite> BinWrite for StaticOption<T>
+impl<T: BinWrite> BinWrite for TOption<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -58,14 +58,14 @@ where
     }
 }
 
-impl<T> std::ops::Deref for StaticOption<T> {
+impl<T> std::ops::Deref for TOption<T> {
     type Target = Option<T>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<T> std::ops::DerefMut for StaticOption<T> {
+impl<T> std::ops::DerefMut for TOption<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

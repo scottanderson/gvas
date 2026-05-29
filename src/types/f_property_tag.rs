@@ -10,7 +10,7 @@ use crate::properties::{
     NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
     Property,
 };
-use crate::types::{FString, StaticArray};
+use crate::types::{FString, TArray};
 
 #[bitfield]
 #[binrw]
@@ -31,7 +31,7 @@ pub struct PropertyTagFlags {
 #[derive(Clone)]
 pub struct TypeTree {
     pub name: FString,
-    pub children: StaticArray<TypeTree>,
+    pub children: TArray<TypeTree>,
 }
 
 impl std::fmt::Debug for TypeTree {

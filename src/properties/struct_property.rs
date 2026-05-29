@@ -7,7 +7,7 @@ mod structs {
 
     use crate::{
         options::ParsingOptions,
-        types::{FString, StaticArray},
+        types::{FString, TArray},
     };
 
     #[binrw]
@@ -16,7 +16,7 @@ mod structs {
 
     #[binrw]
     #[derive(Debug)]
-    pub struct GameplayTagContainer(StaticArray<FString>);
+    pub struct GameplayTagContainer(TArray<FString>);
 
     #[binrw]
     #[derive(Debug)]

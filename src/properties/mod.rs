@@ -14,7 +14,7 @@ pub use struct_property::*;
 
 use crate::{
     options::ParsingOptions,
-    types::{CollectionProperties, FString, FText, PropertyType, StaticArray},
+    types::{CollectionProperties, FString, FText, PropertyType, TArray},
 };
 
 pub const NAME_NONE: &str = "None";
@@ -122,11 +122,11 @@ pub struct IntProperty(pub i32);
 
 #[binrw]
 #[derive(Debug)]
-pub struct MulticastInlineDelegateProperty(StaticArray<DelegateProperty>);
+pub struct MulticastInlineDelegateProperty(TArray<DelegateProperty>);
 
 #[binrw]
 #[derive(Debug)]
-pub struct MulticastSparseDelegateProperty(StaticArray<DelegateProperty>);
+pub struct MulticastSparseDelegateProperty(TArray<DelegateProperty>);
 
 #[binrw]
 #[derive(Debug)]

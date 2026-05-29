@@ -3,7 +3,7 @@ use binrw::{BinRead, BinWrite, binrw};
 use crate::{
     options::ParsingOptions,
     properties::DateTime,
-    types::{FString, StaticArray, StaticOption},
+    types::{FString, TArray, TOption},
 };
 
 #[binrw]
@@ -28,21 +28,21 @@ pub enum FTextHistory {
     None(#[br(args(options))] FTextHistoryNone),
     #[brw(magic = 0i8)]
     Base(FString, FString, FString),
-    // #[brw(magic = 1i8)] NamedFormat(Box<FText>, StaticArray<(FString, FormatArgumentValue)>),
-    // #[brw(magic = 2i8)] OrderedFormat(Box<FText>, StaticArray<FormatArgumentValue>),
+    // #[brw(magic = 1i8)] NamedFormat(Box<FText>, TArray<(FString, FormatArgumentValue)>),
+    // #[brw(magic = 2i8)] OrderedFormat(Box<FText>, TArray<FormatArgumentValue>),
     #[brw(magic = 3i8)]
     ArgumentFormat(
         #[brw(args(options))] Box<FText>,
-        #[brw(args(options))] StaticArray<ArgumentFormatEntry>,
+        #[brw(args(options))] TArray<ArgumentFormatEntry>,
     ),
     #[brw(magic = 4i8)]
     AsNumber(
         #[brw(args(options))] Box<FormatArgumentValue>,
-        #[brw(args(options))] StaticOption<NumberFormattingOptions>,
+        #[brw(args(options))] TOption<NumberFormattingOptions>,
         FString,
     ),
-    // #[brw(magic = 5i8)] AsPercent(FormatArgumentValue, StaticOption<NumberFormattingOptions>, FString),
-    // #[brw(magic = 6i8)] AsCurrency(FString, FormatArgumentValue, StaticOption<NumberFormattingOptions>, FString),
+    // #[brw(magic = 5i8)] AsPercent(FormatArgumentValue, TOption<NumberFormattingOptions>, FString),
+    // #[brw(magic = 6i8)] AsCurrency(FString, FormatArgumentValue, TOption<NumberFormattingOptions>, FString),
     // #[brw(magic = 7i8)] AsDate(DateTime, DateTimeStyle, #[brw(if(options.ftext_history_date_timezone))] FString, FString),
     // #[brw(magic = 8i8)] AsTime(DateTime, EDateTimeStyle, FString, FString),
     // #[brw(magic = 9i8)] AsDateTime(DateTime, DateTimeStyle, DateTimeStyle, FString, FString),
@@ -60,7 +60,7 @@ pub enum FTextHistoryNone {
     #[br(pre_assert(!options.culture_invariant_stability))]
     Old(),
     #[br(pre_assert(options.culture_invariant_stability))]
-    New(StaticOption<FString>),
+    New(TOption<FString>),
 }
 
 #[binrw]
