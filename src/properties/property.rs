@@ -49,10 +49,12 @@ impl Property {
             Property::Int16(..) => NAME_INT16_PROPERTY,
             Property::Int64(..) => NAME_INT64_PROPERTY,
             Property::Int8(..) => NAME_INT8_PROPERTY,
+            Property::Map(..) => NAME_MAP_PROPERTY,
             Property::MulticastInlineDelegate(..) => NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
             Property::MulticastSparseDelegate(..) => NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
             Property::Name(..) => NAME_NAME_PROPERTY,
             Property::Object(..) => NAME_OBJECT_PROPERTY,
+            Property::Set(..) => NAME_SET_PROPERTY,
             Property::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
             Property::Str(..) => NAME_STR_PROPERTY,
             Property::Struct(..) => NAME_STRUCT_PROPERTY,
@@ -60,11 +62,11 @@ impl Property {
             Property::UInt16(..) => NAME_UINT16_PROPERTY,
             Property::UInt32(..) => NAME_UINT32_PROPERTY,
             Property::UInt64(..) => NAME_UINT64_PROPERTY,
-            _ => todo!(),
+            _ => todo!("{self:#?}"),
         }
     }
 
-    fn inner_type_name(&self) -> Option<&str> {
+    fn array_inner_type_name(&self) -> Option<&str> {
         match &self {
             Property::Array(array_property) => Some(match array_property {
                 ArrayProperty::Bool(..) => NAME_BOOL_PROPERTY,
@@ -78,32 +80,9 @@ impl Property {
                 ArrayProperty::Str(..) => NAME_STR_PROPERTY,
                 ArrayProperty::Struct { .. } => NAME_STRUCT_PROPERTY,
                 ArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
-                _ => todo!(),
+                _ => todo!("{array_property:?}"),
             }),
-            // Property::Map(map_property) = match map_property { ... },
-            // Property::Option(option_property) = match option_property { ... },
-            // Property::Set(set_property) => match set_property { ... },
-            Property::Bool(..)
-            | Property::Delegate(..)
-            | Property::Double(..)
-            | Property::Enum(..)
-            | Property::Float(..)
-            | Property::Int(..)
-            | Property::Int16(..)
-            | Property::Int64(..)
-            | Property::Int8(..)
-            | Property::MulticastInlineDelegate(..)
-            | Property::MulticastSparseDelegate(..)
-            | Property::Name(..)
-            | Property::Object(..)
-            | Property::SoftObject(..)
-            | Property::Str(..)
-            | Property::Struct(..)
-            | Property::Text(..)
-            | Property::UInt16(..)
-            | Property::UInt32(..)
-            | Property::UInt64(..) => None,
-            _ => todo!(),
+            _ => None,
         }
     }
 
@@ -112,7 +91,7 @@ impl Property {
         let property_type = FString(Some(property_type_name.to_string()));
         let array_index = 0;
         let guid = 0;
-        let inner_type = FString(self.inner_type_name().map(|s| s.to_string()));
+        let inner_type = FString(self.array_inner_type_name().map(&str::to_string));
         match options.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
                 property_type,
@@ -143,7 +122,7 @@ impl Property {
                     | Property::UInt16(..)
                     | Property::UInt32(..)
                     | Property::UInt64(..) => CollectionProperties::None,
-                    _ => todo!(),
+                    _ => todo!("{self:?}"),
                 },
             },
             true => {
@@ -179,7 +158,7 @@ impl Property {
                             // Property::UInt16(_) => todo!(),
                             // Property::UInt32(_) => todo!(),
                             // Property::UInt64(_) => todo!(),
-                            _ => todo!(),
+                            _ => todo!("{self:?}"),
                         },
                     },
                     size,

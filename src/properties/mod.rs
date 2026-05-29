@@ -71,16 +71,15 @@ impl BinRead for BoolProperty {
 }
 
 impl BinWrite for BoolProperty {
-    // type Args<'a> = (PropertyTagFlags, &'a PropertyType);
     type Args<'a> = ();
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
-        _writer: &mut W,
-        _endian: binrw::Endian,
+        writer: &mut W,
+        endian: binrw::Endian,
         _args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        todo!()
+        u8::write_options(&if self.0 { 1 } else { 0 }, writer, endian, ())
     }
 }
 
