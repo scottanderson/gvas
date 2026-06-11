@@ -14,7 +14,7 @@ use crate::{
 
 impl FPropertyTag {
     #[inline]
-    fn array_struct_type_name(&self) -> Option<String> {
+    fn array_struct_type_name(&self) -> Option<&str> {
         let FPropertyTag::Some { property_type, .. } = &self else {
             return None;
         };
@@ -27,7 +27,21 @@ impl FPropertyTag {
         let FString(Some(type_name)) = type_name else {
             return None;
         };
-        Some(type_name.to_owned())
+        Some(type_name)
+    }
+
+    #[inline]
+    fn array_struct_guid(&self) -> Option<u128> {
+        let FPropertyTag::Some { property_type, .. } = &self else {
+            return None;
+        };
+        let PropertyType::Incomplete { extra, .. } = property_type else {
+            return None;
+        };
+        let CollectionProperties::Struct { guid, .. } = extra else {
+            return None;
+        };
+        Some(*guid)
     }
 }
 
@@ -63,26 +77,44 @@ pub enum ArrayProperty {
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
     Str(TArray<StrProperty>),
 
-    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY))]
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && options.property_tag_complete_type_name))]
     Struct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]
         count: u32,
 
-        #[br(temp, if(!options.property_tag_complete_type_name))]
-        #[br(args(options))]
-        #[bw(calc(None))]
-        struct_tag: Option<FPropertyTag>,
+        #[br(temp)]
+        #[br(calc = t.array_struct_type().expect("array_struct_type"))]
+        #[bw(ignore)]
+        meta: (&str, &str, &str),
 
         #[br(temp)]
-        #[br(calc = struct_tag
-            .and_then(|t| t.array_struct_type_name())
-            .unwrap_or_else(|| t.array_struct_type_name().expect("array_struct_type_type").to_string()))]
+        #[br(calc = meta.0)]
         #[bw(ignore)]
-        type_name: String,
+        type_name: &str,
 
         #[br(count = count)]
-        #[br(args { inner: (options, t, &type_name,) })]
+        #[br(args { inner: (options, t, type_name,) })]
+        #[bw(args(options))]
+        values: Vec<StructProperty>,
+    },
+
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !options.property_tag_complete_type_name))]
+    TaggedStruct {
+        #[br(temp)]
+        #[bw(try_calc(u32::try_from(values.len())))]
+        count: u32,
+
+        #[br(args(options))]
+        struct_tag: FPropertyTag,
+
+        #[br(temp)]
+        #[br(calc = struct_tag.array_struct_type_name().expect("array_struct_type_name"))]
+        #[bw(ignore)]
+        type_name: &str,
+
+        #[br(count = count)]
+        #[br(args { inner: (options, t, type_name,) })]
         #[bw(args(options))]
         values: Vec<StructProperty>,
     },

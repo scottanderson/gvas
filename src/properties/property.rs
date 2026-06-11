@@ -33,7 +33,7 @@ pub enum Property {
     UInt16(UInt16Property),
     UInt32(UInt32Property),
     UInt64(UInt64Property),
-    Unknown(Vec<u8>),
+    Unknown(PropertyType, Vec<u8>),
 }
 
 impl Property {
@@ -62,7 +62,21 @@ impl Property {
             Property::UInt16(..) => NAME_UINT16_PROPERTY,
             Property::UInt32(..) => NAME_UINT32_PROPERTY,
             Property::UInt64(..) => NAME_UINT64_PROPERTY,
-            _ => todo!("{self:#?}"),
+            Property::Unknown(t, ..) => match t {
+                PropertyType::Incomplete {
+                    property_type: FString(Some(name)),
+                    ..
+                } => name,
+                PropertyType::Complete {
+                    property_type:
+                        TypeTree {
+                            name: FString(Some(name)),
+                            ..
+                        },
+                    ..
+                } => name,
+                _ => todo!("{t:?}"),
+            },
         }
     }
 
@@ -79,6 +93,7 @@ impl Property {
                 ArrayProperty::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
                 ArrayProperty::Str(..) => NAME_STR_PROPERTY,
                 ArrayProperty::Struct { .. } => NAME_STRUCT_PROPERTY,
+                ArrayProperty::TaggedStruct { .. } => NAME_STRUCT_PROPERTY,
                 ArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
                 _ => todo!("{array_property:?}"),
             }),
@@ -109,7 +124,7 @@ impl Property {
                     // Property::Enum(..) => Collection::Enum {},
                     // Property::Map(..) => CollectionProperties::Map { inner_type, value_type },
                     // Property::Option(option_property) => CollectionProperties::Option { inner_type },
-                    // Property::Set(set_property) => CollectionProperties::Set { inner_type },
+                    Property::Set(..) => CollectionProperties::Set { inner_type },
                     Property::Delegate(..)
                     | Property::Double(..)
                     | Property::Enum(..)
@@ -128,7 +143,8 @@ impl Property {
                     | Property::Text(..)
                     | Property::UInt16(..)
                     | Property::UInt32(..)
-                    | Property::UInt64(..) => CollectionProperties::None,
+                    | Property::UInt64(..)
+                    | Property::Unknown(..) => CollectionProperties::None,
                     _ => todo!("{self:?}"),
                 },
             },
@@ -226,7 +242,8 @@ impl BinRead for Property {
                 println!("Warning: Unrecognized property type {property_type}");
                 let mut buf = vec![0u8; size as usize];
                 reader.read_exact(&mut buf)?;
-                return Ok(Property::Unknown(buf));
+                let result = Property::Unknown(t.clone(), buf);
+                return Ok(result);
             }
         };
 
@@ -243,7 +260,7 @@ impl BinRead for Property {
             );
             let mut buf = vec![0u8; size as usize];
             reader.read_exact(&mut buf)?;
-            let result = Property::Unknown(buf);
+            let result = Property::Unknown(t.clone(), buf);
             return Ok(result);
         }
 
