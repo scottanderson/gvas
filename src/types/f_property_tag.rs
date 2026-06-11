@@ -367,7 +367,7 @@ impl PropertyType {
 pub enum FPropertyTag {
     None,
     Some {
-        name: String,
+        name: FString,
         property_type: PropertyType,
     },
 }
@@ -381,14 +381,12 @@ impl BinRead for FPropertyTag {
         (options,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let name = FString::read_options(reader, endian, ())?;
-        let name = match name.0 {
-            None => return Ok(Self::None),
-            Some(name) if name == NAME_NONE => return Ok(Self::None),
-            Some(name) => name,
+        if let Some(ref name) = name.0
+            && name == NAME_NONE
+        {
+            return Ok(Self::None);
         };
-
         let property_type = PropertyType::read_options(reader, endian, (options,))?;
-
         Ok(FPropertyTag::Some {
             name,
             property_type,
@@ -405,12 +403,21 @@ impl BinWrite for FPropertyTag {
         endian: binrw::Endian,
         args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        todo!()
+        match self {
+            FPropertyTag::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
+            FPropertyTag::Some {
+                name,
+                property_type,
+            } => {
+                name.write_options(writer, endian, args)?;
+                property_type.write_options(writer, endian, args)
+            }
+        }
     }
 }
 
 #[derive(Debug)]
-pub struct TaggedProperties(pub Vec<(String, Property)>);
+pub struct TaggedProperties(pub Vec<(FString, Property)>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (ParsingOptions,);
@@ -448,24 +455,23 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (options,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for (name, property) in &self.0 {
+        for (name, property) in self.0.iter() {
             // Write to temp buffer
             let mut buf = Cursor::new(Vec::new());
             property.write_options(&mut buf, endian, (options,))?;
             let property_buf = buf.into_inner();
             let len = property_buf.len() as u32;
 
-            let property_name = FString(Some(name.to_string()));
-            let property_tag = property.tag(options, len);
+            // Generate property tag
+            let property_type = property.property_type(options, len);
 
             // Write tagged property to writer
-            property_name.write_options(writer, endian, ())?;
-            property_tag.write_options(writer, endian, ())?;
+            name.write_options(writer, endian, ())?;
+            property_type.write_options(writer, endian, ())?;
             property_buf.write_options(writer, endian, ())?;
         }
         // Write the sentinel value "None" to terminate the list
-        let none = FString(Some(NAME_NONE.to_string()));
-        none.write_options(writer, endian, ())?;
+        FPropertyTag::None.write_options(writer, endian, ())?;
         Ok(())
     }
 }

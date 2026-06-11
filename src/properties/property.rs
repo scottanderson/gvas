@@ -104,7 +104,7 @@ impl Property {
         }
     }
 
-    pub fn tag(&self, options: ParsingOptions, size: u32) -> PropertyType {
+    pub fn property_type(&self, options: ParsingOptions, size: u32) -> PropertyType {
         let property_type_name = self.property_type_name();
         let property_type = FString(Some(property_type_name.to_string()));
         let array_index = 0;
