@@ -104,6 +104,30 @@ impl BinWrite for FString {
     }
 }
 
+impl From<String> for FString {
+    fn from(value: String) -> Self {
+        FString(Some(value))
+    }
+}
+
+impl From<Option<String>> for FString {
+    fn from(value: Option<String>) -> Self {
+        FString(value)
+    }
+}
+
+impl From<&str> for FString {
+    fn from(value: &str) -> Self {
+        FString(Some(value.to_owned()))
+    }
+}
+
+impl From<Option<&str>> for FString {
+    fn from(value: Option<&str>) -> Self {
+        FString(value.map(ToOwned::to_owned))
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::FString;
@@ -130,21 +154,21 @@ mod test {
     fn read_fstring_empty() {
         let mut cursor = Cursor::new(BYTES_EMPTY);
         let string = FString::read_le(&mut cursor).expect("FString::read_le");
-        assert_eq!(string, FString(Some(String::from(STR_EMPTY))));
+        assert_eq!(string, FString::from(STR_EMPTY));
     }
 
     #[test]
     fn read_fstring_ascii() {
         let mut cursor = Cursor::new(BYTES_PROPERTY);
         let string = FString::read_le(&mut cursor).expect("FString::read_le");
-        assert_eq!(string, FString(Some(String::from(STR_PROPERTY))));
+        assert_eq!(string, FString::from(STR_PROPERTY));
     }
 
     #[test]
     fn read_fstring_utf16() {
         let mut cursor = Cursor::new(BYTES_UTF16);
         let string = FString::read_le(&mut cursor).expect("FString::read_le");
-        assert_eq!(string, FString(Some(String::from(STR_UTF16))));
+        assert_eq!(string, FString::from(STR_UTF16));
     }
 
     #[test]

@@ -16,7 +16,7 @@ use crate::types::{FString, TArray};
 #[binrw]
 #[br(map = Self::from_bytes)]
 #[bw(map = |&x| Self::into_bytes(x))]
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct PropertyTagFlags {
     pub has_array_index: bool,
     pub has_property_guid: bool,
@@ -28,10 +28,19 @@ pub struct PropertyTagFlags {
 }
 
 #[binrw]
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct TypeTree {
     pub name: FString,
     pub children: TArray<TypeTree>,
+}
+
+impl From<FString> for TypeTree {
+    fn from(name: FString) -> Self {
+        Self {
+            name,
+            children: TArray(vec![]),
+        }
+    }
 }
 
 impl std::fmt::Debug for TypeTree {
@@ -53,7 +62,7 @@ impl std::fmt::Debug for TypeTree {
 }
 
 #[binrw]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 #[br(import(property_type: &str))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
@@ -105,7 +114,7 @@ pub enum CollectionProperties {
 
 #[binrw]
 #[br(import(options: ParsingOptions))]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PropertyType {
     #[br(pre_assert(!options.property_tag_complete_type_name))]
     Incomplete {
@@ -135,7 +144,7 @@ impl PropertyType {
     #[inline]
     fn synthetic_incomplete(name: &str, size: u32) -> Self {
         PropertyType::Incomplete {
-            property_type: FString(Some(name.to_string())),
+            property_type: FString::from(name),
             size,
             array_index: 0,
             extra: CollectionProperties::None,
@@ -363,7 +372,7 @@ impl PropertyType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Eq, PartialEq)]
 pub enum FPropertyTag {
     None,
     Some {
@@ -473,5 +482,131 @@ impl BinWrite for TaggedProperties {
         // Write the sentinel value "None" to terminate the list
         FPropertyTag::None.write_options(writer, endian, ())?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod test {
+
+    use crate::{error::Result, properties::StructProperty};
+
+    use super::*;
+
+    const OPTIONS_INCOMPLETE: ParsingOptions = ParsingOptions {
+        ftext_history_date_timezone: false,
+        property_tag_complete_type_name: false,
+        fsoftobjectpath_remove_asset_path_fnames: false,
+        text_64bit_support: false,
+        large_world_coordinates: false,
+        include_always_sign: false,
+        culture_invariant_stability: false,
+    };
+
+    const OPTIONS_COMPLETE: ParsingOptions = ParsingOptions {
+        ftext_history_date_timezone: true,
+        property_tag_complete_type_name: true,
+        fsoftobjectpath_remove_asset_path_fnames: true,
+        text_64bit_support: true,
+        large_world_coordinates: true,
+        include_always_sign: true,
+        culture_invariant_stability: true,
+    };
+
+    fn test_fpropertytag(
+        tag: FPropertyTag,
+        expected: &[u8],
+        options: ParsingOptions,
+    ) -> Result<()> {
+        // Write
+        let mut buf = Cursor::new(vec![]);
+        tag.write_le(&mut buf)?;
+        let buf = buf.into_inner();
+        assert_eq!(buf, expected);
+
+        // Read
+        let mut cursor = Cursor::new(Vec::from(expected));
+        let read = FPropertyTag::read_le_args(&mut cursor, (options,))?;
+        assert_eq!(tag, read);
+
+        Ok(())
+    }
+
+    #[test]
+    fn structproperty_incomplete() -> Result<()> {
+        test_fpropertytag(
+            FPropertyTag::Some {
+                name: FString::from("test"),
+                property_type: PropertyType::Incomplete {
+                    property_type: FString::from(NAME_STRUCT_PROPERTY),
+                    size: 0,
+                    array_index: 0,
+                    extra: CollectionProperties::Struct {
+                        type_name: FString::from("TestClass"),
+                        guid: 0,
+                    },
+                },
+            },
+            &[
+                5, 0, 0, 0, b't', b'e', b's', b't', 0, // name
+                15, 0, 0, 0, b'S', b't', b'r', b'u', b'c', b't', b'P', b'r', b'o', b'p', b'e',
+                b'r', b't', b'y', 0, // type
+                0, 0, 0, 0, // size
+                0, 0, 0, 0, // array_index
+                10, 0, 0, 0, b'T', b'e', b's', b't', b'C', b'l', b'a', b's', b's',
+                0, // type_name
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // guid
+                0, // footer
+            ],
+            OPTIONS_INCOMPLETE,
+       )
+    }
+
+    #[test]
+    fn structproperty_complete() -> Result<()> {
+        test_fpropertytag(
+            FPropertyTag::Some {
+                name: FString::from("test"),
+                property_type: PropertyType::Complete {
+                    property_type: TypeTree {
+                        name: FString::from(NAME_STRUCT_PROPERTY),
+                        children: TArray(vec![
+                            TypeTree {
+                                name: FString::from("TestClass"),
+                                children: TArray(vec![TypeTree {
+                                    name: FString::from("/path"),
+                                    children: TArray(vec![]),
+                                }]),
+                            },
+                            TypeTree {
+                                name: FString::from("guid"),
+                                children: TArray(vec![]),
+                            },
+                        ]),
+                    },
+                    size: 0,
+                    flags: PropertyTagFlags { bytes: [0] },
+                    array_index: 0,
+                    guid: 0,
+                },
+            },
+            &[
+                5, 0, 0, 0, b't', b'e', b's', b't', 0, // name
+                15, 0, 0, 0, b'S', b't', b'r', b'u', b'c', b't', b'P', b'r', b'o', b'p', b'e',
+                b'r', b't', b'y', 0, // type
+                2, 0, 0, 0, // root child count
+                10, 0, 0, 0, b'T', b'e', b's', b't', b'C', b'l', b'a', b's', b's',
+                0, // child 1 name
+                1, 0, 0, 0, // child 1 child count
+                6, 0, 0, 0, b'/', b'p', b'a', b't', b'h', 0, // child 1.1 name
+                0, 0, 0, 0, // child 1.1 child count
+                5, 0, 0, 0, b'g', b'u', b'i', b'd', 0, // child 2 name
+                0, 0, 0, 0, // child 2 child count
+                0, 0, 0, 0, // size
+                0, 0, 0, 0, // flags
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // guid
+                0, // terminator
+            ],
+            OPTIONS_COMPLETE,
+        )
     }
 }

@@ -106,10 +106,10 @@ impl Property {
 
     pub fn property_type(&self, options: ParsingOptions, size: u32) -> PropertyType {
         let property_type_name = self.property_type_name();
-        let property_type = FString(Some(property_type_name.to_string()));
+        let property_type = FString::from(property_type_name);
         let array_index = 0;
         let guid = 0;
-        let inner_type = FString(self.container_inner_type_name().map(&str::to_string));
+        let inner_type = FString::from(self.container_inner_type_name());
         match options.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
                 property_type,
