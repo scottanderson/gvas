@@ -3,14 +3,15 @@ use binrw::BinWrite;
 use crate::{
     types::FSaveGameHeader,
     versions::{
-        EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE5Version,
-        GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
+        EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
+        EUnrealEngineObjectUE5Version, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
     },
 };
 
 #[derive(Clone, Copy, Debug)]
 pub struct ParsingOptions {
-    // pub ftext_history_date_timezone: bool,
+    pub ftext_history_date_timezone: bool,
+    pub property_tag_set_map_support: bool,
     pub property_tag_complete_type_name: bool,
     pub fsoftobjectpath_remove_asset_path_fnames: bool,
     pub text_64bit_support: bool,
@@ -35,7 +36,7 @@ impl BinWrite for ParsingOptions {
 
 impl From<&FSaveGameHeader> for ParsingOptions {
     fn from(header: &FSaveGameHeader) -> Self {
-        // let package_file_version = header.package_file_version.version_ue4();
+        let package_file_version = header.package_file_version.version_ue4();
         let package_file_version_ue5 = header.package_file_version.version_ue5();
         fn get_custom_version(header: &FSaveGameHeader, version: u128) -> u32 {
             match &header.custom_versions {
@@ -46,8 +47,10 @@ impl From<&FSaveGameHeader> for ParsingOptions {
         let release_version = get_custom_version(header, GUID_UE5_RELEASE_STREAM);
         let editor_version = get_custom_version(header, GUID_EDITOR);
         ParsingOptions {
-            // ftext_history_date_timezone: package_file_version
-            //     >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,
+            ftext_history_date_timezone: package_file_version
+                >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,
+            property_tag_set_map_support: package_file_version
+                >= EUnrealEngineObjectUE4Version::PropertyTagSetMapSupport as u32,
             property_tag_complete_type_name: package_file_version_ue5
                 >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32,
             fsoftobjectpath_remove_asset_path_fnames: package_file_version_ue5

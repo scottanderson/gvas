@@ -11,7 +11,7 @@ use crate::types::{
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[br(import(property_type: &str))]
+#[br(import(options: ParsingOptions, property_type: &str))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
     Array {
@@ -33,8 +33,7 @@ pub enum CollectionProperties {
         enum_name: FString,
     },
 
-    // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && options.property_tag_set_map_support))]
     Map {
         inner_type: FString,
         value_type: FString,
@@ -45,8 +44,7 @@ pub enum CollectionProperties {
         inner_type: FString,
     },
 
-    // VER_UE4_PROPERTY_TAG_SET_MAP_SUPPORT
-    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && options.property_tag_set_map_support))]
     Set {
         inner_type: FString,
     },
@@ -69,7 +67,7 @@ pub enum PropertyType {
         property_type: FString,
         size: u32,
         array_index: u32,
-        #[br(args(property_type.0.as_deref().unwrap_or("")))]
+        #[br(args(options, property_type.0.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
         #[br(temp, assert(footer == 0))]
         #[bw(calc(0))]
@@ -434,7 +432,8 @@ mod test {
     use super::*;
 
     const OPTIONS_INCOMPLETE: ParsingOptions = ParsingOptions {
-        // ftext_history_date_timezone: false,
+        ftext_history_date_timezone: false,
+        property_tag_set_map_support: false,
         property_tag_complete_type_name: false,
         fsoftobjectpath_remove_asset_path_fnames: false,
         text_64bit_support: false,
@@ -444,7 +443,8 @@ mod test {
     };
 
     const OPTIONS_COMPLETE: ParsingOptions = ParsingOptions {
-        // ftext_history_date_timezone: true,
+        ftext_history_date_timezone: true,
+        property_tag_set_map_support: true,
         property_tag_complete_type_name: true,
         fsoftobjectpath_remove_asset_path_fnames: true,
         text_64bit_support: true,
