@@ -78,6 +78,7 @@ pub enum ArrayProperty {
     Str(TArray<StrProperty>),
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && options.property_tag_complete_type_name))]
+    #[bw(assert(options.property_tag_complete_type_name))]
     Struct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]
@@ -100,6 +101,7 @@ pub enum ArrayProperty {
     },
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !options.property_tag_complete_type_name))]
+    #[bw(assert(!options.property_tag_complete_type_name))]
     TaggedStruct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]

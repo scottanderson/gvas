@@ -12,7 +12,11 @@ use binrw::binrw;
 pub enum SetProperty {
     Known {
         allocation_flags: u32,
-        #[br(args(options, &t.set_element_type()))]
+        #[br(calc = t.set_element_type().expect("set_element_type"))]
+        #[bw(ignore)]
+        element_type: PropertyType,
+
+        #[br(args(options, &element_type))]
         #[bw(args(options))]
         properties: TArray<Property>,
     },

@@ -122,7 +122,39 @@ impl Property {
                     },
                     // Property::Byte(..) => Collection::Byte {},
                     // Property::Enum(..) => Collection::Enum {},
-                    // Property::Map(..) => CollectionProperties::Map { inner_type, value_type },
+                    Property::Map(map_property) => {
+                        let (key_type, value_type) = match map_property {
+                            MapProperty::Known {
+                                key_type,
+                                value_type,
+                                ..
+                            }
+                            | MapProperty::Unknown {
+                                key_type,
+                                value_type,
+                                ..
+                            } => (key_type, value_type),
+                        };
+
+                        let PropertyType::Incomplete {
+                            property_type: key_type,
+                            ..
+                        } = key_type
+                        else {
+                            todo!()
+                        };
+                        let PropertyType::Incomplete {
+                            property_type: value_type,
+                            ..
+                        } = value_type
+                        else {
+                            todo!()
+                        };
+                        CollectionProperties::Map {
+                            inner_type: key_type.clone(),
+                            value_type: value_type.clone(),
+                        }
+                    }
                     // Property::Option(option_property) => CollectionProperties::Option { inner_type },
                     Property::Set(..) => CollectionProperties::Set { inner_type },
                     Property::Delegate(..)
@@ -145,7 +177,7 @@ impl Property {
                     | Property::UInt32(..)
                     | Property::UInt64(..)
                     | Property::Unknown(..) => CollectionProperties::None,
-                    _ => todo!("{self:?}"),
+                    // _ => todo!("{self:?}"),
                 },
             },
             true => {
@@ -165,20 +197,20 @@ impl Property {
                                 TArray(Vec::new())
                             }
                             // Property::Delegate(_) => todo!(),
-                            // Property::Double(_) => todo!(),
+                            Property::Double(_) |
                             // Property::Enum(_) => todo!(),
                             // Property::Float(_) => todo!(),
-                            // Property::Int(_) => todo!(),
+                            Property::Int(_) |
                             // Property::Int16(_) => todo!(),
                             // Property::Int64(_) => todo!(),
                             // Property::Int8(_) => todo!(),
                             // Property::MulticastInlineDelegate(_) => todo!(),
                             // Property::MulticastSparseDelegate(_) => todo!(),
-                            // Property::Name(_) => todo!(),
+                            Property::Name(_) => TArray(Vec::from([])),
                             // Property::Object(_) => todo!(),
                             // Property::SoftObject(_) => todo!(),
                             // Property::Str(_) => todo!(),
-                            // Property::Struct(_) => todo!(),
+                            Property::Struct(struct_property) => todo!(),
                             // Property::Text(_) => todo!(),
                             // Property::UInt16(_) => todo!(),
                             // Property::UInt32(_) => todo!(),
@@ -207,13 +239,15 @@ impl BinRead for Property {
         let size = t.size();
         let start = reader.stream_position()?;
 
-        let property_type = t.property_type().unwrap_or_default();
-        let inner_type = t.array_inner_type().unwrap_or_default();
-        let type_name = t.struct_type_name().unwrap_or_default();
+        let property_type = t.property_type().expect("property_type");
 
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
-            NAME_ARRAY_PROPERTY  => Property::Array ( ArrayProperty::read_options(reader, endian, (options, t, inner_type))?),
+            NAME_ARRAY_PROPERTY  => {
+                let inner_type = t.array_inner_type().expect("inner_type");
+                let array_property = ArrayProperty::read_options(reader, endian, (options, t, inner_type))?;
+                Property::Array(array_property)
+            },
             NAME_BOOL_PROPERTY   => Property::Bool  (  BoolProperty::read_options(reader, endian, (t,))?),
             // NAME_BYTE_PROPERTY   => Property::Byte  (  ByteProperty::read_options(reader, endian, ())?),
             NAME_DELEGATE_PROPERTY => Property::Delegate(DelegateProperty::read_options(reader, endian, ())?),
@@ -232,7 +266,11 @@ impl BinRead for Property {
             // NAME_OPTION_PROPERTY => Property::Option(OptionProperty::read_options(reader, endian, ())?),
             NAME_SET_PROPERTY    => Property::Set   (   SetProperty::read_options(reader, endian, (options, t))?),
             NAME_SOFT_OBJECT_PROPERTY => Property::SoftObject(SoftObjectProperty::read_options(reader, endian, (options,))?),
-            NAME_STRUCT_PROPERTY => Property::Struct(StructProperty::read_options(reader, endian, (options, t, type_name))?),
+            NAME_STRUCT_PROPERTY => {
+                let type_name = t.struct_type_name().unwrap_or_default();
+                let struct_property = StructProperty::read_options(reader, endian, (options, t, type_name))?;
+                Property::Struct(struct_property)
+            },
             NAME_STR_PROPERTY    => Property::Str   (   StrProperty::read_options(reader, endian, ())?),
             NAME_TEXT_PROPERTY   => Property::Text  (  TextProperty::read_options(reader, endian, (options,))?),
             NAME_UINT16_PROPERTY => Property::UInt16(UInt16Property::read_options(reader, endian, ())?),
@@ -256,7 +294,7 @@ impl BinRead for Property {
             let remaining = size - bytes_read;
             reader.seek_relative(-bytes_read)?;
             println!(
-                "Warning: Reader position 0x{pos:04X} does not match size 0x{size:04X} for {property_type:?}: 0x{remaining:04X} remaining",
+                "Warning: Reader position 0x{pos:04X} does not match size 0x{size:04X} for {t:?}: 0x{remaining:04X} remaining",
             );
             let mut buf = vec![0u8; size as usize];
             reader.read_exact(&mut buf)?;

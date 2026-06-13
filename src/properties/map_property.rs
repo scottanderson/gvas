@@ -12,11 +12,31 @@ use binrw::binrw;
 pub enum MapProperty {
     Known {
         allocation_flags: u32,
-        #[br(args(options, &t.map_key_type(), &t.map_value_type()))]
+
+        #[br(calc = t.map_key_type().expect("key_type"))]
+        #[bw(ignore)]
+        key_type: PropertyType,
+
+        #[br(calc = t.map_value_type().expect("value_type"))]
+        #[bw(ignore)]
+        value_type: PropertyType,
+
+        #[br(args(options, &key_type, &value_type))]
         #[bw(args(options))]
         properties: TArray<MapEntry>,
     },
-    Unknown(#[br(count = t.size())] Vec<u8>),
+    Unknown {
+        #[br(calc = t.map_key_type().expect("key_type"))]
+        #[bw(ignore)]
+        key_type: PropertyType,
+
+        #[br(calc = t.map_value_type().expect("value_type"))]
+        #[bw(ignore)]
+        value_type: PropertyType,
+
+        #[br(count = t.size())]
+        data: Vec<u8>,
+    },
 }
 
 #[binrw]

@@ -163,27 +163,30 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn map_key_type(&self) -> Self {
+    pub fn map_key_type(&self) -> Option<Self> {
         let size = 0;
         match self {
             PropertyType::Incomplete {
-                extra: CollectionProperties::Map { inner_type, .. },
+                extra:
+                    CollectionProperties::Map {
+                        inner_type: FString(Some(name)),
+                        ..
+                    },
                 ..
-            } => Self::synthetic_incomplete(inner_type.0.as_deref().unwrap_or(""), size),
+            } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
                 property_type: TypeTree { children, .. },
                 ..
             } => children
                 .first()
                 .cloned()
-                .map(|t| Self::synthetic_complete(t, size))
-                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
-            _ => Self::synthetic_incomplete("", size),
+                .map(|t| Self::synthetic_complete(t, size)),
+            _ => None,
         }
     }
 
     #[inline]
-    pub fn map_value_type(&self) -> Self {
+    pub fn map_value_type(&self) -> Option<Self> {
         let size = 0;
         match self {
             PropertyType::Incomplete {
@@ -193,21 +196,20 @@ impl PropertyType {
                         ..
                     },
                 ..
-            } => Self::synthetic_incomplete(name, size),
+            } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
                 property_type: TypeTree { children, .. },
                 ..
             } => children
                 .get(1)
                 .cloned()
-                .map(|t| Self::synthetic_complete(t, size))
-                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
-            _ => Self::synthetic_incomplete("", size),
+                .map(|t| Self::synthetic_complete(t, size)),
+            _ => None,
         }
     }
 
     #[inline]
-    pub fn set_element_type(&self) -> Self {
+    pub fn set_element_type(&self) -> Option<Self> {
         let size = 0;
         match self {
             PropertyType::Incomplete {
@@ -216,16 +218,15 @@ impl PropertyType {
                         inner_type: FString(Some(name)),
                     },
                 ..
-            } => Self::synthetic_incomplete(name, size),
+            } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
                 property_type: TypeTree { children, .. },
                 ..
             } => children
                 .first()
                 .cloned()
-                .map(|t| Self::synthetic_complete(t, size))
-                .unwrap_or_else(|| Self::synthetic_incomplete("", size)),
-            _ => Self::synthetic_incomplete("", size),
+                .map(|t| Self::synthetic_complete(t, size)),
+            _ => None,
         }
     }
 
@@ -558,7 +559,7 @@ mod test {
                 0, // footer
             ],
             OPTIONS_INCOMPLETE,
-       )
+        )
     }
 
     #[test]
