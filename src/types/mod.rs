@@ -6,6 +6,7 @@ mod f_guid;
 mod f_package_file_version;
 mod f_property_tag;
 mod f_property_type_name;
+mod f_quat;
 mod f_save_game_header;
 mod f_string;
 mod f_text;
@@ -26,6 +27,7 @@ pub use crate::types::{
     f_package_file_version::FPackageFileVersion,
     f_property_tag::{CollectionProperties, FPropertyTag, PropertyType, TaggedProperties},
     f_property_type_name::FPropertyTypeName,
+    f_quat::FQuat,
     f_save_game_header::{FSaveGameHeader, SaveGameFileVersion},
     f_string::FString,
     f_text::FText,

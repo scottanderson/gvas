@@ -2,7 +2,7 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{FDateTime, FGuid, FTimespan, FVector, PropertyType, TaggedProperties},
+    types::{FDateTime, FGuid, FQuat, FTimespan, FVector, PropertyType, TaggedProperties},
 };
 
 mod structs {
@@ -24,16 +24,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct LinearColor(f32, f32, f32, f32);
-
-    #[binrw]
-    #[br(import(options: ParsingOptions))]
-    #[derive(Debug)]
-    pub enum Quat {
-        #[br(pre_assert(!options.large_world_coordinates))]
-        QuatF(f32, f32, f32, f32),
-        #[br(pre_assert(options.large_world_coordinates))]
-        QuatD(f64, f64, f64, f64),
-    }
 
     #[binrw]
     #[derive(Debug)]
@@ -68,7 +58,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "LinearColor"))]
     LinearColor(LinearColor),
     #[br(pre_assert(struct_type == "Quat"))]
-    Quat(#[br(args(options))] Quat),
+    Quat(#[br(args(options))] FQuat),
     #[br(pre_assert(struct_type == "Rotator"))]
     Rotator(#[br(args(options))] Rotator),
     #[br(pre_assert(struct_type == "Timespan"))]
