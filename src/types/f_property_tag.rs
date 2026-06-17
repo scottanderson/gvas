@@ -28,7 +28,7 @@ pub struct PropertyTagFlags {
 }
 
 #[binrw]
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TypeTree {
     pub name: FString,
     pub children: TArray<TypeTree>,
@@ -43,7 +43,7 @@ impl From<FString> for TypeTree {
     }
 }
 
-impl std::fmt::Debug for TypeTree {
+impl std::fmt::Display for TypeTree {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let name = self.name.0.as_deref().unwrap_or(NAME_NONE);
         write!(f, "{}", name)?;
@@ -249,20 +249,16 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn array_inner_type(&self) -> Option<&str> {
+    pub fn array_inner_type(&self) -> Option<&FString> {
         match self {
             PropertyType::Incomplete {
-                extra:
-                    CollectionProperties::Array { inner_type, .. }
-                    | CollectionProperties::Map { inner_type, .. }
-                    | CollectionProperties::Option { inner_type, .. }
-                    | CollectionProperties::Set { inner_type, .. },
+                extra: CollectionProperties::Array { inner_type, .. },
                 ..
-            } => inner_type.0.as_deref(),
+            } => Some(inner_type),
             PropertyType::Complete {
                 property_type: TypeTree { children, .. },
                 ..
-            } => children.first().and_then(|head| head.name.0.as_deref()),
+            } => children.first().map(|head| &head.name),
             _ => None,
         }
     }
@@ -270,11 +266,7 @@ impl PropertyType {
     #[inline]
     pub fn array_complete_type(&self) -> Option<&TypeTree> {
         let PropertyType::Complete {
-            property_type:
-                TypeTree {
-                    name: FString(Some(name)),
-                    children,
-                },
+            property_type: TypeTree { name, children },
             ..
         } = self
         else {

@@ -46,7 +46,7 @@ impl FPropertyTag {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &str))]
+#[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &FString))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
 pub enum ArrayProperty {

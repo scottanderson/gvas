@@ -1,14 +1,26 @@
 use binrw::{BinRead, BinWrite};
 
-#[derive(Clone, Eq, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FString(pub Option<String>);
 
-impl std::fmt::Debug for FString {
+impl std::fmt::Display for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.0 {
             None => f.write_str("null"),
             Some(s) => s.fmt(f),
         }
+    }
+}
+
+impl PartialEq<str> for FString {
+    fn eq(&self, other: &str) -> bool {
+        self.0.as_deref() == Some(other)
+    }
+}
+
+impl PartialEq<&str> for FString {
+    fn eq(&self, other: &&str) -> bool {
+        self == *other
     }
 }
 

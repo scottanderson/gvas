@@ -210,7 +210,7 @@ impl Property {
                             // Property::Object(_) => todo!(),
                             // Property::SoftObject(_) => todo!(),
                             // Property::Str(_) => todo!(),
-                            Property::Struct(struct_property) => todo!(),
+                            Property::Struct(_) => todo!(),
                             // Property::Text(_) => todo!(),
                             // Property::UInt16(_) => todo!(),
                             // Property::UInt32(_) => todo!(),
