@@ -3,7 +3,8 @@ use binrw::binrw;
 use crate::{
     options::ParsingOptions,
     types::{
-        FDateTime, FGuid, FQuat, FRotator, FTimespan, FVector, PropertyType, TaggedProperties,
+        FDateTime, FGuid, FQuat, FRotator, FTimespan, FVector, FVector2D, PropertyType,
+        TaggedProperties,
     },
 };
 
@@ -23,10 +24,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct LinearColor(f32, f32, f32, f32);
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct Vector2D(f64, f64);
 }
 
 pub use structs::*;
@@ -55,7 +52,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "Vector"))]
     Vector(#[br(args(options))] FVector),
     #[br(pre_assert(struct_type == "Vector2D"))]
-    Vector2D(Vector2D),
+    Vector2D(FVector2D),
     Custom(#[brw(args(options))] TaggedProperties),
     Unknown(#[br(count = t.size())] Vec<u8>),
 }

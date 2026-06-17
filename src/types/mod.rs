@@ -13,6 +13,7 @@ mod f_string;
 mod f_text;
 mod f_timespan;
 mod f_vector;
+mod f_vector2d;
 mod t_array;
 mod t_option;
 
@@ -35,6 +36,7 @@ pub use crate::types::{
     f_text::FText,
     f_timespan::FTimespan,
     f_vector::FVector,
+    f_vector2d::FVector2D,
     t_array::TArray,
     t_option::TOption,
 };
