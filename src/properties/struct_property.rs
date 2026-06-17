@@ -2,7 +2,7 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{FDateTime, FGuid, FTimespan, PropertyType, TaggedProperties},
+    types::{FDateTime, FGuid, FTimespan, FVector, PropertyType, TaggedProperties},
 };
 
 mod structs {
@@ -48,16 +48,6 @@ mod structs {
         #[br(pre_assert(options.large_world_coordinates))]
         RotatorD(f64, f64, f64),
     }
-
-    #[binrw]
-    #[br(import(options: ParsingOptions))]
-    #[derive(Debug)]
-    pub enum Vector {
-        #[br(pre_assert(!options.large_world_coordinates))]
-        VectorF(f32, f32, f32),
-        #[br(pre_assert(options.large_world_coordinates))]
-        VectorD(f64, f64, f64),
-    }
 }
 
 pub use structs::*;
@@ -84,7 +74,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "Timespan"))]
     Timespan(FTimespan),
     #[br(pre_assert(struct_type == "Vector"))]
-    Vector(#[br(args(options))] Vector),
+    Vector(#[br(args(options))] FVector),
     #[br(pre_assert(struct_type == "Vector2D"))]
     Vector2D(Vector2D),
     Custom(#[brw(args(options))] TaggedProperties),

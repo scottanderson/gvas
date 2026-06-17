@@ -10,6 +10,7 @@ mod f_save_game_header;
 mod f_string;
 mod f_text;
 mod f_timespan;
+mod f_vector;
 mod t_array;
 mod t_option;
 
@@ -29,6 +30,7 @@ pub use crate::types::{
     f_string::FString,
     f_text::FText,
     f_timespan::FTimespan,
+    f_vector::FVector,
     t_array::TArray,
     t_option::TOption,
 };
