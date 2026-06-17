@@ -3,6 +3,7 @@ mod f_custom_version;
 mod f_date_time;
 mod f_engine_version;
 mod f_guid;
+mod f_linear_color;
 mod f_package_file_version;
 mod f_property_tag;
 mod f_property_type_name;
@@ -26,6 +27,7 @@ pub use crate::types::{
     f_date_time::FDateTime,
     f_engine_version::FEngineVersion,
     f_guid::FGuid,
+    f_linear_color::FLinearColor,
     f_package_file_version::FPackageFileVersion,
     f_property_tag::{CollectionProperties, FPropertyTag, PropertyType, TaggedProperties},
     f_property_type_name::FPropertyTypeName,

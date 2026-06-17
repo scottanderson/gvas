@@ -3,8 +3,8 @@ use binrw::binrw;
 use crate::{
     options::ParsingOptions,
     types::{
-        FDateTime, FGuid, FQuat, FRotator, FTimespan, FVector, FVector2D, PropertyType,
-        TaggedProperties,
+        FDateTime, FGuid, FLinearColor, FQuat, FRotator, FTimespan, FVector, FVector2D,
+        PropertyType, TaggedProperties,
     },
 };
 
@@ -20,10 +20,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct IntPoint(i32, i32);
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct LinearColor(f32, f32, f32, f32);
 }
 
 pub use structs::*;
@@ -42,7 +38,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "IntPoint"))]
     IntPoint(IntPoint),
     #[br(pre_assert(struct_type == "LinearColor"))]
-    LinearColor(LinearColor),
+    LinearColor(FLinearColor),
     #[br(pre_assert(struct_type == "Quat"))]
     Quat(#[br(args(options))] FQuat),
     #[br(pre_assert(struct_type == "Rotator"))]
