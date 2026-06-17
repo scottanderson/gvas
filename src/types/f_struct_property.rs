@@ -12,7 +12,7 @@ use crate::{
 #[br(import(options: ParsingOptions, t: &PropertyType, struct_type: &str))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub enum StructProperty {
+pub enum FStructProperty {
     #[br(pre_assert(struct_type == "DateTime"))]
     DateTime(FDateTime),
     #[br(pre_assert(struct_type == "GameplayTagContainer"))]

@@ -1,7 +1,6 @@
 use crate::{
     options::ParsingOptions,
-    properties::Property,
-    types::{PropertyType, TArray},
+    types::{FProperty, PropertyType, TArray},
 };
 use binrw::binrw;
 
@@ -9,7 +8,7 @@ use binrw::binrw;
 #[br(import(options: ParsingOptions, t: &PropertyType))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub enum SetProperty {
+pub enum FSetProperty {
     Known {
         allocation_flags: u32,
         #[br(calc = t.set_element_type().expect("set_element_type"))]
@@ -18,7 +17,7 @@ pub enum SetProperty {
 
         #[br(args(options, &element_type))]
         #[bw(args(options))]
-        properties: TArray<Property>,
+        properties: TArray<FProperty>,
     },
     Unknown(#[br(count = t.size())] Vec<u8>),
 }

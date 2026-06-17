@@ -1,18 +1,10 @@
 use binrw::binrw;
 
-use crate::types::TArray;
+use crate::types::{FCustomVersion, TArray};
+
+// pub type FCustomVersionArray = TArray<FCustomVersion>;
 
 #[binrw]
-#[derive(Debug)]
-pub struct FCustomVersion {
-    pub key: u128,
-    pub value: u32,
-}
-
-// pub type FCustomVersionArray = Vec<FCustomVersion>;
-
-#[binrw]
-#[br(import(custom_version_format: i32))]
 #[derive(Debug)]
 pub struct FCustomVersionContainer {
     custom_version_format: i32,

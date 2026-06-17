@@ -2,14 +2,14 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    properties::{
-        CollectionProperties, EnumProperty, FString, FloatProperty, IntProperty,
-        NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY,
-        NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY, NAME_SOFT_OBJECT_PROPERTY,
-        NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NameProperty, ObjectProperty,
-        PropertyType, SoftObjectProperty, StrProperty, StructProperty, TextProperty,
+    types::{
+        CollectionProperties, FEnumProperty, FFloatProperty, FIntProperty, FNameProperty,
+        FObjectProperty, FPropertyTag, FSoftObjectProperty, FStrProperty, FString, FStructProperty,
+        FTextProperty, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
+        NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
+        NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
+        PropertyType, TArray,
     },
-    types::{FPropertyTag, TArray},
 };
 
 impl FPropertyTag {
@@ -49,7 +49,7 @@ impl FPropertyTag {
 #[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &FString))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub enum ArrayProperty {
+pub enum FArrayProperty {
     #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
     Bool(#[br(count = t.size())] Vec<u8>),
 
@@ -57,25 +57,25 @@ pub enum ArrayProperty {
     Byte(#[br(count = t.size())] Vec<u8>),
 
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
-    Enum(TArray<EnumProperty>),
+    Enum(TArray<FEnumProperty>),
 
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
-    Float(TArray<FloatProperty>),
+    Float(TArray<FFloatProperty>),
 
     #[br(pre_assert(inner_type == NAME_INT_PROPERTY))]
-    Int(TArray<IntProperty>),
+    Int(TArray<FIntProperty>),
 
     #[br(pre_assert(inner_type == NAME_NAME_PROPERTY))]
-    Name(TArray<NameProperty>),
+    Name(TArray<FNameProperty>),
 
     #[br(pre_assert(inner_type == NAME_OBJECT_PROPERTY))]
-    Object(TArray<ObjectProperty>),
+    Object(TArray<FObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_SOFT_OBJECT_PROPERTY))]
-    SoftObject(#[br(args(options))] TArray<SoftObjectProperty>),
+    SoftObject(#[br(args(options))] TArray<FSoftObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
-    Str(TArray<StrProperty>),
+    Str(TArray<FStrProperty>),
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && options.property_tag_complete_type_name))]
     #[bw(assert(options.property_tag_complete_type_name))]
@@ -97,7 +97,7 @@ pub enum ArrayProperty {
         #[br(count = count)]
         #[br(args { inner: (options, t, type_name,) })]
         #[bw(args(options))]
-        values: Vec<StructProperty>,
+        values: Vec<FStructProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !options.property_tag_complete_type_name))]
@@ -118,11 +118,11 @@ pub enum ArrayProperty {
         #[br(count = count)]
         #[br(args { inner: (options, t, type_name,) })]
         #[bw(args(options))]
-        values: Vec<StructProperty>,
+        values: Vec<FStructProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
-    Text(#[brw(args(options))] TArray<TextProperty>),
+    Text(#[brw(args(options))] TArray<FTextProperty>),
 
     #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
     Unknown(#[br(count = t.size())] Vec<u8>),

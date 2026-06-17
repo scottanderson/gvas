@@ -3,12 +3,11 @@ use std::io::Cursor;
 use binrw::{BinRead, BinWrite, binrw};
 
 use crate::options::ParsingOptions;
-use crate::properties::{
-    NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
-    NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
-    Property,
+use crate::types::{
+    EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
+    NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
 };
-use crate::types::{EPropertyTagFlags, FGuid, FPropertyTypeName, FString};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -368,7 +367,7 @@ impl BinWrite for FPropertyTag {
 }
 
 #[derive(Debug)]
-pub struct TaggedProperties(pub Vec<(FString, Property)>);
+pub struct TaggedProperties(pub Vec<(FString, FProperty)>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (ParsingOptions,);
@@ -387,7 +386,7 @@ impl BinRead for TaggedProperties {
                     property_type,
                 } => {
                     let property =
-                        Property::read_options(reader, endian, (options, &property_type))?;
+                        FProperty::read_options(reader, endian, (options, &property_type))?;
                     // println!("Read {property:?}");
                     properties.push((name, property));
                 }

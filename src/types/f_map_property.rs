@@ -1,7 +1,6 @@
 use crate::{
     options::ParsingOptions,
-    properties::Property,
-    types::{PropertyType, TArray},
+    types::{FProperty, PropertyType, TArray},
 };
 use binrw::binrw;
 
@@ -9,7 +8,7 @@ use binrw::binrw;
 #[br(import(options: ParsingOptions, t: &PropertyType))]
 #[bw(import(options: ParsingOptions))]
 #[derive(Debug)]
-pub enum MapProperty {
+pub enum FMapProperty {
     Known {
         allocation_flags: u32,
 
@@ -46,9 +45,9 @@ pub enum MapProperty {
 pub struct MapEntry {
     #[br(args(options, key_type))]
     #[bw(args(options))]
-    pub key: Property,
+    pub key: FProperty,
 
     #[br(args(options, value_type))]
     #[bw(args(options))]
-    pub value: Property,
+    pub value: FProperty,
 }

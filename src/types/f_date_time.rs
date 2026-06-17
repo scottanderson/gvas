@@ -1,14 +1,8 @@
 use std::fmt::Display;
 
-use binrw::binrw;
 use chrono::{DateTime, Utc};
 
-#[binrw]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-pub struct FDateTime {
-    /// 100ns ticks since 0001-01-01 00:00:00
-    ticks: i64,
-}
+use crate::types::FDateTime;
 
 const NANOS_PER_TICK: i64 = 100;
 const TICKS_PER_SECOND: i64 = 10_000_000;
@@ -16,14 +10,6 @@ const UNIX_OFFSET_SECS: i64 = 62_135_596_800;
 const UNIX_OFFSET_TICKS: i64 = UNIX_OFFSET_SECS * TICKS_PER_SECOND;
 
 impl FDateTime {
-    pub fn new(ticks: i64) -> Self {
-        Self { ticks }
-    }
-
-    pub fn ticks(&self) -> i64 {
-        self.ticks
-    }
-
     pub fn from_date_time(dt: DateTime<Utc>) -> Option<Self> {
         let ticks = dt
             .timestamp_nanos_opt()?
@@ -32,7 +18,7 @@ impl FDateTime {
         Some(Self { ticks })
     }
 
-    pub fn to_datetime(self) -> Option<DateTime<Utc>> {
+    pub fn to_datetime(&self) -> Option<DateTime<Utc>> {
         let unix_nanos = self
             .ticks
             .checked_sub(UNIX_OFFSET_TICKS)?
@@ -44,7 +30,7 @@ impl FDateTime {
         Utc::now().into()
     }
 
-    pub fn format_datetime(self) -> String {
+    pub fn format_datetime(&self) -> String {
         match self.to_datetime() {
             Some(dt) => dt.format("%Y-%m-%d %H:%M:%S%.f UTC").to_string(),
             None => format!("pre-epoch date (ticks={})", self.ticks),

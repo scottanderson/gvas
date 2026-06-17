@@ -1,9 +1,6 @@
 use binrw::binrw;
 
-use crate::{
-    properties::NAME_NONE,
-    types::{FString, TArray},
-};
+use crate::types::{FString, NAME_NONE, TArray};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
