@@ -2,7 +2,7 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{PropertyType, TaggedProperties},
+    types::{FGuid, PropertyType, TaggedProperties},
 };
 
 mod structs {
@@ -20,10 +20,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct GameplayTagContainer(TArray<FString>);
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct Guid(u128);
 
     #[binrw]
     #[derive(Debug)]
@@ -84,7 +80,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "GameplayTagContainer"))]
     GameplayTagContainer(GameplayTagContainer),
     #[br(pre_assert(struct_type == "Guid"))]
-    Guid(u128),
+    Guid(FGuid),
     #[br(pre_assert(struct_type == "IntPoint"))]
     IntPoint(IntPoint),
     #[br(pre_assert(struct_type == "LinearColor"))]

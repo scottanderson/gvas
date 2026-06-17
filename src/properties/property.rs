@@ -3,7 +3,7 @@ use binrw::{BinRead, binwrite};
 use crate::{
     options::ParsingOptions,
     properties::*,
-    types::{EPropertyTagFlags, FPropertyTypeName, PropertyType},
+    types::{EPropertyTagFlags, FPropertyTypeName, FGuid, PropertyType},
 };
 
 #[binwrite]
@@ -108,7 +108,7 @@ impl Property {
         let property_type_name = self.property_type_name();
         let property_type = FString::from(property_type_name);
         let array_index = 0;
-        let guid = 0;
+        let guid = FGuid::invalid();
         let inner_type = FString::from(self.container_inner_type_name());
         match options.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
@@ -182,7 +182,7 @@ impl Property {
             },
             true => {
                 let mut flags = EPropertyTagFlags::new();
-                flags.set_has_property_guid(guid != 0);
+                flags.set_has_property_guid(guid.is_valid());
                 flags.set_has_array_index(array_index != 0);
                 PropertyType::Complete {
                     property_type: FPropertyTypeName {

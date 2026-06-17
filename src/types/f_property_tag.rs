@@ -10,7 +10,7 @@ use crate::properties::{
     NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
     Property,
 };
-use crate::types::{EPropertyTagFlags, FPropertyTypeName, FString, TArray};
+use crate::types::{EPropertyTagFlags, FPropertyTypeName, FString, FGuid, TArray};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -57,7 +57,7 @@ pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
     Struct {
         type_name: FString,
-        guid: u128,
+        guid: FGuid,
     },
 
     None,
@@ -87,7 +87,7 @@ pub enum PropertyType {
         #[br(if(flags.has_array_index()))]
         array_index: u32,
         #[br(if(flags.has_property_guid()))]
-        guid: u128,
+        guid: FGuid,
     },
 }
 
@@ -109,7 +109,7 @@ impl PropertyType {
             size,
             flags: EPropertyTagFlags::new(),
             array_index: 0,
-            guid: 0,
+            guid: FGuid::invalid(),
         }
     }
 
@@ -486,7 +486,7 @@ mod test {
                     array_index: 0,
                     extra: CollectionProperties::Struct {
                         type_name: FString::from("TestClass"),
-                        guid: 0,
+                        guid: FGuid::invalid(),
                     },
                 },
             },
@@ -530,7 +530,7 @@ mod test {
                     size: 0,
                     flags: EPropertyTagFlags::new(),
                     array_index: 0,
-                    guid: 0,
+                    guid: FGuid::invalid(),
                 },
             },
             &[

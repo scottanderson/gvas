@@ -3,6 +3,7 @@
 mod e_property_tag_flags;
 mod f_custom_version;
 mod f_engine_version;
+mod f_guid;
 mod f_package_file_version;
 mod f_property_tag;
 mod f_property_type_name;
@@ -19,6 +20,7 @@ pub use crate::types::{
     e_property_tag_flags::EPropertyTagFlags,
     f_custom_version::{FCustomVersion, FCustomVersionContainer},
     f_engine_version::FEngineVersion,
+    f_guid::FGuid,
     f_package_file_version::FPackageFileVersion,
     f_property_tag::{CollectionProperties, FPropertyTag, PropertyType, TaggedProperties},
     f_property_type_name::FPropertyTypeName,

@@ -9,7 +9,7 @@ use crate::{
         NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NameProperty, ObjectProperty,
         PropertyType, SoftObjectProperty, StrProperty, StructProperty, TextProperty,
     },
-    types::{FPropertyTag, TArray},
+    types::{FGuid, FPropertyTag, TArray},
 };
 
 impl FPropertyTag {
@@ -31,7 +31,7 @@ impl FPropertyTag {
     }
 
     #[inline]
-    fn array_struct_guid(&self) -> Option<u128> {
+    fn array_struct_guid(&self) -> Option<FGuid> {
         let FPropertyTag::Some { property_type, .. } = &self else {
             return None;
         };
