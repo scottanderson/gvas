@@ -2,16 +2,15 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{FDateTime, FGuid, FQuat, FTimespan, FVector, PropertyType, TaggedProperties},
+    types::{
+        FDateTime, FGuid, FQuat, FRotator, FTimespan, FVector, PropertyType, TaggedProperties,
+    },
 };
 
 mod structs {
     use binrw::binrw;
 
-    use crate::{
-        options::ParsingOptions,
-        types::{FString, TArray},
-    };
+    use crate::types::{FString, TArray};
 
     #[binrw]
     #[derive(Debug)]
@@ -28,16 +27,6 @@ mod structs {
     #[binrw]
     #[derive(Debug)]
     pub struct Vector2D(f64, f64);
-
-    #[binrw]
-    #[br(import(options: ParsingOptions))]
-    #[derive(Debug)]
-    pub enum Rotator {
-        #[br(pre_assert(!options.large_world_coordinates))]
-        RotatorF(f32, f32, f32),
-        #[br(pre_assert(options.large_world_coordinates))]
-        RotatorD(f64, f64, f64),
-    }
 }
 
 pub use structs::*;
@@ -60,7 +49,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "Quat"))]
     Quat(#[br(args(options))] FQuat),
     #[br(pre_assert(struct_type == "Rotator"))]
-    Rotator(#[br(args(options))] Rotator),
+    Rotator(#[br(args(options))] FRotator),
     #[br(pre_assert(struct_type == "Timespan"))]
     Timespan(FTimespan),
     #[br(pre_assert(struct_type == "Vector"))]
