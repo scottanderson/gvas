@@ -2,7 +2,7 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{FGuid, PropertyType, TaggedProperties},
+    types::{FDateTime, FGuid, PropertyType, TaggedProperties},
 };
 
 mod structs {
@@ -12,10 +12,6 @@ mod structs {
         options::ParsingOptions,
         types::{FString, TArray},
     };
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct DateTime(u64);
 
     #[binrw]
     #[derive(Debug)]
@@ -76,7 +72,7 @@ pub use structs::*;
 #[derive(Debug)]
 pub enum StructProperty {
     #[br(pre_assert(struct_type == "DateTime"))]
-    DateTime(u64),
+    DateTime(FDateTime),
     #[br(pre_assert(struct_type == "GameplayTagContainer"))]
     GameplayTagContainer(GameplayTagContainer),
     #[br(pre_assert(struct_type == "Guid"))]

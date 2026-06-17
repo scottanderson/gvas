@@ -1,5 +1,6 @@
 mod e_property_tag_flags;
 mod f_custom_version;
+mod f_date_time;
 mod f_engine_version;
 mod f_guid;
 mod f_package_file_version;
@@ -17,6 +18,7 @@ use crate::options::ParsingOptions;
 pub use crate::types::{
     e_property_tag_flags::EPropertyTagFlags,
     f_custom_version::FCustomVersionContainer,
+    f_date_time::FDateTime,
     f_engine_version::FEngineVersion,
     f_guid::FGuid,
     f_package_file_version::FPackageFileVersion,
