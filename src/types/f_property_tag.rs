@@ -10,22 +10,7 @@ use crate::properties::{
     NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
     Property,
 };
-use crate::types::{FPropertyTypeName, FString, TArray};
-
-#[bitfield]
-#[binrw]
-#[br(map = Self::from_bytes)]
-#[bw(map = |&x| Self::into_bytes(x))]
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub struct PropertyTagFlags {
-    pub has_array_index: bool,
-    pub has_property_guid: bool,
-    pub has_property_extensions: bool,
-    pub has_binary_or_native_serialize: bool,
-    pub bool_true: bool,
-    #[skip]
-    padding: B3,
-}
+use crate::types::{EPropertyTagFlags, FPropertyTypeName, FString, TArray};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -98,7 +83,7 @@ pub enum PropertyType {
     Complete {
         property_type: FPropertyTypeName,
         size: u32,
-        flags: PropertyTagFlags,
+        flags: EPropertyTagFlags,
         #[br(if(flags.has_array_index()))]
         array_index: u32,
         #[br(if(flags.has_property_guid()))]
@@ -122,7 +107,7 @@ impl PropertyType {
         PropertyType::Complete {
             property_type,
             size,
-            flags: PropertyTagFlags::new(),
+            flags: EPropertyTagFlags::new(),
             array_index: 0,
             guid: 0,
         }
@@ -543,7 +528,7 @@ mod test {
                         ]),
                     },
                     size: 0,
-                    flags: PropertyTagFlags { bytes: [0] },
+                    flags: EPropertyTagFlags::new(),
                     array_index: 0,
                     guid: 0,
                 },

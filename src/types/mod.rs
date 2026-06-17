@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+mod e_property_tag_flags;
 mod f_custom_version;
 mod f_engine_version;
 mod f_package_file_version;
@@ -15,12 +16,11 @@ use binrw::binrw;
 
 use crate::options::ParsingOptions;
 pub use crate::types::{
+    e_property_tag_flags::EPropertyTagFlags,
     f_custom_version::{FCustomVersion, FCustomVersionContainer},
     f_engine_version::FEngineVersion,
     f_package_file_version::FPackageFileVersion,
-    f_property_tag::{
-        CollectionProperties, FPropertyTag, PropertyTagFlags, PropertyType, TaggedProperties,
-    },
+    f_property_tag::{CollectionProperties, FPropertyTag, PropertyType, TaggedProperties},
     f_property_type_name::FPropertyTypeName,
     f_save_game_header::{FSaveGameHeader, SaveGameFileVersion},
     f_string::FString,

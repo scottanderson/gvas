@@ -3,7 +3,7 @@ use binrw::{BinRead, binwrite};
 use crate::{
     options::ParsingOptions,
     properties::*,
-    types::{FPropertyTypeName, PropertyTagFlags, PropertyType},
+    types::{EPropertyTagFlags, FPropertyTypeName, PropertyType},
 };
 
 #[binwrite]
@@ -181,7 +181,7 @@ impl Property {
                 },
             },
             true => {
-                let mut flags = PropertyTagFlags::new();
+                let mut flags = EPropertyTagFlags::new();
                 flags.set_has_property_guid(guid != 0);
                 flags.set_has_array_index(array_index != 0);
                 PropertyType::Complete {
