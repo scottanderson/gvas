@@ -3,7 +3,7 @@ use binrw::{BinRead, binwrite};
 use crate::{
     options::ParsingOptions,
     properties::*,
-    types::{PropertyTagFlags, PropertyType, TypeTree},
+    types::{FPropertyTypeName, PropertyTagFlags, PropertyType},
 };
 
 #[binwrite]
@@ -69,7 +69,7 @@ impl Property {
                 } => name,
                 PropertyType::Complete {
                     property_type:
-                        TypeTree {
+                        FPropertyTypeName {
                             name: FString(Some(name)),
                             ..
                         },
@@ -185,10 +185,10 @@ impl Property {
                 flags.set_has_property_guid(guid != 0);
                 flags.set_has_array_index(array_index != 0);
                 PropertyType::Complete {
-                    property_type: TypeTree {
+                    property_type: FPropertyTypeName {
                         name: property_type,
                         children: match &self {
-                            Property::Array(_) => TArray(Vec::from([TypeTree {
+                            Property::Array(_) => TArray(Vec::from([FPropertyTypeName {
                                 name: inner_type,
                                 children: TArray(Vec::new()),
                             }])),

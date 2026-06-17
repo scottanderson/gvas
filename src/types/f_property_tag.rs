@@ -10,7 +10,7 @@ use crate::properties::{
     NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
     Property,
 };
-use crate::types::{FString, TArray};
+use crate::types::{FPropertyTypeName, FString, TArray};
 
 #[bitfield]
 #[binrw]
@@ -25,40 +25,6 @@ pub struct PropertyTagFlags {
     pub bool_true: bool,
     #[skip]
     padding: B3,
-}
-
-#[binrw]
-#[derive(Clone, Debug, Eq, PartialEq)]
-pub struct TypeTree {
-    pub name: FString,
-    pub children: TArray<TypeTree>,
-}
-
-impl From<FString> for TypeTree {
-    fn from(name: FString) -> Self {
-        Self {
-            name,
-            children: TArray(vec![]),
-        }
-    }
-}
-
-impl std::fmt::Display for TypeTree {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = self.name.0.as_deref().unwrap_or(NAME_NONE);
-        write!(f, "{}", name)?;
-        if !self.children.is_empty() {
-            write!(f, "<")?;
-            for (i, child) in self.children.iter().enumerate() {
-                if i > 0 {
-                    write!(f, ", ")?;
-                }
-                write!(f, "{:?}", child)?;
-            }
-            write!(f, ">")?;
-        }
-        Ok(())
-    }
 }
 
 #[binrw]
@@ -130,7 +96,7 @@ pub enum PropertyType {
 
     #[br(pre_assert(options.property_tag_complete_type_name))]
     Complete {
-        property_type: TypeTree,
+        property_type: FPropertyTypeName,
         size: u32,
         flags: PropertyTagFlags,
         #[br(if(flags.has_array_index()))]
@@ -152,7 +118,7 @@ impl PropertyType {
     }
 
     #[inline]
-    fn synthetic_complete(property_type: TypeTree, size: u32) -> Self {
+    fn synthetic_complete(property_type: FPropertyTypeName, size: u32) -> Self {
         PropertyType::Complete {
             property_type,
             size,
@@ -175,7 +141,7 @@ impl PropertyType {
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
-                property_type: TypeTree { children, .. },
+                property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
                 .first()
@@ -198,7 +164,7 @@ impl PropertyType {
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
-                property_type: TypeTree { children, .. },
+                property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
                 .get(1)
@@ -220,7 +186,7 @@ impl PropertyType {
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
             PropertyType::Complete {
-                property_type: TypeTree { children, .. },
+                property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
                 .first()
@@ -256,7 +222,7 @@ impl PropertyType {
                 ..
             } => Some(inner_type),
             PropertyType::Complete {
-                property_type: TypeTree { children, .. },
+                property_type: FPropertyTypeName { children, .. },
                 ..
             } => children.first().map(|head| &head.name),
             _ => None,
@@ -264,9 +230,9 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn array_complete_type(&self) -> Option<&TypeTree> {
+    pub fn array_complete_type(&self) -> Option<&FPropertyTypeName> {
         let PropertyType::Complete {
-            property_type: TypeTree { name, children },
+            property_type: FPropertyTypeName { name, children },
             ..
         } = self
         else {
@@ -288,7 +254,7 @@ impl PropertyType {
             panic!("self={self:?}");
             return None;
         };
-        let TypeTree {
+        let FPropertyTypeName {
             name: FString(Some(name)),
             children,
         } = struct_property_type
@@ -340,7 +306,7 @@ impl PropertyType {
             } => type_name.0.as_deref(),
             PropertyType::Complete {
                 property_type:
-                    TypeTree {
+                    FPropertyTypeName {
                         name: FString(Some(name)),
                         children,
                     },
@@ -560,17 +526,17 @@ mod test {
             FPropertyTag::Some {
                 name: FString::from("test"),
                 property_type: PropertyType::Complete {
-                    property_type: TypeTree {
+                    property_type: FPropertyTypeName {
                         name: FString::from(NAME_STRUCT_PROPERTY),
                         children: TArray(vec![
-                            TypeTree {
+                            FPropertyTypeName {
                                 name: FString::from("TestClass"),
-                                children: TArray(vec![TypeTree {
+                                children: TArray(vec![FPropertyTypeName {
                                     name: FString::from("/path"),
                                     children: TArray(vec![]),
                                 }]),
                             },
-                            TypeTree {
+                            FPropertyTypeName {
                                 name: FString::from("guid"),
                                 children: TArray(vec![]),
                             },
