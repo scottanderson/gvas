@@ -1,7 +1,5 @@
 use binrw::{BinRead, BinWrite};
 
-use crate::types::TArray;
-
 #[derive(Debug)]
 pub struct TOption<T>(pub Option<T>);
 

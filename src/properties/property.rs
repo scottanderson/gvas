@@ -3,7 +3,7 @@ use binrw::{BinRead, binwrite};
 use crate::{
     options::ParsingOptions,
     properties::*,
-    types::{EPropertyTagFlags, FPropertyTypeName, FGuid, PropertyType},
+    types::{EPropertyTagFlags, FGuid, FPropertyTypeName, PropertyType},
 };
 
 #[binwrite]

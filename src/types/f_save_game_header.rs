@@ -1,15 +1,6 @@
-use binrw::{BinRead, binrw};
+use binrw::binrw;
 
-use crate::{
-    types::{
-        FCustomVersion, FCustomVersionContainer, FEngineVersion, FPackageFileVersion, FPropertyTag,
-        FString, TaggedProperties,
-    },
-    versions::{
-        EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE5Version,
-        GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
-    },
-};
+use crate::types::{FCustomVersionContainer, FEngineVersion, FPackageFileVersion, FString};
 
 #[binrw]
 #[brw(repr = u32)]
@@ -42,7 +33,7 @@ pub struct FSaveGameHeader {
 
 #[cfg(test)]
 mod test {
-    use std::io::{self, Read, Seek};
+    use std::io::{Read, Seek};
     use std::{fs::File, io::Cursor, path::Path};
 
     use binrw::{BinRead, BinWrite};
@@ -56,7 +47,7 @@ mod test {
 
         // Read
         let mut buf = Vec::new();
-        let len = file.read_to_end(&mut buf)?;
+        let _len = file.read_to_end(&mut buf)?;
 
         // Parse
         let mut cursor = Cursor::new(buf);
@@ -64,7 +55,7 @@ mod test {
 
         // Write
         let len = cursor.stream_position()? as usize;
-        let mut buf2 = vec![0u8; len];
+        let buf2 = vec![0u8; len];
         let mut cursor2 = Cursor::new(buf2);
         FSaveGameHeader::write(&result, &mut cursor2)?;
 

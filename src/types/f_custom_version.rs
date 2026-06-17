@@ -1,6 +1,6 @@
 use binrw::binrw;
 
-use crate::types::{FSaveGameHeader, TArray};
+use crate::types::TArray;
 
 #[binrw]
 #[derive(Debug)]

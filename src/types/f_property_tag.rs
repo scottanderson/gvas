@@ -1,8 +1,6 @@
-use std::io::{Cursor, Write};
-use std::ops::{Deref, DerefMut};
+use std::io::Cursor;
 
 use binrw::{BinRead, BinWrite, binrw};
-use modular_bitfield::{bitfield, prelude::B3};
 
 use crate::options::ParsingOptions;
 use crate::properties::{
@@ -10,7 +8,7 @@ use crate::properties::{
     NAME_MAP_PROPERTY, NAME_NONE, NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
     Property,
 };
-use crate::types::{EPropertyTagFlags, FPropertyTypeName, FString, FGuid, TArray};
+use crate::types::{EPropertyTagFlags, FGuid, FPropertyTypeName, FString};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -228,7 +226,7 @@ impl PropertyType {
         }
         let [array_inner_type] = children.as_slice() else {
             panic!("children={children:?}");
-            return None;
+            // return None;
         };
         Some(array_inner_type)
     }
@@ -237,7 +235,7 @@ impl PropertyType {
     pub fn array_struct_type(&self) -> Option<(&str, &str, &str)> {
         let Some(struct_property_type) = self.array_complete_type() else {
             panic!("self={self:?}");
-            return None;
+            // return None;
         };
         let FPropertyTypeName {
             name: FString(Some(name)),
@@ -245,28 +243,28 @@ impl PropertyType {
         } = struct_property_type
         else {
             panic!("struct_property_type={struct_property_type:?}");
-            return None;
+            // return None;
         };
         if name != NAME_STRUCT_PROPERTY {
             panic!("name={name:?}");
-            return None;
+            // return None;
         }
         let [inner, guid] = children.as_slice() else {
             panic!("Expected children len 2, got {children:?}");
-            return None;
+            // return None;
         };
         let [class] = inner.children.as_slice() else {
             panic!("Expected inner children len 1, got {:?}", inner.children);
-            return None;
+            // return None;
         };
-        if (!class.children.is_empty()) {
+        if !class.children.is_empty() {
             println!("Class children not empty: {:?}", class.children);
             return None;
         }
         // if class.name.0.as_deref() != Some("/Script/CoreUObject") {
         //     return None;
         // }
-        if (!guid.children.is_empty()) {
+        if !guid.children.is_empty() {
             println!("Guid children not empty: {:?}", guid.children);
             return None;
         }
@@ -286,7 +284,7 @@ impl PropertyType {
     pub fn struct_type_name(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete {
-                extra: CollectionProperties::Struct { type_name, guid },
+                extra: CollectionProperties::Struct { type_name, guid: _ },
                 ..
             } => type_name.0.as_deref(),
             PropertyType::Complete {
@@ -303,7 +301,7 @@ impl PropertyType {
                 let [class] = inner.children.as_slice() else {
                     return None;
                 };
-                if (!class.children.is_empty()) {
+                if !class.children.is_empty() {
                     return None;
                 }
                 if class.name.0.as_deref() != Some("/Script/CoreUObject") {
@@ -432,12 +430,12 @@ impl BinWrite for TaggedProperties {
 #[cfg(test)]
 mod test {
 
-    use crate::{error::Result, properties::StructProperty};
+    use crate::{error::Result, types::TArray};
 
     use super::*;
 
     const OPTIONS_INCOMPLETE: ParsingOptions = ParsingOptions {
-        ftext_history_date_timezone: false,
+        // ftext_history_date_timezone: false,
         property_tag_complete_type_name: false,
         fsoftobjectpath_remove_asset_path_fnames: false,
         text_64bit_support: false,
@@ -447,7 +445,7 @@ mod test {
     };
 
     const OPTIONS_COMPLETE: ParsingOptions = ParsingOptions {
-        ftext_history_date_timezone: true,
+        // ftext_history_date_timezone: true,
         property_tag_complete_type_name: true,
         fsoftobjectpath_remove_asset_path_fnames: true,
         text_64bit_support: true,

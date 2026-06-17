@@ -1,8 +1,7 @@
-#![allow(unused)]
-
 mod header {
     mod unreal_engine_object_ue4;
     mod unreal_engine_object_ue5;
+    #[allow(unused_imports)]
     pub use unreal_engine_object_ue4::*;
     pub use unreal_engine_object_ue5::*;
 }

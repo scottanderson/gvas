@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 mod e_property_tag_flags;
 mod f_custom_version;
 mod f_engine_version;
@@ -18,7 +16,7 @@ use binrw::binrw;
 use crate::options::ParsingOptions;
 pub use crate::types::{
     e_property_tag_flags::EPropertyTagFlags,
-    f_custom_version::{FCustomVersion, FCustomVersionContainer},
+    f_custom_version::FCustomVersionContainer,
     f_engine_version::FEngineVersion,
     f_guid::FGuid,
     f_package_file_version::FPackageFileVersion,
@@ -56,10 +54,10 @@ pub struct SaveGameFile {
 
 #[cfg(test)]
 mod test {
-    use std::io::{self, Read, Seek};
+    use std::io::{Read, Seek};
     use std::{fs::File, io::Cursor, path::Path};
 
-    use binrw::{BinRead, BinWrite};
+    use binrw::BinRead;
 
     use crate::error::Result;
     use crate::types::SaveGameFile;
@@ -74,7 +72,7 @@ mod test {
 
         // Parse
         let mut cursor = Cursor::new(buf);
-        let result = SaveGameFile::read(&mut cursor)?;
+        let _result = SaveGameFile::read(&mut cursor)?;
         assert_eq!(len as u64, cursor.stream_position()?);
 
         // TODO: Write

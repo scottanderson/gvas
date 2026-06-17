@@ -1,8 +1,7 @@
-use binrw::{BinRead, BinWrite, binrw};
+use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    properties::DateTime,
     types::{FString, TArray, TOption},
 };
 

@@ -1,5 +1,3 @@
-use std::num::TryFromIntError;
-
 use binrw::{BinRead, BinWrite};
 
 #[derive(Clone, Debug, Eq, PartialEq)]
