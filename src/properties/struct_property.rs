@@ -3,22 +3,10 @@ use binrw::binrw;
 use crate::{
     options::ParsingOptions,
     types::{
-        FDateTime, FGuid, FIntPoint, FLinearColor, FQuat, FRotator, FTimespan, FVector, FVector2D,
-        PropertyType, TaggedProperties,
+        FDateTime, FGameplayTagContainer, FGuid, FIntPoint, FLinearColor, FQuat, FRotator,
+        FTimespan, FVector, FVector2D, PropertyType, TaggedProperties,
     },
 };
-
-mod structs {
-    use binrw::binrw;
-
-    use crate::types::{FString, TArray};
-
-    #[binrw]
-    #[derive(Debug)]
-    pub struct GameplayTagContainer(TArray<FString>);
-}
-
-pub use structs::*;
 
 #[binrw]
 #[br(import(options: ParsingOptions, t: &PropertyType, struct_type: &str))]
@@ -28,7 +16,7 @@ pub enum StructProperty {
     #[br(pre_assert(struct_type == "DateTime"))]
     DateTime(FDateTime),
     #[br(pre_assert(struct_type == "GameplayTagContainer"))]
-    GameplayTagContainer(GameplayTagContainer),
+    GameplayTagContainer(FGameplayTagContainer),
     #[br(pre_assert(struct_type == "Guid"))]
     Guid(FGuid),
     #[br(pre_assert(struct_type == "IntPoint"))]

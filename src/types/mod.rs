@@ -2,6 +2,7 @@ mod e_property_tag_flags;
 mod f_custom_version;
 mod f_date_time;
 mod f_engine_version;
+mod f_gameplay_tag_container;
 mod f_guid;
 mod f_int_point;
 mod f_linear_color;
@@ -27,6 +28,7 @@ pub use crate::types::{
     f_custom_version::FCustomVersionContainer,
     f_date_time::FDateTime,
     f_engine_version::FEngineVersion,
+    f_gameplay_tag_container::FGameplayTagContainer,
     f_guid::FGuid,
     f_int_point::FIntPoint,
     f_linear_color::FLinearColor,
