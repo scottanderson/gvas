@@ -17,7 +17,7 @@ mod f_struct_property;
 mod f_text;
 mod f_text_property;
 mod t_array;
-mod t_option;
+mod t_optional;
 
 use binrw::binrw;
 
@@ -41,7 +41,7 @@ pub use crate::types::{
     f_text::FText,
     f_text_property::FTextProperty,
     t_array::TArray,
-    t_option::TOption,
+    t_optional::TOptional,
 };
 
 pub const NAME_NONE: &str = "None";
@@ -74,7 +74,7 @@ pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 
 // #[binrw] #[derive(Debug)] pub struct ByteProperty(...);
 
-// #[binrw] #[derive(Debug)] pub struct OptionProperty(...);
+// #[binrw] #[derive(Debug)] pub struct OptionalProperty(...);
 
 macro_rules! ue_struct {
     ($name:ident, $($ty:ty),+) => {

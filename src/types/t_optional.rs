@@ -1,9 +1,9 @@
 use binrw::{BinRead, BinWrite};
 
 #[derive(Debug)]
-pub struct TOption<T>(pub Option<T>);
+pub struct TOptional<T>(pub Option<T>);
 
-impl<T: BinRead + std::fmt::Debug> BinRead for TOption<T>
+impl<T: BinRead + std::fmt::Debug> BinRead for TOptional<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -27,11 +27,11 @@ where
                 )),
             })?,
         };
-        Ok(TOption(value))
+        Ok(TOptional(value))
     }
 }
 
-impl<T: BinWrite> BinWrite for TOption<T>
+impl<T: BinWrite> BinWrite for TOptional<T>
 where
     for<'a> T::Args<'a>: Copy,
 {
@@ -56,14 +56,14 @@ where
     }
 }
 
-impl<T> std::ops::Deref for TOption<T> {
+impl<T> std::ops::Deref for TOptional<T> {
     type Target = Option<T>;
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
-impl<T> std::ops::DerefMut for TOption<T> {
+impl<T> std::ops::DerefMut for TOptional<T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
     }

@@ -2,7 +2,7 @@ use binrw::binrw;
 
 use crate::{
     options::ParsingOptions,
-    types::{FString, TArray, TOption},
+    types::{FString, TArray, TOptional},
 };
 
 #[binrw]
@@ -37,7 +37,7 @@ pub enum FTextHistory {
     #[brw(magic = 4i8)]
     AsNumber(
         #[brw(args(options))] Box<FormatArgumentValue>,
-        #[brw(args(options))] TOption<NumberFormattingOptions>,
+        #[brw(args(options))] TOptional<NumberFormattingOptions>,
         FString,
     ),
     // #[brw(magic = 5i8)] AsPercent(FormatArgumentValue, TOption<NumberFormattingOptions>, FString),
@@ -59,7 +59,7 @@ pub enum FTextHistoryNone {
     #[br(pre_assert(!options.culture_invariant_stability))]
     Old(),
     #[br(pre_assert(options.culture_invariant_stability))]
-    New(TOption<FString>),
+    New(TOptional<FString>),
 }
 
 #[binrw]
