@@ -158,16 +158,12 @@ ue_struct!(FVector2D, x: f64, y: f64);
 pub struct SaveGameFile {
     pub header: FSaveGameHeader,
 
-    #[br(temp, calc(ParsingOptions::from(&header)))]
-    #[bw(calc(ParsingOptions::from(header)))]
-    options: ParsingOptions,
-
-    #[brw(if(options.property_tag_complete_type_name))]
+    #[brw(if(header.parsing_options().property_tag_complete_type_name))]
     #[br(temp, assert(spacer == 0))]
     #[bw(calc(0))]
     spacer: u8,
 
-    #[brw(args(options))]
+    #[brw(args(header.parsing_options()))]
     pub properties: TaggedProperties,
 
     #[br(temp, assert(footer == 0))]

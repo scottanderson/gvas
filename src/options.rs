@@ -1,5 +1,3 @@
-use binrw::BinWrite;
-
 use crate::types::{
     EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
     EUnrealEngineObjectUE5Version, FGuid, FSaveGameHeader, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
@@ -17,32 +15,19 @@ pub struct ParsingOptions {
     pub culture_invariant_stability: bool,
 }
 
-impl BinWrite for ParsingOptions {
-    type Args<'a> = ();
-
-    fn write_options<W: std::io::Write + std::io::Seek>(
-        &self,
-        _writer: &mut W,
-        _endian: binrw::Endian,
-        _args: Self::Args<'_>,
-    ) -> binrw::BinResult<()> {
-        // Required to allow ParsingOptions to be used with bw(calc)
-        Ok(())
-    }
-}
-
-impl From<&FSaveGameHeader> for ParsingOptions {
-    fn from(header: &FSaveGameHeader) -> Self {
-        let package_file_version = header.package_file_version.version_ue4();
-        let package_file_version_ue5 = header.package_file_version.version_ue5();
+impl FSaveGameHeader {
+    #[inline]
+    pub fn parsing_options(&self) -> ParsingOptions {
+        let package_file_version = self.package_file_version.version_ue4();
+        let package_file_version_ue5 = self.package_file_version.version_ue5();
         fn get_custom_version(header: &FSaveGameHeader, version: FGuid) -> u32 {
             match &header.custom_versions {
                 Some(container) => container.get(version),
                 None => 0,
             }
         }
-        let release_version = get_custom_version(header, GUID_UE5_RELEASE_STREAM);
-        let editor_version = get_custom_version(header, GUID_EDITOR);
+        let release_version = get_custom_version(self, GUID_UE5_RELEASE_STREAM);
+        let editor_version = get_custom_version(self, GUID_EDITOR);
         ParsingOptions {
             ftext_history_date_timezone: package_file_version
                 >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,
