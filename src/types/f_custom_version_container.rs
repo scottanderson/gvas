@@ -2,13 +2,25 @@ use binrw::binrw;
 
 use crate::types::{FCustomVersion, FGuid, TArray};
 
-// pub type FCustomVersionArray = TArray<FCustomVersion>;
+#[binrw]
+#[brw(repr = i32)]
+#[derive(Debug, PartialEq, Eq)]
+enum ECustomVersionSerializationFormat {
+    Unknown,
+    Guids,
+    Enums,
+    Optimized,
+}
+
+pub type FCustomVersionArray = TArray<FCustomVersion>;
 
 #[binrw]
 #[derive(Debug)]
 pub struct FCustomVersionContainer {
-    custom_version_format: i32,
-    custom_versions: TArray<FCustomVersion>,
+    #[br(temp, assert(custom_version_format == ECustomVersionSerializationFormat::Optimized))]
+    #[bw(calc(ECustomVersionSerializationFormat::Optimized))]
+    custom_version_format: ECustomVersionSerializationFormat,
+    custom_versions: FCustomVersionArray,
 }
 
 impl FCustomVersionContainer {
