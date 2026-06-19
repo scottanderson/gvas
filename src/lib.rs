@@ -1,5 +1,4 @@
-#![allow(dead_code)]
-mod error;
-mod options;
-mod types;
-mod versions;
+pub mod error;
+pub mod options;
+pub mod types;
+pub mod versions;
