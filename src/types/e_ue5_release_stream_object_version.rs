@@ -1,3 +1,5 @@
+use crate::types::FGuid;
+
 /// Custom serialization version for changes made in //UE5/Release-* stream
 /// See: Engine/Source/Runtime/Core/Public/UObject/UE5ReleaseStreamObjectVersion.h
 pub enum EUE5ReleaseStreamObjectVersion {
@@ -31,4 +33,4 @@ pub enum EUE5ReleaseStreamObjectVersion {
     WorldPartitionHLODActorDescSerializeHLODSubActors,
     LargeWorldCoordinates,
 }
-pub const GUID_UE5_RELEASE_STREAM: u128 = 0xDF6417798412ACA824BD4D46D89B5E42;
+pub const GUID_UE5_RELEASE_STREAM: FGuid = FGuid::from_u128(0xDF6417798412ACA824BD4D46D89B5E42);

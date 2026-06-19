@@ -2,7 +2,7 @@ use binrw::BinWrite;
 
 use crate::types::{
     EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
-    EUnrealEngineObjectUE5Version, FSaveGameHeader, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
+    EUnrealEngineObjectUE5Version, FGuid, FSaveGameHeader, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -35,7 +35,7 @@ impl From<&FSaveGameHeader> for ParsingOptions {
     fn from(header: &FSaveGameHeader) -> Self {
         let package_file_version = header.package_file_version.version_ue4();
         let package_file_version_ue5 = header.package_file_version.version_ue5();
-        fn get_custom_version(header: &FSaveGameHeader, version: u128) -> u32 {
+        fn get_custom_version(header: &FSaveGameHeader, version: FGuid) -> u32 {
             match &header.custom_versions {
                 Some(container) => container.get(version),
                 None => 0,

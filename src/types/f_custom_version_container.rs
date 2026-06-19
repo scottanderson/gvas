@@ -1,6 +1,6 @@
 use binrw::binrw;
 
-use crate::types::{FCustomVersion, TArray};
+use crate::types::{FCustomVersion, FGuid, TArray};
 
 // pub type FCustomVersionArray = TArray<FCustomVersion>;
 
@@ -12,7 +12,7 @@ pub struct FCustomVersionContainer {
 }
 
 impl FCustomVersionContainer {
-    pub fn get(&self, version: u128) -> u32 {
+    pub fn get(&self, version: FGuid) -> u32 {
         self.custom_versions
             .iter()
             .find(|v| v.key == version)

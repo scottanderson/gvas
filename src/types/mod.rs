@@ -119,7 +119,7 @@ macro_rules! ue_struct {
 }
 
 // Engine structs
-ue_struct!(FCustomVersion, key: u128, value: u32);
+ue_struct!(FCustomVersion, key: FGuid, value: u32);
 ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32, branch: FString);
 
 // Properties

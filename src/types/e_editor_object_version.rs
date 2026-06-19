@@ -1,3 +1,5 @@
+use crate::types::FGuid;
+
 /// Custom serialization version for changes made in Dev-Editor stream.
 /// See: Engine/Source/Runtime/Core/Public/UObject/EditorObjectVersion.h
 pub enum EEditorObjectVersion {
@@ -43,4 +45,4 @@ pub enum EEditorObjectVersion {
     NumberParsingOptionsNumberLimitsAndClamping,
     SkeletalMeshSourceDataSupport16bitOfMaterialNumber,
 }
-pub const GUID_EDITOR: u128 = 0x2E46BB41A231DA0BF49442E9E4B068ED;
+pub const GUID_EDITOR: FGuid = FGuid::from_u128(0x2E46BB41A231DA0BF49442E9E4B068ED);
