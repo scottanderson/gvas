@@ -1,4 +1,8 @@
+mod e_editor_object_version;
 mod e_property_tag_flags;
+mod e_ue5_release_stream_object_version;
+mod e_unreal_engine_object_ue4_version;
+mod e_unreal_engine_object_ue5_version;
 mod f_array_property;
 mod f_bool_property;
 mod f_custom_version_container;
@@ -23,7 +27,13 @@ use binrw::binrw;
 
 use crate::options::ParsingOptions;
 pub use crate::types::{
+    e_editor_object_version::{EEditorObjectVersion, GUID_EDITOR},
     e_property_tag_flags::EPropertyTagFlags,
+    e_ue5_release_stream_object_version::{
+        EUE5ReleaseStreamObjectVersion, GUID_UE5_RELEASE_STREAM,
+    },
+    e_unreal_engine_object_ue4_version::EUnrealEngineObjectUE4Version,
+    e_unreal_engine_object_ue5_version::EUnrealEngineObjectUE5Version,
     f_array_property::FArrayProperty,
     f_bool_property::FBoolProperty,
     f_custom_version_container::FCustomVersionContainer,
@@ -167,8 +177,11 @@ pub struct SaveGameFile {
 
 #[cfg(test)]
 mod test {
-    use std::io::{Read, Seek};
-    use std::{fs::File, io::Cursor, path::Path};
+    use std::{
+        fs::File,
+        io::{Cursor, Read, Seek},
+        path::Path,
+    };
 
     use binrw::BinRead;
 

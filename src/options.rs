@@ -1,11 +1,8 @@
 use binrw::BinWrite;
 
-use crate::{
-    types::FSaveGameHeader,
-    versions::{
-        EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
-        EUnrealEngineObjectUE5Version, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
-    },
+use crate::types::{
+    EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
+    EUnrealEngineObjectUE5Version, FSaveGameHeader, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
 };
 
 #[derive(Clone, Copy, Debug)]
