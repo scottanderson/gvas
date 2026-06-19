@@ -25,7 +25,7 @@ mod t_optional;
 
 use binrw::binrw;
 
-use crate::options::ParsingOptions;
+use crate::format::SerializationFormat;
 pub use crate::types::{
     e_editor_object_version::{EEditorObjectVersion, GUID_EDITOR},
     e_property_tag_flags::EPropertyTagFlags,
@@ -89,14 +89,14 @@ pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 macro_rules! ue_struct {
     ($name:ident, LWC, $($field:ident),+) => {
         #[binrw]
-        #[br(import(options: ParsingOptions))]
+        #[br(import(format: SerializationFormat))]
         #[derive(Debug)]
         pub enum $name {
-            #[br(pre_assert(!options.large_world_coordinates))]
+            #[br(pre_assert(!format.large_world_coordinates))]
             F {
                 $($field: f32,)+
             },
-            #[br(pre_assert( options.large_world_coordinates))]
+            #[br(pre_assert( format.large_world_coordinates))]
             D {
                 $($field: f64,)+
             },
@@ -158,12 +158,12 @@ ue_struct!(FVector2D, x: f64, y: f64);
 pub struct SaveGameFile {
     pub header: FSaveGameHeader,
 
-    #[brw(if(header.parsing_options().property_tag_complete_type_name))]
+    #[brw(if(header.serialization_format().property_tag_complete_type_name))]
     #[br(temp, assert(spacer == 0))]
     #[bw(calc(0))]
     spacer: u8,
 
-    #[brw(args(header.parsing_options()))]
+    #[brw(args(header.serialization_format()))]
     pub properties: TaggedProperties,
 
     #[br(temp, assert(footer == 0))]

@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use binrw::{BinRead, BinWrite, binrw};
 
-use crate::options::ParsingOptions;
+use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
@@ -11,7 +11,7 @@ use crate::types::{
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[br(import(options: ParsingOptions, property_type: &str))]
+#[br(import(format: SerializationFormat, property_type: &str))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
     Array {
@@ -33,7 +33,7 @@ pub enum CollectionProperties {
         enum_name: FString,
     },
 
-    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && options.property_tag_set_map_support))]
+    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && format.property_tag_set_map_support))]
     Map {
         inner_type: FString,
         value_type: FString,
@@ -44,7 +44,7 @@ pub enum CollectionProperties {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && options.property_tag_set_map_support))]
+    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && format.property_tag_set_map_support))]
     Set {
         inner_type: FString,
     },
@@ -59,22 +59,22 @@ pub enum CollectionProperties {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PropertyType {
-    #[br(pre_assert(!options.property_tag_complete_type_name))]
+    #[br(pre_assert(!format.property_tag_complete_type_name))]
     Incomplete {
         property_type: FString,
         size: u32,
         array_index: u32,
-        #[br(args(options, property_type.0.as_deref().unwrap_or("")))]
+        #[br(args(format, property_type.0.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
         #[br(temp, assert(footer == 0))]
         #[bw(calc(0))]
         footer: u8,
     },
 
-    #[br(pre_assert(options.property_tag_complete_type_name))]
+    #[br(pre_assert(format.property_tag_complete_type_name))]
     Complete {
         property_type: FPropertyTypeName,
         size: u32,
@@ -321,12 +321,12 @@ pub enum FPropertyTag {
 }
 
 impl BinRead for FPropertyTag {
-    type Args<'a> = (ParsingOptions,);
+    type Args<'a> = (SerializationFormat,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (options,): Self::Args<'_>,
+        (format,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let name = FString::read_options(reader, endian, ())?;
         if let Some(ref name) = name.0
@@ -334,7 +334,7 @@ impl BinRead for FPropertyTag {
         {
             return Ok(Self::None);
         };
-        let property_type = PropertyType::read_options(reader, endian, (options,))?;
+        let property_type = PropertyType::read_options(reader, endian, (format,))?;
         Ok(FPropertyTag::Some {
             name,
             property_type,
@@ -368,23 +368,23 @@ impl BinWrite for FPropertyTag {
 pub struct TaggedProperties(pub Vec<(FString, FProperty)>);
 
 impl BinRead for TaggedProperties {
-    type Args<'a> = (ParsingOptions,);
+    type Args<'a> = (SerializationFormat,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (options,): Self::Args<'_>,
+        (format,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let mut properties = Vec::new();
         loop {
-            match FPropertyTag::read_options(reader, endian, (options,))? {
+            match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
                 FPropertyTag::Some {
                     name,
                     property_type,
                 } => {
                     let property =
-                        FProperty::read_options(reader, endian, (options, &property_type))?;
+                        FProperty::read_options(reader, endian, (format, &property_type))?;
                     // println!("Read {property:?}");
                     properties.push((name, property));
                 }
@@ -395,23 +395,23 @@ impl BinRead for TaggedProperties {
 }
 
 impl BinWrite for TaggedProperties {
-    type Args<'a> = (ParsingOptions,);
+    type Args<'a> = (SerializationFormat,);
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
         writer: &mut W,
         endian: binrw::Endian,
-        (options,): Self::Args<'_>,
+        (format,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
         for (name, property) in self.0.iter() {
             // Write to temp buffer
             let mut buf = Cursor::new(Vec::new());
-            property.write_options(&mut buf, endian, (options,))?;
+            property.write_options(&mut buf, endian, (format,))?;
             let property_buf = buf.into_inner();
             let len = property_buf.len() as u32;
 
             // Generate property tag
-            let property_type = property.property_type(options, len);
+            let property_type = property.property_type(format, len);
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;
@@ -431,7 +431,7 @@ mod test {
 
     use super::*;
 
-    const OPTIONS_INCOMPLETE: ParsingOptions = ParsingOptions {
+    const OPTIONS_INCOMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: false,
         property_tag_set_map_support: false,
         property_tag_complete_type_name: false,
@@ -442,7 +442,7 @@ mod test {
         culture_invariant_stability: false,
     };
 
-    const OPTIONS_COMPLETE: ParsingOptions = ParsingOptions {
+    const OPTIONS_COMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: true,
         property_tag_set_map_support: true,
         property_tag_complete_type_name: true,
@@ -456,7 +456,7 @@ mod test {
     fn test_fpropertytag(
         tag: FPropertyTag,
         expected: &[u8],
-        options: ParsingOptions,
+        format: SerializationFormat,
     ) -> Result<()> {
         // Write
         let mut buf = Cursor::new(vec![]);
@@ -466,7 +466,7 @@ mod test {
 
         // Read
         let mut cursor = Cursor::new(Vec::from(expected));
-        let read = FPropertyTag::read_le_args(&mut cursor, (options,))?;
+        let read = FPropertyTag::read_le_args(&mut cursor, (format,))?;
         assert_eq!(tag, read);
 
         Ok(())

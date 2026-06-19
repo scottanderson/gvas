@@ -1,7 +1,7 @@
 use binrw::binrw;
 
 use crate::{
-    options::ParsingOptions,
+    format::SerializationFormat,
     types::{
         CollectionProperties, FEnumProperty, FFloatProperty, FIntProperty, FNameProperty,
         FObjectProperty, FPropertyTag, FSoftObjectProperty, FStrProperty, FString, FStructProperty,
@@ -46,8 +46,8 @@ impl FPropertyTag {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType, inner_type: &FString))]
-#[bw(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat, t: &PropertyType, inner_type: &FString))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FArrayProperty {
     #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
@@ -72,13 +72,13 @@ pub enum FArrayProperty {
     Object(TArray<FObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_SOFT_OBJECT_PROPERTY))]
-    SoftObject(#[br(args(options))] TArray<FSoftObjectProperty>),
+    SoftObject(#[br(args(format))] TArray<FSoftObjectProperty>),
 
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
     Str(TArray<FStrProperty>),
 
-    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && options.property_tag_complete_type_name))]
-    #[bw(assert(options.property_tag_complete_type_name))]
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && format.property_tag_complete_type_name))]
+    #[bw(assert(format.property_tag_complete_type_name))]
     Struct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]
@@ -95,19 +95,19 @@ pub enum FArrayProperty {
         type_name: &str,
 
         #[br(count = count)]
-        #[br(args { inner: (options, t, type_name,) })]
-        #[bw(args(options))]
+        #[br(args { inner: (format, t, type_name,) })]
+        #[bw(args(format))]
         values: Vec<FStructProperty>,
     },
 
-    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !options.property_tag_complete_type_name))]
-    #[bw(assert(!options.property_tag_complete_type_name))]
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name))]
+    #[bw(assert(!format.property_tag_complete_type_name))]
     TaggedStruct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]
         count: u32,
 
-        #[br(args(options))]
+        #[br(args(format))]
         struct_tag: FPropertyTag,
 
         #[br(temp)]
@@ -116,13 +116,13 @@ pub enum FArrayProperty {
         type_name: &str,
 
         #[br(count = count)]
-        #[br(args { inner: (options, t, type_name,) })]
-        #[bw(args(options))]
+        #[br(args { inner: (format, t, type_name,) })]
+        #[bw(args(format))]
         values: Vec<FStructProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
-    Text(#[brw(args(options))] TArray<FTextProperty>),
+    Text(#[brw(args(format))] TArray<FTextProperty>),
 
     #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
     Unknown(#[br(count = t.size())] Vec<u8>),

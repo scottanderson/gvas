@@ -1,7 +1,7 @@
 use binrw::{BinRead, binwrite};
 
 use crate::{
-    options::ParsingOptions,
+    format::SerializationFormat,
     types::{
         CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FDelegateProperty,
         FDoubleProperty, FEnumProperty, FFloatProperty, FGuid, FInt8Property, FInt16Property,
@@ -20,10 +20,10 @@ use crate::{
 };
 
 #[binwrite]
-#[bw(import(options: ParsingOptions))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FProperty {
-    Array(#[bw(args(options))] FArrayProperty),
+    Array(#[bw(args(format))] FArrayProperty),
     Bool(FBoolProperty),
     Delegate(FDelegateProperty),
     Double(FDoubleProperty),
@@ -33,16 +33,16 @@ pub enum FProperty {
     Int16(FInt16Property),
     Int64(FInt64Property),
     Int8(FInt8Property),
-    Map(#[bw(args(options))] FMapProperty),
+    Map(#[bw(args(format))] FMapProperty),
     MulticastInlineDelegate(FMulticastInlineDelegateProperty),
     MulticastSparseDelegate(FMulticastSparseDelegateProperty),
     Name(FNameProperty),
     Object(FObjectProperty),
-    Set(#[bw(args(options))] FSetProperty),
+    Set(#[bw(args(format))] FSetProperty),
     SoftObject(FSoftObjectProperty),
     Str(FStrProperty),
-    Struct(#[bw(args(options))] FStructProperty),
-    Text(#[bw(args(options))] FTextProperty),
+    Struct(#[bw(args(format))] FStructProperty),
+    Text(#[bw(args(format))] FTextProperty),
     UInt16(FUInt16Property),
     UInt32(FUInt32Property),
     UInt64(FUInt64Property),
@@ -110,20 +110,20 @@ impl FProperty {
                 FArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
                 _ => todo!("{array_property:?}"),
             }),
-            // Property::Map(map_property) => todo!("{map_property:?}"),
-            // Property::Option(option_property) => todo!("{option_property:?}"),
-            // Property::Set(set_property) => todo!("{set_property:?}"),
+            // Property::Map(p) => todo!("{p:?}"),
+            // Property::Optional(p) => todo!("{p:?}"),
+            // Property::Set(p) => todo!("{p:?}"),
             _ => None,
         }
     }
 
-    pub fn property_type(&self, options: ParsingOptions, size: u32) -> PropertyType {
+    pub fn property_type(&self, format: SerializationFormat, size: u32) -> PropertyType {
         let property_type_name = self.property_type_name();
         let property_type = FString::from(property_type_name);
         let array_index = 0;
         let guid = FGuid::invalid();
         let inner_type = FString::from(self.container_inner_type_name());
-        match options.property_tag_complete_type_name {
+        match format.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
                 property_type,
                 size,
@@ -168,7 +168,7 @@ impl FProperty {
                             value_type: value_type.clone(),
                         }
                     }
-                    // Property::Option(option_property) => CollectionProperties::Option { inner_type },
+                    // Property::Optional(p) => CollectionProperties::Optional { inner_type },
                     FProperty::Set(..) => CollectionProperties::Set { inner_type },
                     FProperty::Delegate(..)
                     | FProperty::Double(..)
@@ -242,12 +242,12 @@ impl FProperty {
 }
 
 impl BinRead for FProperty {
-    type Args<'a> = (ParsingOptions, &'a PropertyType);
+    type Args<'a> = (SerializationFormat, &'a PropertyType);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (options, t): Self::Args<'_>,
+        (format, t): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let size = t.size();
         let start = reader.stream_position()?;
@@ -258,7 +258,7 @@ impl BinRead for FProperty {
         let result = match property_type {
             NAME_ARRAY_PROPERTY  => {
                 let inner_type = t.array_inner_type().expect("inner_type");
-                let array_property = FArrayProperty::read_options(reader, endian, (options, t, inner_type))?;
+                let array_property = FArrayProperty::read_options(reader, endian, (format, t, inner_type))?;
                 FProperty::Array(array_property)
             },
             NAME_BOOL_PROPERTY   => FProperty::Bool  (  FBoolProperty::read_options(reader, endian, (t,))?),
@@ -271,21 +271,21 @@ impl BinRead for FProperty {
             NAME_INT64_PROPERTY  => FProperty::Int64 ( FInt64Property::read_options(reader, endian, ())?),
             NAME_INT8_PROPERTY   => FProperty::Int8  (  FInt8Property::read_options(reader, endian, ())?),
             NAME_INT_PROPERTY    => FProperty::Int   (   FIntProperty::read_options(reader, endian, ())?),
-            NAME_MAP_PROPERTY    => FProperty::Map   (   FMapProperty::read_options(reader, endian, (options, t))?),
+            NAME_MAP_PROPERTY    => FProperty::Map   (   FMapProperty::read_options(reader, endian, (format, t))?),
             NAME_MULTICAST_INLINE_DELGATE_PROPERTY => FProperty::MulticastInlineDelegate(FMulticastInlineDelegateProperty::read_options(reader, endian, ())?),
             NAME_MULTICAST_SPARSE_DELGATE_PROPERTY => FProperty::MulticastSparseDelegate(FMulticastSparseDelegateProperty::read_options(reader, endian, ())?),
             NAME_NAME_PROPERTY   => FProperty::Name  (  FNameProperty::read_options(reader, endian, ())?),
             NAME_OBJECT_PROPERTY => FProperty::Object(FObjectProperty::read_options(reader, endian, ())?),
-            // NAME_OPTION_PROPERTY => Property::Option(OptionProperty::read_options(reader, endian, ())?),
-            NAME_SET_PROPERTY    => FProperty::Set   (   FSetProperty::read_options(reader, endian, (options, t))?),
-            NAME_SOFT_OBJECT_PROPERTY => FProperty::SoftObject(FSoftObjectProperty::read_options(reader, endian, (options,))?),
+            // NAME_OPTIONAL_PROPERTY => Property::Optional(OptionalProperty::read_options(reader, endian, ())?),
+            NAME_SET_PROPERTY    => FProperty::Set   (   FSetProperty::read_options(reader, endian, (format, t))?),
+            NAME_SOFT_OBJECT_PROPERTY => FProperty::SoftObject(FSoftObjectProperty::read_options(reader, endian, (format,))?),
             NAME_STRUCT_PROPERTY => {
                 let type_name = t.struct_type_name().unwrap_or_default();
-                let struct_property = FStructProperty::read_options(reader, endian, (options, t, type_name))?;
+                let struct_property = FStructProperty::read_options(reader, endian, (format, t, type_name))?;
                 FProperty::Struct(struct_property)
             },
             NAME_STR_PROPERTY    => FProperty::Str   (   FStrProperty::read_options(reader, endian, ())?),
-            NAME_TEXT_PROPERTY   => FProperty::Text  (  FTextProperty::read_options(reader, endian, (options,))?),
+            NAME_TEXT_PROPERTY   => FProperty::Text  (  FTextProperty::read_options(reader, endian, (format,))?),
             NAME_UINT16_PROPERTY => FProperty::UInt16(FUInt16Property::read_options(reader, endian, ())?),
             NAME_UINT32_PROPERTY => FProperty::UInt32(FUInt32Property::read_options(reader, endian, ())?),
             NAME_UINT64_PROPERTY => FProperty::UInt64(FUInt64Property::read_options(reader, endian, ())?),

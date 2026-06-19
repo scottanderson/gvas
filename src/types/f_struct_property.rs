@@ -1,7 +1,7 @@
 use binrw::binrw;
 
 use crate::{
-    options::ParsingOptions,
+    format::SerializationFormat,
     types::{
         FDateTime, FGameplayTagContainer, FGuid, FIntPoint, FLinearColor, FQuat, FRotator,
         FTimespan, FVector, FVector2D, PropertyType, TaggedProperties,
@@ -9,8 +9,8 @@ use crate::{
 };
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType, struct_type: &str))]
-#[bw(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat, t: &PropertyType, struct_type: &str))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FStructProperty {
     #[br(pre_assert(struct_type == "DateTime"))]
@@ -24,15 +24,15 @@ pub enum FStructProperty {
     #[br(pre_assert(struct_type == "LinearColor"))]
     LinearColor(FLinearColor),
     #[br(pre_assert(struct_type == "Quat"))]
-    Quat(#[br(args(options))] FQuat),
+    Quat(#[br(args(format))] FQuat),
     #[br(pre_assert(struct_type == "Rotator"))]
-    Rotator(#[br(args(options))] FRotator),
+    Rotator(#[br(args(format))] FRotator),
     #[br(pre_assert(struct_type == "Timespan"))]
     Timespan(FTimespan),
     #[br(pre_assert(struct_type == "Vector"))]
-    Vector(#[br(args(options))] FVector),
+    Vector(#[br(args(format))] FVector),
     #[br(pre_assert(struct_type == "Vector2D"))]
     Vector2D(FVector2D),
-    Custom(#[brw(args(options))] TaggedProperties),
+    Custom(#[brw(args(format))] TaggedProperties),
     Unknown(#[br(count = t.size())] Vec<u8>),
 }

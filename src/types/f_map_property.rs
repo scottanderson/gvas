@@ -1,12 +1,12 @@
 use crate::{
-    options::ParsingOptions,
+    format::SerializationFormat,
     types::{FProperty, PropertyType, TArray},
 };
 use binrw::binrw;
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType))]
-#[bw(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat, t: &PropertyType))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FMapProperty {
     Known {
@@ -20,8 +20,8 @@ pub enum FMapProperty {
         #[bw(ignore)]
         value_type: PropertyType,
 
-        #[br(args(options, &key_type, &value_type))]
-        #[bw(args(options))]
+        #[br(args(format, &key_type, &value_type))]
+        #[bw(args(format))]
         properties: TArray<MapEntry>,
     },
     Unknown {
@@ -39,15 +39,15 @@ pub enum FMapProperty {
 }
 
 #[binrw]
-#[br(import(options: ParsingOptions, key_type: &PropertyType, value_type: &PropertyType))]
-#[bw(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat, key_type: &PropertyType, value_type: &PropertyType))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub struct MapEntry {
-    #[br(args(options, key_type))]
-    #[bw(args(options))]
+    #[br(args(format, key_type))]
+    #[bw(args(format))]
     pub key: FProperty,
 
-    #[br(args(options, value_type))]
-    #[bw(args(options))]
+    #[br(args(format, value_type))]
+    #[bw(args(format))]
     pub value: FProperty,
 }

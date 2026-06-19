@@ -1,3 +1,3 @@
 pub mod error;
-pub mod options;
+pub mod format;
 pub mod types;

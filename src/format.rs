@@ -4,7 +4,7 @@ use crate::types::{
 };
 
 #[derive(Clone, Copy, Debug)]
-pub struct ParsingOptions {
+pub struct SerializationFormat {
     pub ftext_history_date_timezone: bool,
     pub property_tag_set_map_support: bool,
     pub property_tag_complete_type_name: bool,
@@ -17,7 +17,7 @@ pub struct ParsingOptions {
 
 impl FSaveGameHeader {
     #[inline]
-    pub fn parsing_options(&self) -> ParsingOptions {
+    pub fn serialization_format(&self) -> SerializationFormat {
         let package_file_version = self.package_file_version.version_ue4();
         let package_file_version_ue5 = self.package_file_version.version_ue5();
         fn get_custom_version(header: &FSaveGameHeader, version: FGuid) -> u32 {
@@ -28,7 +28,7 @@ impl FSaveGameHeader {
         }
         let release_version = get_custom_version(self, GUID_UE5_RELEASE_STREAM);
         let editor_version = get_custom_version(self, GUID_EDITOR);
-        ParsingOptions {
+        SerializationFormat {
             ftext_history_date_timezone: package_file_version
                 >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,
             property_tag_set_map_support: package_file_version

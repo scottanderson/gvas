@@ -1,12 +1,12 @@
 use crate::{
-    options::ParsingOptions,
+    format::SerializationFormat,
     types::{FProperty, PropertyType, TArray},
 };
 use binrw::binrw;
 
 #[binrw]
-#[br(import(options: ParsingOptions, t: &PropertyType))]
-#[bw(import(options: ParsingOptions))]
+#[br(import(format: SerializationFormat, t: &PropertyType))]
+#[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FSetProperty {
     Known {
@@ -15,8 +15,8 @@ pub enum FSetProperty {
         #[bw(ignore)]
         element_type: PropertyType,
 
-        #[br(args(options, &element_type))]
-        #[bw(args(options))]
+        #[br(args(format, &element_type))]
+        #[bw(args(format))]
         properties: TArray<FProperty>,
     },
     Unknown(#[br(count = t.size())] Vec<u8>),

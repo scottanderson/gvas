@@ -1,8 +1,8 @@
 use binrw::binrw;
 
-use crate::{options::ParsingOptions, types::FText};
+use crate::{format::SerializationFormat, types::FText};
 
 #[binrw]
-#[brw(import(options: ParsingOptions))]
+#[brw(import(format: SerializationFormat))]
 #[derive(Debug)]
-pub struct FTextProperty(#[brw(args(options))] pub FText);
+pub struct FTextProperty(#[brw(args(format))] pub FText);
