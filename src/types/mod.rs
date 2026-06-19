@@ -77,6 +77,21 @@ pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 // #[binrw] #[derive(Debug)] pub struct OptionalProperty(...);
 
 macro_rules! ue_struct {
+    ($name:ident, LWC, $($field:ident),+) => {
+        #[binrw]
+        #[br(import(options: ParsingOptions))]
+        #[derive(Debug)]
+        pub enum $name {
+            #[br(pre_assert(!options.large_world_coordinates))]
+            F {
+                $($field: f32,)+
+            },
+            #[br(pre_assert( options.large_world_coordinates))]
+            D {
+                $($field: f64,)+
+            },
+        }
+    };
     ($name:ident, $($ty:ty),+) => {
         #[binrw]
         #[derive(Debug)]
@@ -93,61 +108,39 @@ macro_rules! ue_struct {
     };
 }
 
-macro_rules! lwc_enum {
-    ($name:ident, $($field:ident),+ $(,)?) => {
-        #[binrw]
-        #[br(import(options: ParsingOptions))]
-        #[derive(Debug)]
-        pub enum $name {
-            #[br(pre_assert(!options.large_world_coordinates))]
-            F {
-                $($field: f32,)+
-            },
-            #[br(pre_assert( options.large_world_coordinates))]
-            D {
-                $($field: f64,)+
-            },
-        }
-    };
-}
+// Engine structs
+ue_struct!(FCustomVersion, key: u128, value: u32);
+ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32, branch: FString);
 
-// Newtype numbers
+// Properties
+ue_struct!(FDelegateProperty, object: FString, function_name: FString);
 ue_struct!(FDoubleProperty, f64);
+ue_struct!(FEnumProperty, FString);
 ue_struct!(FFloatProperty, f32);
 ue_struct!(FInt16Property, i16);
 ue_struct!(FInt64Property, i64);
 ue_struct!(FInt8Property, i8);
 ue_struct!(FIntProperty, i32);
+ue_struct!(FMulticastInlineDelegateProperty, TArray<FDelegateProperty>);
+ue_struct!(FMulticastSparseDelegateProperty, TArray<FDelegateProperty>);
+ue_struct!(FNameProperty, FString);
+ue_struct!(FObjectProperty, FString);
+ue_struct!(FStrProperty, FString);
 ue_struct!(FUInt16Property, u16);
 ue_struct!(FUInt32Property, u32);
 ue_struct!(FUInt64Property, u64);
 
-// Newtype strings
-ue_struct!(FEnumProperty, FString);
-ue_struct!(FGameplayTag, FString);
-ue_struct!(FNameProperty, FString);
-ue_struct!(FObjectProperty, FString);
-ue_struct!(FStrProperty, FString);
-
-// Newtype arrays
-ue_struct!(FGameplayTagContainer, TArray<FGameplayTag>);
-ue_struct!(FMulticastInlineDelegateProperty, TArray<FDelegateProperty>);
-ue_struct!(FMulticastSparseDelegateProperty, TArray<FDelegateProperty>);
-
-// Structs
-ue_struct!(FCustomVersion, key: u128, value: u32);
+// StructProperty structs
 ue_struct!(FDateTime, ticks: i64);
-ue_struct!(FDelegateProperty, object: FString, function_name: FString);
-ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32, branch: FString);
+ue_struct!(FGameplayTag, FString);
+ue_struct!(FGameplayTagContainer, TArray<FGameplayTag>);
 ue_struct!(FIntPoint, x: i32, y: i32);
 ue_struct!(FLinearColor, r: f32, g: f32, b: f32, a: f32);
+ue_struct!(FQuat, LWC, x, y, z, w);
+ue_struct!(FRotator, LWC, pitch, yaw, roll);
 ue_struct!(FTimespan, ticks: i64);
+ue_struct!(FVector, LWC, x, y, z);
 ue_struct!(FVector2D, x: f64, y: f64);
-
-// LWC-aware enums
-lwc_enum!(FQuat, x, y, z, w);
-lwc_enum!(FRotator, pitch, yaw, roll);
-lwc_enum!(FVector, x, y, z);
 
 #[binrw]
 #[brw(little)]
