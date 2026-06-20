@@ -1,6 +1,7 @@
 use std::io::Cursor;
 
 use binrw::{BinRead, BinWrite, binrw};
+use indexmap::IndexMap;
 
 use crate::format::SerializationFormat;
 use crate::types::{
@@ -365,7 +366,7 @@ impl BinWrite for FPropertyTag {
 }
 
 #[derive(Debug)]
-pub struct TaggedProperties(pub Vec<(FString, FProperty)>);
+pub struct TaggedProperties(pub IndexMap<FString, FProperty>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (SerializationFormat,);
@@ -375,7 +376,7 @@ impl BinRead for TaggedProperties {
         endian: binrw::Endian,
         (format,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
-        let mut properties = Vec::new();
+        let mut properties = IndexMap::new();
         loop {
             match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
@@ -386,7 +387,7 @@ impl BinRead for TaggedProperties {
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_type))?;
                     // println!("Read {property:?}");
-                    properties.push((name, property));
+                    properties.insert(name, property);
                 }
             }
         }
