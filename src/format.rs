@@ -1,6 +1,6 @@
 use crate::types::{
-    EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
-    EUnrealEngineObjectUE5Version, FGuid, FSaveGameHeader, GUID_EDITOR, GUID_UE5_RELEASE_STREAM,
+    CustomVersion, EEditorObjectVersion, EUE5ReleaseStreamObjectVersion,
+    EUnrealEngineObjectUE4Version, EUnrealEngineObjectUE5Version, FSaveGameHeader,
 };
 
 #[derive(Clone, Copy, Debug)]
@@ -20,14 +20,14 @@ impl FSaveGameHeader {
     pub fn serialization_format(&self) -> SerializationFormat {
         let package_file_version = self.package_file_version.version_ue4();
         let package_file_version_ue5 = self.package_file_version.version_ue5();
-        fn get_custom_version(header: &FSaveGameHeader, version: FGuid) -> u32 {
+        fn get_custom<T: CustomVersion>(header: &FSaveGameHeader) -> u32 {
             match &header.custom_versions {
-                Some(container) => container.get(version),
+                Some(container) => container.get_custom::<T>(),
                 None => 0,
             }
         }
-        let release_version = get_custom_version(self, GUID_UE5_RELEASE_STREAM);
-        let editor_version = get_custom_version(self, GUID_EDITOR);
+        let release_version = get_custom::<EUE5ReleaseStreamObjectVersion>(self);
+        let editor_version = get_custom::<EEditorObjectVersion>(self);
         SerializationFormat {
             ftext_history_date_timezone: package_file_version
                 >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,

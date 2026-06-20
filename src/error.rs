@@ -1,5 +1,3 @@
-#![cfg(test)]
-
 use std::io;
 
 use thiserror::Error;
@@ -14,6 +12,9 @@ pub enum Error {
     /// An `std::io::Error` occured
     #[error(transparent)]
     Io(#[from] io::Error),
+
+    #[error(transparent)]
+    ParseGuidError(#[from] crate::types::ParseGuidError),
 }
 
 pub type Result<T> = core::result::Result<T, Error>;

@@ -14,6 +14,10 @@ enum ECustomVersionSerializationFormat {
 
 pub type FCustomVersionArray = TArray<FCustomVersion>;
 
+pub trait CustomVersion {
+    const GUID: FGuid;
+}
+
 #[binrw]
 #[derive(Debug)]
 pub struct FCustomVersionContainer {
@@ -30,5 +34,9 @@ impl FCustomVersionContainer {
             .find(|v| v.key == version)
             .map(|v| v.value)
             .unwrap_or(0)
+    }
+
+    pub fn get_custom<V: CustomVersion>(&self) -> u32 {
+        self.get(V::GUID)
     }
 }

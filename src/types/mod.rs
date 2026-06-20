@@ -28,17 +28,15 @@ use binrw::binrw;
 
 use crate::format::SerializationFormat;
 pub use crate::types::{
-    e_editor_object_version::{EEditorObjectVersion, GUID_EDITOR},
+    e_editor_object_version::EEditorObjectVersion,
     e_property_tag_flags::EPropertyTagFlags,
-    e_ue5_release_stream_object_version::{
-        EUE5ReleaseStreamObjectVersion, GUID_UE5_RELEASE_STREAM,
-    },
+    e_ue5_release_stream_object_version::EUE5ReleaseStreamObjectVersion,
     e_unreal_engine_object_ue4_version::EUnrealEngineObjectUE4Version,
     e_unreal_engine_object_ue5_version::EUnrealEngineObjectUE5Version,
     f_array_property::FArrayProperty,
     f_bool_property::FBoolProperty,
-    f_custom_version_container::FCustomVersionContainer,
-    f_guid::FGuid,
+    f_custom_version_container::{CustomVersion, FCustomVersionArray, FCustomVersionContainer},
+    f_guid::{FGuid, ParseGuidError},
     f_map_property::FMapProperty,
     f_package_file_version::FPackageFileVersion,
     f_property::FProperty,

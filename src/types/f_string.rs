@@ -143,9 +143,9 @@ impl From<Option<&str>> for FString {
 
 #[cfg(test)]
 mod test {
-    use super::FString;
-    use binrw::{BinRead, BinWrite};
     use std::io::Cursor;
+
+    use super::*;
 
     const BYTES_NULL: &[u8; 4] = b"\x00\x00\x00\x00";
     const BYTES_EMPTY: &[u8; 5] = b"\x01\x00\x00\x00\x00";
