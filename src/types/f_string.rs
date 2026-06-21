@@ -1,7 +1,6 @@
 use binrw::{BinRead, BinWrite};
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-
 pub struct FString(pub Option<String>);
 
 impl std::fmt::Display for FString {
