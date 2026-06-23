@@ -511,18 +511,14 @@ mod test {
                 property_type: PropertyType::Complete {
                     property_type: FPropertyTypeName {
                         name: FString::from(NAME_STRUCT_PROPERTY),
-                        children: TArray(vec![
+                        children: TArray::from([
                             FPropertyTypeName {
                                 name: FString::from("TestClass"),
-                                children: TArray(vec![FPropertyTypeName {
-                                    name: FString::from("/path"),
-                                    children: TArray(vec![]),
-                                }]),
+                                children: TArray::from([FPropertyTypeName::from(FString::from(
+                                    "/path",
+                                ))]),
                             },
-                            FPropertyTypeName {
-                                name: FString::from("guid"),
-                                children: TArray(vec![]),
-                            },
+                            FPropertyTypeName::from(FString::from("guid")),
                         ]),
                     },
                     size: 0,

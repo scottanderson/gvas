@@ -14,7 +14,7 @@ impl From<FString> for FPropertyTypeName {
     fn from(name: FString) -> Self {
         Self {
             name,
-            children: TArray(vec![]),
+            children: TArray::empty(),
         }
     }
 }
@@ -59,9 +59,9 @@ mod test {
     fn structproperty() -> Result<()> {
         let expected = FPropertyTypeName {
             name: "StructProperty".into(),
-            children: TArray(vec![FPropertyTypeName {
+            children: TArray::from([FPropertyTypeName {
                 name: "DynamicSaveData".into(),
-                children: TArray(vec![FPropertyTypeName::from(FString::from(
+                children: TArray::from([FPropertyTypeName::from(FString::from(
                     "/Script/DynamicSave",
                 ))]),
             }]),

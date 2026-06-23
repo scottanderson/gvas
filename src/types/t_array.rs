@@ -3,6 +3,12 @@ use binrw::{BinRead, BinWrite};
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TArray<T>(pub Vec<T>);
 
+impl<T> TArray<T> {
+    pub fn empty() -> Self {
+        Self(Vec::new())
+    }
+}
+
 impl<T: BinRead> BinRead for TArray<T>
 where
     for<'a> T::Args<'a>: Copy,
@@ -51,13 +57,30 @@ where
 
 impl<T> std::ops::Deref for TArray<T> {
     type Target = Vec<T>;
+
+    #[inline]
     fn deref(&self) -> &Self::Target {
         &self.0
     }
 }
 
 impl<T> std::ops::DerefMut for TArray<T> {
+    #[inline]
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.0
+    }
+}
+
+impl<T, const N: usize> From<[T; N]> for TArray<T> {
+    #[inline]
+    fn from(value: [T; N]) -> Self {
+        TArray(Vec::from(value))
+    }
+}
+
+impl<T> From<Vec<T>> for TArray<T> {
+    #[inline]
+    fn from(value: Vec<T>) -> Self {
+        TArray(value)
     }
 }

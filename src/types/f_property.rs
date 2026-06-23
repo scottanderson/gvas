@@ -201,13 +201,13 @@ impl FProperty {
                     property_type: FPropertyTypeName {
                         name: property_type,
                         children: match &self {
-                            FProperty::Array(_) => TArray(Vec::from([FPropertyTypeName {
+                            FProperty::Array(_) => TArray::from([FPropertyTypeName {
                                 name: inner_type,
-                                children: TArray(Vec::new()),
-                            }])),
+                                children: TArray::empty(),
+                            }]),
                             FProperty::Bool(FBoolProperty(value)) => {
                                 flags.set_bool_true(*value);
-                                TArray(Vec::new())
+                                TArray::empty()
                             }
                             // Property::Delegate(_) => todo!(),
                             FProperty::Double(_) |
@@ -219,7 +219,7 @@ impl FProperty {
                             // Property::Int8(_) => todo!(),
                             // Property::MulticastInlineDelegate(_) => todo!(),
                             // Property::MulticastSparseDelegate(_) => todo!(),
-                            FProperty::Name(_) => TArray(Vec::from([])),
+                            FProperty::Name(_) => TArray::empty(),
                             // Property::Object(_) => todo!(),
                             // Property::SoftObject(_) => todo!(),
                             // Property::Str(_) => todo!(),
