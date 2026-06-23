@@ -46,7 +46,7 @@ pub enum FProperty {
     UInt16(FUInt16Property),
     UInt32(FUInt32Property),
     UInt64(FUInt64Property),
-    Unknown(PropertyType, Vec<u8>),
+    Unknown(#[bw(ignore)] PropertyType, Vec<u8>),
 }
 
 impl FProperty {
@@ -117,11 +117,15 @@ impl FProperty {
         }
     }
 
-    pub fn property_type(&self, format: SerializationFormat, size: u32) -> PropertyType {
+    pub fn property_type(
+        &self,
+        format: SerializationFormat,
+        size: u32,
+        array_index: u32,
+        guid: FGuid,
+    ) -> PropertyType {
         let property_type_name = self.property_type_name();
         let property_type = FString::from(property_type_name);
-        let array_index = 0;
-        let guid = FGuid::invalid();
         let inner_type = FString::from(self.container_inner_type_name());
         match format.property_tag_complete_type_name {
             false => PropertyType::Incomplete {
@@ -170,6 +174,10 @@ impl FProperty {
                     }
                     // Property::Optional(p) => CollectionProperties::Optional { inner_type },
                     FProperty::Set(..) => CollectionProperties::Set { inner_type },
+                    FProperty::Struct(p) => CollectionProperties::Struct {
+                        type_name: p.struct_type(),
+                        guid,
+                    },
                     FProperty::Delegate(..)
                     | FProperty::Double(..)
                     | FProperty::Enum(..)
@@ -184,7 +192,6 @@ impl FProperty {
                     | FProperty::Object(..)
                     | FProperty::SoftObject(..)
                     | FProperty::Str(..)
-                    | FProperty::Struct(..)
                     | FProperty::Text(..)
                     | FProperty::UInt16(..)
                     | FProperty::UInt32(..)
@@ -213,18 +220,59 @@ impl FProperty {
                             FProperty::Double(_) |
                             // Property::Enum(_) => todo!(),
                             // Property::Float(_) => todo!(),
-                            FProperty::Int(_) |
+                            FProperty::Int(_) => TArray::empty(),
                             // Property::Int16(_) => todo!(),
                             // Property::Int64(_) => todo!(),
                             // Property::Int8(_) => todo!(),
+                            FProperty::Map(map_property) => {
+                                let key_type = match map_property {
+                                    FMapProperty::Known { key_type, .. } |
+                                    FMapProperty::Unknown { key_type, .. } => match key_type {
+                                        PropertyType::Incomplete {..} => todo!(),
+                                        PropertyType::Complete { property_type, .. } => property_type.clone(),
+                                    },
+                                };
+                                let value_type = match map_property {
+                                    FMapProperty::Known { value_type, .. } |
+                                    FMapProperty::Unknown { value_type, .. } => match value_type {
+                                        PropertyType::Incomplete {..} => todo!(),
+                                        PropertyType::Complete { property_type, .. } => property_type.clone(),
+                                    },
+                                };
+                                TArray::from([key_type, value_type])
+                            }
                             // Property::MulticastInlineDelegate(_) => todo!(),
                             // Property::MulticastSparseDelegate(_) => todo!(),
-                            FProperty::Name(_) => TArray::empty(),
-                            // Property::Object(_) => todo!(),
-                            // Property::SoftObject(_) => todo!(),
-                            // Property::Str(_) => todo!(),
-                            FProperty::Struct(_) => todo!(),
-                            // Property::Text(_) => todo!(),
+                            FProperty::Name(_) |
+                            FProperty::Object(_) |
+                            FProperty::SoftObject(_) |
+                            FProperty::Str(_) => TArray::empty(),
+                            FProperty::Struct(struct_property) => {
+                                let struct_type = struct_property.struct_type();
+                                let struct_class = struct_property.struct_class();
+                                let struct_guid = struct_property.struct_guid();
+                                let mut children = Vec::from([
+                                    FPropertyTypeName {
+                                        name: struct_type,
+                                        children: TArray(
+                                            if struct_class.0.is_none() {
+                                                todo!("{self:?}")
+                                                // Vec::new()
+                                            } else {
+                                                Vec::from([FPropertyTypeName::from(struct_class)])
+                                            }
+                                        ),
+                                    }
+                                ]);
+                                if struct_guid.is_valid() {
+                                    let struct_guid = struct_guid.to_string();
+                                    let struct_guid = FString::from(struct_guid);
+                                    let struct_guid = FPropertyTypeName::from(struct_guid);
+                                    children.push(struct_guid);
+                                }
+                                TArray(children)
+                            },
+                            FProperty::Text(_) => TArray::empty(),
                             // Property::UInt16(_) => todo!(),
                             // Property::UInt32(_) => todo!(),
                             // Property::UInt64(_) => todo!(),
@@ -281,7 +329,9 @@ impl BinRead for FProperty {
             NAME_SOFT_OBJECT_PROPERTY => FProperty::SoftObject(FSoftObjectProperty::read_options(reader, endian, (format,))?),
             NAME_STRUCT_PROPERTY => {
                 let type_name = t.struct_type_name().unwrap_or_default();
-                let struct_property = FStructProperty::read_options(reader, endian, (format, t, type_name))?;
+                let class_name = t.struct_class_name();
+                let guid = t.struct_guid();
+                let struct_property = FStructProperty::read_options(reader, endian, (format, t, type_name, class_name, guid ))?;
                 FProperty::Struct(struct_property)
             },
             NAME_STR_PROPERTY    => FProperty::Str   (   FStrProperty::read_options(reader, endian, ())?),

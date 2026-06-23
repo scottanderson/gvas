@@ -1,12 +1,40 @@
 use binrw::binrw;
 
-use crate::types::{FString, NAME_NONE, TArray};
+use crate::types::{FGuid, FString, NAME_ARRAY_PROPERTY, NAME_NONE, NAME_STRUCT_PROPERTY, TArray};
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FPropertyTypeName {
     pub name: FString,
     pub children: TArray<FPropertyTypeName>,
+}
+
+impl FPropertyTypeName {
+    #[inline]
+    pub fn array_struct_guid(&self) -> Option<FGuid> {
+        match self.name.0.as_deref().unwrap_or_default() {
+            NAME_ARRAY_PROPERTY => match self.children.len() {
+                1 => self.children.first().unwrap().struct_guid(),
+                _ => todo!("array_struct_guid({self:?})"),
+            },
+            _ => None,
+        }
+    }
+
+    pub fn struct_guid(&self) -> Option<FGuid> {
+        match self.name.0.as_deref().unwrap_or_default() {
+            NAME_STRUCT_PROPERTY => match self.children.len() {
+                1 => None,
+                2 => {
+                    let second = self.children.get(1)?;
+                    let guid = second.name.0.as_deref()?;
+                    std::str::FromStr::from_str(guid).ok()
+                }
+                _ => todo!("struct_guid({self:?})"),
+            },
+            _ => None,
+        }
+    }
 }
 
 impl From<FString> for FPropertyTypeName {

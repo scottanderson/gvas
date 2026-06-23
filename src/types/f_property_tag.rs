@@ -110,6 +110,48 @@ impl PropertyType {
     }
 
     #[inline]
+    pub fn array_index(&self) -> u32 {
+        match self {
+            PropertyType::Incomplete { array_index, .. }
+            | PropertyType::Complete { array_index, .. } => *array_index,
+        }
+    }
+
+    #[inline]
+    pub fn flags(&self) -> Option<&EPropertyTagFlags> {
+        match self {
+            PropertyType::Incomplete { .. } => None,
+            PropertyType::Complete { flags, .. } => Some(flags),
+        }
+    }
+
+    #[inline]
+    pub fn struct_guid(&self) -> FGuid {
+        match self {
+            PropertyType::Complete {
+                property_type,
+                guid,
+                ..
+            } => {
+                if guid.is_valid() {
+                    todo!("valid guid in PropertyType")
+                    // return *guid;
+                }
+                match property_type.name.0.as_deref().unwrap_or_default() {
+                    NAME_ARRAY_PROPERTY => property_type.array_struct_guid().unwrap_or_default(),
+                    NAME_STRUCT_PROPERTY => property_type.struct_guid().unwrap_or_default(),
+                    _ => FGuid::invalid(),
+                }
+            }
+            PropertyType::Incomplete {
+                extra: CollectionProperties::Struct { guid, .. },
+                ..
+            } => *guid,
+            PropertyType::Incomplete { .. } => FGuid::invalid(),
+        }
+    }
+
+    #[inline]
     pub fn map_key_type(&self) -> Option<Self> {
         let size = 0;
         match self {
@@ -230,7 +272,7 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn array_struct_type(&self) -> Option<(&str, &str, &str)> {
+    pub fn array_struct_type(&self) -> Option<(&str, &str, FGuid)> {
         let Some(struct_property_type) = self.array_complete_type() else {
             panic!("self={self:?}");
             // return None;
@@ -247,8 +289,9 @@ impl PropertyType {
             panic!("name={name:?}");
             // return None;
         }
-        let [inner, guid] = children.as_slice() else {
-            panic!("Expected children len 2, got {children:?}");
+        let mut it = children.iter();
+        let Some(inner) = it.next() else {
+            panic!("Expected children len 1-2, got {children:?}");
             // return None;
         };
         let [class] = inner.children.as_slice() else {
@@ -262,18 +305,26 @@ impl PropertyType {
         // if class.name.0.as_deref() != Some("/Script/CoreUObject") {
         //     return None;
         // }
-        if !guid.children.is_empty() {
-            println!("Guid children not empty: {:?}", guid.children);
-            return None;
-        }
         let FString(Some(ref inner)) = inner.name else {
             return None;
         };
         let FString(Some(ref class)) = class.name else {
             return None;
         };
+        let Some(guid) = it.next() else {
+            return Some((inner, class, FGuid::invalid()));
+        };
+        if !guid.children.is_empty() {
+            panic!("Guid children not empty: {:?}", guid.children);
+            // return None;
+        }
         let FString(Some(ref guid)) = guid.name else {
-            return None;
+            panic!("Invalid guid name {:?}", guid.name);
+            // return None;
+        };
+        let Ok(guid) = std::str::FromStr::from_str(guid) else {
+            panic!("Invalid guid {guid}");
+            // return None;
         };
         Some((inner, class, guid))
     }
@@ -307,6 +358,24 @@ impl PropertyType {
                 }
                 inner.name.0.as_deref()
             }
+            _ => None,
+        }
+    }
+
+    #[inline]
+    pub fn struct_class_name(&self) -> Option<&str> {
+        match self {
+            PropertyType::Complete {
+                property_type:
+                    FPropertyTypeName {
+                        name: FString(Some(property_type)),
+                        children,
+                    },
+                ..
+            } if property_type == NAME_STRUCT_PROPERTY => match children.first() {
+                Some(f) => f.name.0.as_deref(),
+                None => None,
+            },
             _ => None,
         }
     }
@@ -366,7 +435,14 @@ impl BinWrite for FPropertyTag {
 }
 
 #[derive(Debug)]
-pub struct TaggedProperties(pub IndexMap<FString, FProperty>);
+pub struct TaggedProperty {
+    pub array_index: u32,
+    pub guid: FGuid,
+    pub property: FProperty,
+}
+
+#[derive(Debug)]
+pub struct TaggedProperties(pub IndexMap<FString, TaggedProperty>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (SerializationFormat,);
@@ -387,6 +463,13 @@ impl BinRead for TaggedProperties {
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_type))?;
                     // println!("Read {property:?}");
+                    let array_index = property_type.array_index();
+                    let guid = property_type.struct_guid();
+                    let property = TaggedProperty {
+                        array_index,
+                        guid,
+                        property,
+                    };
                     properties.insert(name, property);
                 }
             }
@@ -404,7 +487,12 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (format,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for (name, property) in self.0.iter() {
+        for (name, tagged_property) in self.0.iter() {
+            let TaggedProperty {
+                array_index,
+                guid,
+                property,
+            } = tagged_property;
             // Write to temp buffer
             let mut buf = Cursor::new(Vec::new());
             property.write_options(&mut buf, endian, (format,))?;
@@ -412,7 +500,7 @@ impl BinWrite for TaggedProperties {
             let len = property_buf.len() as u32;
 
             // Generate property tag
-            let property_type = property.property_type(format, len);
+            let property_type = property.property_type(format, len, *array_index, *guid);
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;

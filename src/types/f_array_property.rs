@@ -3,7 +3,7 @@ use binrw::binrw;
 use crate::{
     format::SerializationFormat,
     types::{
-        CollectionProperties, FEnumProperty, FFloatProperty, FIntProperty, FNameProperty,
+        CollectionProperties, FEnumProperty, FFloatProperty, FGuid, FIntProperty, FNameProperty,
         FObjectProperty, FPropertyTag, FSoftObjectProperty, FStrProperty, FString, FStructProperty,
         FTextProperty, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
         NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
@@ -15,7 +15,7 @@ use crate::{
 impl FPropertyTag {
     #[inline]
     fn array_struct_type_name(&self) -> Option<&str> {
-        let FPropertyTag::Some { property_type, .. } = &self else {
+        let FPropertyTag::Some { property_type, .. } = self else {
             return None;
         };
         let PropertyType::Incomplete { extra, .. } = property_type else {
@@ -30,19 +30,19 @@ impl FPropertyTag {
         Some(type_name)
     }
 
-    // #[inline]
-    // fn array_struct_guid(&self) -> Option<FGuid> {
-    //     let FPropertyTag::Some { property_type, .. } = &self else {
-    //         return None;
-    //     };
-    //     let PropertyType::Incomplete { extra, .. } = property_type else {
-    //         return None;
-    //     };
-    //     let CollectionProperties::Struct { guid, .. } = extra else {
-    //         return None;
-    //     };
-    //     Some(*guid)
-    // }
+    #[inline]
+    fn array_struct_guid(&self) -> Option<FGuid> {
+        let FPropertyTag::Some { property_type, .. } = self else {
+            return None;
+        };
+        let PropertyType::Incomplete { extra, .. } = property_type else {
+            return None;
+        };
+        let CollectionProperties::Struct { guid, .. } = extra else {
+            return None;
+        };
+        Some(*guid)
+    }
 }
 
 #[binrw]
@@ -81,23 +81,13 @@ pub enum FArrayProperty {
     #[bw(assert(format.property_tag_complete_type_name))]
     Struct {
         #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
-        count: u32,
-
-        #[br(temp)]
         #[br(calc = t.array_struct_type().expect("array_struct_type"))]
         #[bw(ignore)]
-        meta: (&str, &str, &str),
+        meta: (&str, &str, FGuid),
 
-        #[br(temp)]
-        #[br(calc = meta.0)]
-        #[bw(ignore)]
-        type_name: &str,
-
-        #[br(count = count)]
-        #[br(args { inner: (format, t, type_name,) })]
+        #[br(args(format, t, meta.0, Some(meta.1), meta.2,))]
         #[bw(args(format))]
-        values: Vec<FStructProperty>,
+        values: TArray<FStructProperty>,
     },
 
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name))]
@@ -115,8 +105,13 @@ pub enum FArrayProperty {
         #[bw(ignore)]
         type_name: &str,
 
+        #[br(temp)]
+        #[br(calc = struct_tag.array_struct_guid().expect("array_struct_guid"))]
+        #[bw(ignore)]
+        guid: FGuid,
+
         #[br(count = count)]
-        #[br(args { inner: (format, t, type_name,) })]
+        #[br(args { inner: (format, t, type_name, None, guid, ) })]
         #[bw(args(format))]
         values: Vec<FStructProperty>,
     },

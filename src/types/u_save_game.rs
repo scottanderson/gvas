@@ -29,7 +29,7 @@ mod test {
         path::Path,
     };
 
-    use binrw::BinRead;
+    use binrw::{BinRead, BinWrite};
 
     use crate::error::Result;
     use crate::types::USaveGame;
@@ -44,13 +44,13 @@ mod test {
 
         // Parse
         let mut cursor = Cursor::new(buf);
-        let _result = USaveGame::read(&mut cursor)?;
+        let result = USaveGame::read(&mut cursor)?;
         assert_eq!(len as u64, cursor.stream_position()?);
 
-        // TODO: Write
-        // let buf2 = vec![0u8; len];
-        // let mut cursor2 = Cursor::new(buf2);
-        // USaveGame::write(&result, &mut cursor2)?;
+        // Write
+        let buf2 = vec![0u8; len];
+        let mut cursor2 = Cursor::new(buf2);
+        USaveGame::write(&result, &mut cursor2)?;
 
         // TODO: Compare
         // let buf = cursor.into_inner();

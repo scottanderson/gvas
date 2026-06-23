@@ -1,6 +1,6 @@
 use crate::{
     format::SerializationFormat,
-    types::{FProperty, PropertyType, TArray},
+    types::{EPropertyTagFlags, FProperty, PropertyType, TArray},
 };
 use binrw::binrw;
 
@@ -9,6 +9,7 @@ use binrw::binrw;
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FMapProperty {
+    #[br(pre_assert(!t.flags().map(EPropertyTagFlags::has_binary_or_native_serialize).unwrap_or(false)))]
     Known {
         allocation_flags: u32,
 
