@@ -7,7 +7,7 @@ use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, PATH__SCRIPT__CORE_U_OBJECT,
 };
 
 #[binrw]
@@ -301,7 +301,7 @@ impl PropertyType {
             println!("Class children not empty: {:?}", class.children);
             return None;
         }
-        // if class.name != "/Script/CoreUObject" {
+        // if class.name != PATH__SCRIPT__CORE_U_OBJECT {
         //     return None;
         // }
         let FString(Some(ref inner)) = inner.name else {
@@ -352,7 +352,7 @@ impl PropertyType {
                 if !class.children.is_empty() {
                     return None;
                 }
-                if class.name != "/Script/CoreUObject" {
+                if class.name != PATH__SCRIPT__CORE_U_OBJECT {
                     return None;
                 }
                 inner.name.as_deref()

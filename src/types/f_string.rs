@@ -212,7 +212,7 @@ mod test {
     #[test]
     fn write_fstring_empty() {
         let mut cursor = Cursor::new(vec![]);
-        let string = FString(Some(String::from("")));
+        let string = FString::from(STR_EMPTY);
         string.write_le(&mut cursor).expect("FString::write_le");
         assert_eq!(cursor.into_inner().as_slice(), BYTES_EMPTY)
     }
@@ -220,7 +220,7 @@ mod test {
     #[test]
     fn write_fstring_ascii() {
         let mut cursor = Cursor::new(vec![]);
-        let string = FString(Some(String::from("StrProperty")));
+        let string = FString::from(STR_PROPERTY);
         string.write_le(&mut cursor).expect("FString::write_le");
         assert_eq!(cursor.into_inner().as_slice(), BYTES_PROPERTY)
     }
@@ -228,7 +228,7 @@ mod test {
     #[test]
     fn write_fstring_utf16() {
         let mut cursor = Cursor::new(vec![]);
-        let string = FString(Some(String::from("§")));
+        let string = FString::from(STR_UTF16);
         string.write_le(&mut cursor).expect("FString::write_le");
         assert_eq!(cursor.into_inner().as_slice(), BYTES_UTF16)
     }

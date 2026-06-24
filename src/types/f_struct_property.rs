@@ -4,7 +4,9 @@ use crate::{
     format::SerializationFormat,
     types::{
         FDateTime, FGameplayTagContainer, FGuid, FIntPoint, FLinearColor, FQuat, FRotator, FString,
-        FTimespan, FVector, FVector2D, PropertyType, TaggedProperties,
+        FTimespan, FVector, FVector2D, NAME_DATE_TIME, NAME_GAMEPLAY_TAG_CONTAINER, NAME_GUID,
+        NAME_INT_POINT, NAME_LINEAR_COLOR, NAME_QUAT, NAME_ROTATOR, NAME_TIMESPAN, NAME_VECTOR,
+        NAME_VECTOR2D, PATH__SCRIPT__CORE_U_OBJECT, PropertyType, TaggedProperties,
     },
 };
 
@@ -13,25 +15,25 @@ use crate::{
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FStructProperty {
-    #[br(pre_assert(struct_type == "DateTime"))]
+    #[br(pre_assert(struct_type == NAME_DATE_TIME))]
     DateTime(FDateTime),
-    #[br(pre_assert(struct_type == "GameplayTagContainer"))]
+    #[br(pre_assert(struct_type == NAME_GAMEPLAY_TAG_CONTAINER))]
     GameplayTagContainer(FGameplayTagContainer),
-    #[br(pre_assert(struct_type == "Guid"))]
+    #[br(pre_assert(struct_type == NAME_GUID))]
     Guid(FGuid),
-    #[br(pre_assert(struct_type == "IntPoint"))]
+    #[br(pre_assert(struct_type == NAME_INT_POINT))]
     IntPoint(FIntPoint),
-    #[br(pre_assert(struct_type == "LinearColor"))]
+    #[br(pre_assert(struct_type == NAME_LINEAR_COLOR))]
     LinearColor(FLinearColor),
-    #[br(pre_assert(struct_type == "Quat"))]
+    #[br(pre_assert(struct_type == NAME_QUAT))]
     Quat(#[br(args(format))] FQuat),
-    #[br(pre_assert(struct_type == "Rotator"))]
+    #[br(pre_assert(struct_type == NAME_ROTATOR))]
     Rotator(#[br(args(format))] FRotator),
-    #[br(pre_assert(struct_type == "Timespan"))]
+    #[br(pre_assert(struct_type == NAME_TIMESPAN))]
     Timespan(FTimespan),
-    #[br(pre_assert(struct_type == "Vector"))]
+    #[br(pre_assert(struct_type == NAME_VECTOR))]
     Vector(#[br(args(format))] FVector),
-    #[br(pre_assert(struct_type == "Vector2D"))]
+    #[br(pre_assert(struct_type == NAME_VECTOR2D))]
     Vector2D(FVector2D),
     Custom(
         #[br(calc = struct_type.into())]
@@ -63,16 +65,16 @@ impl FStructProperty {
     #[inline]
     pub fn struct_type(&self) -> FString {
         FString::from(match self {
-            FStructProperty::DateTime(..) => Some("DateTime"),
-            FStructProperty::GameplayTagContainer(..) => Some("GameplayTagContainer"),
-            FStructProperty::Guid(..) => Some("Guid"),
-            FStructProperty::IntPoint(..) => Some("IntPoint"),
-            FStructProperty::LinearColor(..) => Some("LinearColor"),
-            FStructProperty::Quat(..) => Some("Quat"),
-            FStructProperty::Rotator(..) => Some("Rotator"),
-            FStructProperty::Timespan(..) => Some("Timespan"),
-            FStructProperty::Vector(..) => Some("Vector"),
-            FStructProperty::Vector2D(..) => Some("Vector2D"),
+            FStructProperty::DateTime(..) => Some(NAME_DATE_TIME),
+            FStructProperty::GameplayTagContainer(..) => Some(NAME_GAMEPLAY_TAG_CONTAINER),
+            FStructProperty::Guid(..) => Some(NAME_GUID),
+            FStructProperty::IntPoint(..) => Some(NAME_INT_POINT),
+            FStructProperty::LinearColor(..) => Some(NAME_LINEAR_COLOR),
+            FStructProperty::Quat(..) => Some(NAME_QUAT),
+            FStructProperty::Rotator(..) => Some(NAME_ROTATOR),
+            FStructProperty::Timespan(..) => Some(NAME_TIMESPAN),
+            FStructProperty::Vector(..) => Some(NAME_VECTOR),
+            FStructProperty::Vector2D(..) => Some(NAME_VECTOR2D),
             FStructProperty::Unknown(struct_type, _c, _g, _)
             | FStructProperty::Custom(struct_type, _c, _g, _) => struct_type.as_deref(),
         })
@@ -90,7 +92,7 @@ impl FStructProperty {
             | FStructProperty::Rotator(..)
             | FStructProperty::Timespan(..)
             | FStructProperty::Vector(..)
-            | FStructProperty::Vector2D(..) => FString::from("/Script/CoreUObject"),
+            | FStructProperty::Vector2D(..) => FString::from(PATH__SCRIPT__CORE_U_OBJECT),
             FStructProperty::Unknown(_t, struct_class, _g, _)
             | FStructProperty::Custom(_t, struct_class, _g, _) => struct_class.clone(),
         }

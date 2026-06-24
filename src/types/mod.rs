@@ -82,6 +82,19 @@ pub const NAME_UINT16_PROPERTY: &str = "UInt16Property";
 pub const NAME_UINT32_PROPERTY: &str = "UInt32Property";
 pub const NAME_UINT64_PROPERTY: &str = "UInt64Property";
 
+pub const PATH__SCRIPT__CORE_U_OBJECT: &str = "/Script/CoreUObject";
+
+pub const NAME_DATE_TIME: &str = "DateTime";
+pub const NAME_GAMEPLAY_TAG_CONTAINER: &str = "GameplayTagContainer";
+pub const NAME_GUID: &str = "Guid";
+pub const NAME_INT_POINT: &str = "IntPoint";
+pub const NAME_LINEAR_COLOR: &str = "LinearColor";
+pub const NAME_QUAT: &str = "Quat";
+pub const NAME_ROTATOR: &str = "Rotator";
+pub const NAME_TIMESPAN: &str = "Timespan";
+pub const NAME_VECTOR: &str = "Vector";
+pub const NAME_VECTOR2D: &str = "Vector2D";
+
 // #[binrw] #[derive(Debug)] pub struct ByteProperty(...);
 
 // #[binrw] #[derive(Debug)] pub struct OptionalProperty(...);

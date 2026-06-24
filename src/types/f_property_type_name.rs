@@ -97,7 +97,7 @@ mod test {
     #[test]
     fn structproperty() -> Result<()> {
         let expected = FPropertyTypeName::with_children(
-            "StructProperty",
+            NAME_STRUCT_PROPERTY,
             [FPropertyTypeName::with_children(
                 "DynamicSaveData",
                 [FPropertyTypeName::from("/Script/DynamicSave")],
