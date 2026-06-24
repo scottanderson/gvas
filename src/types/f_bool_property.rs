@@ -1,4 +1,4 @@
-use binrw::{BinRead, BinWrite};
+use binrw::BinRead;
 
 use crate::types::{CollectionProperties, PropertyType};
 
@@ -24,18 +24,5 @@ impl BinRead for FBoolProperty {
                 message: "BoolProperty type not found".to_string(),
             }),
         }
-    }
-}
-
-impl BinWrite for FBoolProperty {
-    type Args<'a> = ();
-
-    fn write_options<W: std::io::Write + std::io::Seek>(
-        &self,
-        writer: &mut W,
-        endian: binrw::Endian,
-        _args: Self::Args<'_>,
-    ) -> binrw::BinResult<()> {
-        u8::write_options(&if self.0 { 1 } else { 0 }, writer, endian, ())
     }
 }

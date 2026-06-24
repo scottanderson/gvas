@@ -24,7 +24,7 @@ use crate::{
 #[derive(Debug)]
 pub enum FProperty {
     Array(#[bw(args(format))] FArrayProperty),
-    Bool(FBoolProperty),
+    Bool(#[bw(ignore)] FBoolProperty),
     Delegate(FDelegateProperty),
     Double(FDoubleProperty),
     Enum(FEnumProperty),
