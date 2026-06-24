@@ -3,19 +3,19 @@ use binrw::{BinRead, binwrite};
 use crate::{
     format::SerializationFormat,
     types::{
-        CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FDelegateProperty,
-        FDoubleProperty, FEnumProperty, FFloatProperty, FGuid, FInt8Property, FInt16Property,
-        FInt64Property, FIntProperty, FMapProperty, FMulticastInlineDelegateProperty,
-        FMulticastSparseDelegateProperty, FNameProperty, FObjectProperty, FPropertyTypeName,
-        FSetProperty, FSoftObjectProperty, FStrProperty, FString, FStructProperty, FTextProperty,
-        FUInt16Property, FUInt32Property, FUInt64Property, NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY,
-        NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY, NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY,
-        NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
-        NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
-        NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-        NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY,
-        NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY,
-        PropertyType, TArray,
+        CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FByteProperty,
+        FDelegateProperty, FDoubleProperty, FEnumProperty, FFloatProperty, FGuid, FInt8Property,
+        FInt16Property, FInt64Property, FIntProperty, FMapProperty,
+        FMulticastInlineDelegateProperty, FMulticastSparseDelegateProperty, FNameProperty,
+        FObjectProperty, FPropertyTypeName, FSetProperty, FSoftObjectProperty, FStrProperty,
+        FString, FStructProperty, FTextProperty, FUInt16Property, FUInt32Property, FUInt64Property,
+        NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY,
+        NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY,
+        NAME_INT8_PROPERTY, NAME_INT16_PROPERTY, NAME_INT64_PROPERTY, NAME_MAP_PROPERTY,
+        NAME_MULTICAST_INLINE_DELGATE_PROPERTY, NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
+        NAME_NAME_PROPERTY, NAME_NONE, NAME_OBJECT_PROPERTY, NAME_SET_PROPERTY,
+        NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
+        NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyType, TArray,
     },
 };
 
@@ -25,6 +25,7 @@ use crate::{
 pub enum FProperty {
     Array(#[bw(args(format))] FArrayProperty),
     Bool(#[bw(ignore)] FBoolProperty),
+    Byte(FByteProperty),
     Delegate(FDelegateProperty),
     Double(FDoubleProperty),
     Enum(FEnumProperty),
@@ -54,6 +55,7 @@ impl FProperty {
         match &self {
             FProperty::Array(..) => NAME_ARRAY_PROPERTY,
             FProperty::Bool(..) => NAME_BOOL_PROPERTY,
+            FProperty::Byte(..) => NAME_BYTE_PROPERTY,
             FProperty::Delegate(..) => NAME_DELEGATE_PROPERTY,
             FProperty::Double(..) => NAME_DOUBLE_PROPERTY,
             FProperty::Enum(..) => NAME_ENUM_PROPERTY,
@@ -137,7 +139,12 @@ impl FProperty {
                     FProperty::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
                         value: *value as u8,
                     },
-                    // Property::Byte(..) => Collection::Byte {},
+                    FProperty::Byte(value) => CollectionProperties::Byte {
+                        enum_name: match value {
+                            FByteProperty::Enum(name) => name.clone(),
+                            FByteProperty::Byte(_) => FString::from(NAME_NONE),
+                        },
+                    },
                     // Property::Enum(..) => Collection::Enum {},
                     FProperty::Map(map_property) => {
                         let (key_type, value_type) = match map_property {
@@ -320,7 +327,7 @@ impl BinRead for FProperty {
                 FProperty::Array(array_property)
             },
             NAME_BOOL_PROPERTY   => FProperty::Bool  (  FBoolProperty::read_options(reader, endian, (t,))?),
-            // NAME_BYTE_PROPERTY   => Property::Byte  (  ByteProperty::read_options(reader, endian, ())?),
+            NAME_BYTE_PROPERTY   => FProperty::Byte  (  FByteProperty::read_options(reader, endian, (t,))?),
             NAME_DELEGATE_PROPERTY => FProperty::Delegate(FDelegateProperty::read_options(reader, endian, ())?),
             NAME_DOUBLE_PROPERTY => FProperty::Double(FDoubleProperty::read_options(reader, endian, ())?),
             NAME_ENUM_PROPERTY   => FProperty::Enum  (  FEnumProperty::read_options(reader, endian, ())?),

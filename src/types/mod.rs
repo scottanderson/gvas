@@ -5,6 +5,7 @@ mod e_unreal_engine_object_ue4_version;
 mod e_unreal_engine_object_ue5_version;
 mod f_array_property;
 mod f_bool_property;
+mod f_byte_property;
 mod f_custom_version_container;
 mod f_date_time;
 mod f_guid;
@@ -35,6 +36,7 @@ pub use crate::types::{
     e_unreal_engine_object_ue5_version::EUnrealEngineObjectUE5Version,
     f_array_property::FArrayProperty,
     f_bool_property::FBoolProperty,
+    f_byte_property::FByteProperty,
     f_custom_version_container::{CustomVersion, FCustomVersionArray, FCustomVersionContainer},
     f_guid::{FGuid, ParseGuidError},
     f_map_property::FMapProperty,
@@ -94,8 +96,6 @@ pub const NAME_ROTATOR: &str = "Rotator";
 pub const NAME_TIMESPAN: &str = "Timespan";
 pub const NAME_VECTOR: &str = "Vector";
 pub const NAME_VECTOR2D: &str = "Vector2D";
-
-// #[binrw] #[derive(Debug)] pub struct ByteProperty(...);
 
 // #[binrw] #[derive(Debug)] pub struct OptionalProperty(...);
 
