@@ -5,22 +5,10 @@ pub struct FString(pub Option<String>);
 
 impl std::fmt::Display for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match &self.0 {
+        match self.as_deref() {
             None => f.write_str("null"),
             Some(s) => s.fmt(f),
         }
-    }
-}
-
-impl PartialEq<str> for FString {
-    fn eq(&self, other: &str) -> bool {
-        self.0.as_deref() == Some(other)
-    }
-}
-
-impl PartialEq<&str> for FString {
-    fn eq(&self, other: &&str) -> bool {
-        self == *other
     }
 }
 
@@ -91,7 +79,7 @@ impl BinWrite for FString {
         endian: binrw::Endian,
         _args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        match &self.0 {
+        match self.as_deref() {
             None => u32::write_options(&0, writer, endian, ())?,
             Some(str) => {
                 if str.is_ascii() {
@@ -113,6 +101,20 @@ impl BinWrite for FString {
             }
         }
         Ok(())
+    }
+}
+
+impl std::ops::Deref for FString {
+    type Target = Option<String>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for FString {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 
@@ -141,6 +143,18 @@ impl From<Option<&str>> for FString {
     #[inline]
     fn from(value: Option<&str>) -> Self {
         FString(value.map(ToOwned::to_owned))
+    }
+}
+
+impl PartialEq<str> for FString {
+    fn eq(&self, other: &str) -> bool {
+        self.as_deref() == Some(other)
+    }
+}
+
+impl PartialEq<&str> for FString {
+    fn eq(&self, other: &&str) -> bool {
+        self == *other
     }
 }
 

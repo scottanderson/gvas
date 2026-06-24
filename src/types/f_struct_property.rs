@@ -74,7 +74,7 @@ impl FStructProperty {
             FStructProperty::Vector(..) => Some("Vector"),
             FStructProperty::Vector2D(..) => Some("Vector2D"),
             FStructProperty::Unknown(struct_type, _c, _g, _)
-            | FStructProperty::Custom(struct_type, _c, _g, _) => struct_type.0.as_deref(),
+            | FStructProperty::Custom(struct_type, _c, _g, _) => struct_type.as_deref(),
         })
     }
 

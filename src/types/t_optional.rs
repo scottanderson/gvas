@@ -43,7 +43,7 @@ where
         endian: binrw::Endian,
         args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        match &self.0 {
+        match self.as_ref() {
             None => {
                 u32::write_options(&0, writer, endian, ())?;
             }
@@ -58,6 +58,7 @@ where
 
 impl<T> std::ops::Deref for TOptional<T> {
     type Target = Option<T>;
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }

@@ -252,7 +252,7 @@ impl FProperty {
                                 let mut children = Vec::with_capacity(cap);
                                 children.push(FPropertyTypeName::with_children(
                                     struct_type,
-                                    if struct_class.0.is_none() {
+                                    if struct_class.is_none() {
                                         // Vec::new()
                                         todo!("{self:?}")
                                     } else {

@@ -68,7 +68,7 @@ pub enum PropertyType {
         property_type: FString,
         size: u32,
         array_index: u32,
-        #[br(args(format, property_type.0.as_deref().unwrap_or("")))]
+        #[br(args(format, property_type.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
         #[br(temp, assert(footer == 0))]
         #[bw(calc(0))]
@@ -137,7 +137,7 @@ impl PropertyType {
                     todo!("valid guid in PropertyType")
                     // return *guid;
                 }
-                match property_type.name.0.as_deref().unwrap_or_default() {
+                match property_type.name.as_deref().unwrap_or_default() {
                     NAME_ARRAY_PROPERTY => property_type.array_struct_guid().unwrap_or_default(),
                     NAME_STRUCT_PROPERTY => property_type.struct_guid().unwrap_or_default(),
                     _ => FGuid::invalid(),
@@ -225,7 +225,6 @@ impl PropertyType {
             PropertyType::Incomplete { property_type, .. } => property_type,
             PropertyType::Complete { property_type, .. } => &property_type.name,
         }
-        .0
         .as_deref()
     }
 
@@ -302,7 +301,7 @@ impl PropertyType {
             println!("Class children not empty: {:?}", class.children);
             return None;
         }
-        // if class.name.0.as_deref() != Some("/Script/CoreUObject") {
+        // if class.name != "/Script/CoreUObject" {
         //     return None;
         // }
         let FString(Some(ref inner)) = inner.name else {
@@ -335,7 +334,7 @@ impl PropertyType {
             PropertyType::Incomplete {
                 extra: CollectionProperties::Struct { type_name, guid: _ },
                 ..
-            } => type_name.0.as_deref(),
+            } => type_name.as_deref(),
             PropertyType::Complete {
                 property_type:
                     FPropertyTypeName {
@@ -353,10 +352,10 @@ impl PropertyType {
                 if !class.children.is_empty() {
                     return None;
                 }
-                if class.name.0.as_deref() != Some("/Script/CoreUObject") {
+                if class.name != "/Script/CoreUObject" {
                     return None;
                 }
-                inner.name.0.as_deref()
+                inner.name.as_deref()
             }
             _ => None,
         }
@@ -373,7 +372,7 @@ impl PropertyType {
                     },
                 ..
             } if property_type == NAME_STRUCT_PROPERTY => match children.first() {
-                Some(f) => f.name.0.as_deref(),
+                Some(f) => f.name.as_deref(),
                 None => None,
             },
             _ => None,
@@ -399,9 +398,7 @@ impl BinRead for FPropertyTag {
         (format,): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let name = FString::read_options(reader, endian, ())?;
-        if let Some(ref name) = name.0
-            && name == NAME_NONE
-        {
+        if name == NAME_NONE {
             return Ok(Self::None);
         };
         let property_type = PropertyType::read_options(reader, endian, (format,))?;
@@ -487,7 +484,7 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (format,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for (name, tagged_property) in self.0.iter() {
+        for (name, tagged_property) in self.iter() {
             let TaggedProperty {
                 array_index,
                 guid,
@@ -510,6 +507,20 @@ impl BinWrite for TaggedProperties {
         // Write the sentinel value "None" to terminate the list
         FPropertyTag::None.write_options(writer, endian, ())?;
         Ok(())
+    }
+}
+
+impl std::ops::Deref for TaggedProperties {
+    type Target = IndexMap<FString, TaggedProperty>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl std::ops::DerefMut for TaggedProperties {
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.0
     }
 }
 

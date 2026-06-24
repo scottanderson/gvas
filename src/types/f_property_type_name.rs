@@ -23,7 +23,7 @@ impl FPropertyTypeName {
 
     #[inline]
     pub fn array_struct_guid(&self) -> Option<FGuid> {
-        match self.name.0.as_deref().unwrap_or_default() {
+        match self.name.as_deref().unwrap_or_default() {
             NAME_ARRAY_PROPERTY => match self.children.len() {
                 1 => self.children.first().unwrap().struct_guid(),
                 _ => todo!("array_struct_guid({self:?})"),
@@ -33,12 +33,12 @@ impl FPropertyTypeName {
     }
 
     pub fn struct_guid(&self) -> Option<FGuid> {
-        match self.name.0.as_deref().unwrap_or_default() {
+        match self.name.as_deref().unwrap_or_default() {
             NAME_STRUCT_PROPERTY => match self.children.len() {
                 1 => None,
                 2 => {
                     let second = self.children.get(1)?;
-                    let guid = second.name.0.as_deref()?;
+                    let guid = second.name.as_deref()?;
                     std::str::FromStr::from_str(guid).ok()
                 }
                 _ => todo!("struct_guid({self:?})"),
@@ -60,7 +60,7 @@ impl<T: Into<FString>> From<T> for FPropertyTypeName {
 
 impl std::fmt::Display for FPropertyTypeName {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let name = self.name.0.as_deref().unwrap_or(NAME_NONE);
+        let name = self.name.as_deref().unwrap_or(NAME_NONE);
         write!(f, "{}", name)?;
         if !self.children.is_empty() {
             write!(f, "<")?;

@@ -42,13 +42,13 @@ where
         args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
         let pos = writer.stream_position()?;
-        let count = self.0.len();
+        let count = self.len();
         let count = u32::try_from(count).map_err(|e| binrw::Error::Custom {
             pos,
             err: Box::new(e),
         })?;
         count.write_options(writer, endian, ())?;
-        for item in &self.0 {
+        for item in self.iter() {
             item.write_options(writer, endian, args)?;
         }
         Ok(())
