@@ -208,10 +208,7 @@ impl FProperty {
                     property_type: FPropertyTypeName {
                         name: property_type,
                         children: match &self {
-                            FProperty::Array(_) => TArray::from([FPropertyTypeName {
-                                name: inner_type,
-                                children: TArray::empty(),
-                            }]),
+                            FProperty::Array(_) => TArray::from([FPropertyTypeName::from(inner_type)]),
                             FProperty::Bool(FBoolProperty(value)) => {
                                 flags.set_bool_true(*value);
                                 TArray::empty()
@@ -251,19 +248,17 @@ impl FProperty {
                                 let struct_type = struct_property.struct_type();
                                 let struct_class = struct_property.struct_class();
                                 let struct_guid = struct_property.struct_guid();
-                                let mut children = Vec::from([
-                                    FPropertyTypeName {
-                                        name: struct_type,
-                                        children: TArray(
-                                            if struct_class.0.is_none() {
-                                                todo!("{self:?}")
-                                                // Vec::new()
-                                            } else {
-                                                Vec::from([FPropertyTypeName::from(struct_class)])
-                                            }
-                                        ),
+                                let cap = if struct_guid.is_valid() { 2 } else { 1 };
+                                let mut children = Vec::with_capacity(cap);
+                                children.push(FPropertyTypeName::with_children(
+                                    struct_type,
+                                    if struct_class.0.is_none() {
+                                        // Vec::new()
+                                        todo!("{self:?}")
+                                    } else {
+                                        Vec::from([FPropertyTypeName::from(struct_class)])
                                     }
-                                ]);
+                                ));
                                 if struct_guid.is_valid() {
                                     let struct_guid = struct_guid.to_string();
                                     let struct_guid = FString::from(struct_guid);

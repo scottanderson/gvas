@@ -11,6 +11,17 @@ pub struct FPropertyTypeName {
 
 impl FPropertyTypeName {
     #[inline]
+    pub fn with_children(
+        name: impl Into<FString>,
+        children: impl IntoIterator<Item = Self>,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            children: TArray(children.into_iter().collect()),
+        }
+    }
+
+    #[inline]
     pub fn array_struct_guid(&self) -> Option<FGuid> {
         match self.name.0.as_deref().unwrap_or_default() {
             NAME_ARRAY_PROPERTY => match self.children.len() {
@@ -37,11 +48,11 @@ impl FPropertyTypeName {
     }
 }
 
-impl From<FString> for FPropertyTypeName {
+impl<T: Into<FString>> From<T> for FPropertyTypeName {
     #[inline]
-    fn from(name: FString) -> Self {
+    fn from(name: T) -> Self {
         Self {
-            name,
+            name: name.into(),
             children: TArray::empty(),
         }
     }
@@ -85,15 +96,13 @@ mod test {
 
     #[test]
     fn structproperty() -> Result<()> {
-        let expected = FPropertyTypeName {
-            name: "StructProperty".into(),
-            children: TArray::from([FPropertyTypeName {
-                name: "DynamicSaveData".into(),
-                children: TArray::from([FPropertyTypeName::from(FString::from(
-                    "/Script/DynamicSave",
-                ))]),
-            }]),
-        };
+        let expected = FPropertyTypeName::with_children(
+            "StructProperty",
+            [FPropertyTypeName::with_children(
+                "DynamicSaveData",
+                [FPropertyTypeName::from("/Script/DynamicSave")],
+            )],
+        );
 
         let mut reader = Cursor::new(Vec::from(STRUCT_PROPERTY_DATA));
         let read: FPropertyTypeName = BinRead::read_le(&mut reader)?;

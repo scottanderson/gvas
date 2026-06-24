@@ -516,7 +516,7 @@ impl BinWrite for TaggedProperties {
 #[cfg(test)]
 mod test {
 
-    use crate::{error::Result, types::TArray};
+    use crate::error::Result;
 
     use super::*;
 
@@ -597,18 +597,16 @@ mod test {
             FPropertyTag::Some {
                 name: FString::from("test"),
                 property_type: PropertyType::Complete {
-                    property_type: FPropertyTypeName {
-                        name: FString::from(NAME_STRUCT_PROPERTY),
-                        children: TArray::from([
-                            FPropertyTypeName {
-                                name: FString::from("TestClass"),
-                                children: TArray::from([FPropertyTypeName::from(FString::from(
-                                    "/path",
-                                ))]),
-                            },
-                            FPropertyTypeName::from(FString::from("guid")),
-                        ]),
-                    },
+                    property_type: FPropertyTypeName::with_children(
+                        NAME_STRUCT_PROPERTY,
+                        [
+                            FPropertyTypeName::with_children(
+                                "TestClass",
+                                [FPropertyTypeName::from("/path")],
+                            ),
+                            FPropertyTypeName::from("guid"),
+                        ],
+                    ),
                     size: 0,
                     flags: EPropertyTagFlags::new(),
                     array_index: 0,

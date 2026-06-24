@@ -117,24 +117,28 @@ impl BinWrite for FString {
 }
 
 impl From<String> for FString {
+    #[inline]
     fn from(value: String) -> Self {
         FString(Some(value))
     }
 }
 
 impl From<Option<String>> for FString {
+    #[inline]
     fn from(value: Option<String>) -> Self {
         FString(value)
     }
 }
 
 impl From<&str> for FString {
+    #[inline]
     fn from(value: &str) -> Self {
         FString(Some(value.to_owned()))
     }
 }
 
 impl From<Option<&str>> for FString {
+    #[inline]
     fn from(value: Option<&str>) -> Self {
         FString(value.map(ToOwned::to_owned))
     }
