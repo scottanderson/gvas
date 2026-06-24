@@ -207,8 +207,21 @@ impl FProperty {
                 PropertyType::Complete {
                     property_type: FPropertyTypeName {
                         name: property_type,
-                        children: match &self {
-                            FProperty::Array(_) => TArray::from([FPropertyTypeName::from(inner_type)]),
+                        children: match self {
+                            FProperty::Array(array_property) => {
+                                match array_property {
+                                    FArrayProperty::Struct { struct_type, struct_class, struct_guid, values:_ } => {
+                                        TArray::from([
+                                            FPropertyTypeName::with_children(struct_type.to_owned(), [
+                                                FPropertyTypeName::from(struct_class.to_owned())
+                                            ]),
+                                            FPropertyTypeName::from(struct_guid.to_string())
+                                        ])
+                                    },
+                                    FArrayProperty::TaggedStruct {..} => todo!(),
+                                    _ => TArray::from([FPropertyTypeName::from(inner_type)]),
+                                }
+                            },
                             FProperty::Bool(FBoolProperty(value)) => {
                                 flags.set_bool_true(*value);
                                 TArray::empty()

@@ -85,6 +85,18 @@ pub enum FArrayProperty {
         #[bw(ignore)]
         meta: (&str, &str, FGuid),
 
+        #[br(calc = meta.0.into())]
+        #[bw(ignore)]
+        struct_type: FString,
+
+        #[br(calc = meta.1.into())]
+        #[bw(ignore)]
+        struct_class: FString,
+
+        #[br(calc = meta.2)]
+        #[bw(ignore)]
+        struct_guid: FGuid,
+
         #[br(args(format, t, meta.0, Some(meta.1), meta.2,))]
         #[bw(args(format))]
         values: TArray<FStructProperty>,
