@@ -195,9 +195,11 @@ impl FProperty {
                     | FProperty::Text(..)
                     | FProperty::UInt16(..)
                     | FProperty::UInt32(..)
-                    | FProperty::UInt64(..)
-                    | FProperty::Unknown(..) => CollectionProperties::None,
-                    // _ => todo!("{self:?}"),
+                    | FProperty::UInt64(..) => CollectionProperties::None,
+                    FProperty::Unknown(property_type, _) => match property_type {
+                        PropertyType::Incomplete { extra, .. } => extra.clone(),
+                        PropertyType::Complete { .. } => todo!(),
+                    }, // _ => todo!("{self:?}"),
                 },
             },
             true => {
