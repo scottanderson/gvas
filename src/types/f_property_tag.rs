@@ -169,11 +169,10 @@ impl PropertyType {
                     _ => FGuid::invalid(),
                 }
             }
-            Self::Incomplete {
-                extra: CollectionProperties::Struct { guid, .. },
-                ..
-            } => *guid,
-            Self::Incomplete { .. } => FGuid::invalid(),
+            Self::Incomplete { extra, .. } => match extra {
+                CollectionProperties::Struct { guid, .. } => *guid,
+                _ => FGuid::invalid(),
+            },
         }
     }
 
