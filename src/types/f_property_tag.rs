@@ -90,7 +90,7 @@ pub enum PropertyType {
 impl PropertyType {
     #[inline]
     fn synthetic_incomplete(name: &str, size: u32) -> Self {
-        PropertyType::Incomplete {
+        Self::Incomplete {
             property_type: FString::from(name),
             size,
             array_index: 0,
@@ -100,7 +100,7 @@ impl PropertyType {
 
     #[inline]
     fn synthetic_complete(property_type: FPropertyTypeName, size: u32) -> Self {
-        PropertyType::Complete {
+        Self::Complete {
             property_type,
             size,
             flags: EPropertyTagFlags::new(),
@@ -112,15 +112,16 @@ impl PropertyType {
     #[inline]
     pub fn array_index(&self) -> u32 {
         match self {
-            PropertyType::Incomplete { array_index, .. }
-            | PropertyType::Complete { array_index, .. } => *array_index,
+            Self::Incomplete { array_index, .. } | Self::Complete { array_index, .. } => {
+                *array_index
+            }
         }
     }
 
     #[inline]
     pub fn enum_name(&self) -> Option<&str> {
         match self {
-            PropertyType::Incomplete { extra, .. } => match extra {
+            Self::Incomplete { extra, .. } => match extra {
                 CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Array { .. } => None,
@@ -144,15 +145,15 @@ impl PropertyType {
     #[inline]
     pub fn flags(&self) -> Option<&EPropertyTagFlags> {
         match self {
-            PropertyType::Incomplete { .. } => None,
-            PropertyType::Complete { flags, .. } => Some(flags),
+            Self::Incomplete { .. } => None,
+            Self::Complete { flags, .. } => Some(flags),
         }
     }
 
     #[inline]
     pub fn struct_guid(&self) -> FGuid {
         match self {
-            PropertyType::Complete {
+            Self::Complete {
                 property_type,
                 guid,
                 ..
@@ -167,11 +168,11 @@ impl PropertyType {
                     _ => FGuid::invalid(),
                 }
             }
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra: CollectionProperties::Struct { guid, .. },
                 ..
             } => *guid,
-            PropertyType::Incomplete { .. } => FGuid::invalid(),
+            Self::Incomplete { .. } => FGuid::invalid(),
         }
     }
 
@@ -179,7 +180,7 @@ impl PropertyType {
     pub fn map_key_type(&self) -> Option<Self> {
         let size = 0;
         match self {
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra:
                     CollectionProperties::Map {
                         inner_type: FString(Some(name)),
@@ -187,7 +188,7 @@ impl PropertyType {
                     },
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
-            PropertyType::Complete {
+            Self::Complete {
                 property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
@@ -202,7 +203,7 @@ impl PropertyType {
     pub fn map_value_type(&self) -> Option<Self> {
         let size = 0;
         match self {
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra:
                     CollectionProperties::Map {
                         value_type: FString(Some(name)),
@@ -210,7 +211,7 @@ impl PropertyType {
                     },
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
-            PropertyType::Complete {
+            Self::Complete {
                 property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
@@ -225,14 +226,14 @@ impl PropertyType {
     pub fn set_element_type(&self) -> Option<Self> {
         let size = 0;
         match self {
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra:
                     CollectionProperties::Set {
                         inner_type: FString(Some(name)),
                     },
                 ..
             } => Some(Self::synthetic_incomplete(name, size)),
-            PropertyType::Complete {
+            Self::Complete {
                 property_type: FPropertyTypeName { children, .. },
                 ..
             } => children
@@ -246,8 +247,8 @@ impl PropertyType {
     #[inline]
     pub fn property_type(&self) -> Option<&str> {
         match self {
-            PropertyType::Incomplete { property_type, .. } => property_type,
-            PropertyType::Complete { property_type, .. } => &property_type.name,
+            Self::Incomplete { property_type, .. } => property_type,
+            Self::Complete { property_type, .. } => &property_type.name,
         }
         .as_deref()
     }
@@ -255,19 +256,19 @@ impl PropertyType {
     #[inline]
     pub fn size(&self) -> u32 {
         match self {
-            PropertyType::Incomplete { size, .. } => *size,
-            PropertyType::Complete { size, .. } => *size,
+            Self::Incomplete { size, .. } => *size,
+            Self::Complete { size, .. } => *size,
         }
     }
 
     #[inline]
     pub fn array_inner_type(&self) -> Option<&FString> {
         match self {
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra: CollectionProperties::Array { inner_type, .. },
                 ..
             } => Some(inner_type),
-            PropertyType::Complete {
+            Self::Complete {
                 property_type: FPropertyTypeName { children, .. },
                 ..
             } => children.first().map(|head| &head.name),
@@ -277,7 +278,7 @@ impl PropertyType {
 
     #[inline]
     pub fn array_complete_type(&self) -> Option<&FPropertyTypeName> {
-        let PropertyType::Complete {
+        let Self::Complete {
             property_type: FPropertyTypeName { name, children },
             ..
         } = self
@@ -355,11 +356,11 @@ impl PropertyType {
     #[inline]
     pub fn struct_type_name(&self) -> Option<&str> {
         match self {
-            PropertyType::Incomplete {
+            Self::Incomplete {
                 extra: CollectionProperties::Struct { type_name, guid: _ },
                 ..
             } => type_name.as_deref(),
-            PropertyType::Complete {
+            Self::Complete {
                 property_type:
                     FPropertyTypeName {
                         name: FString(Some(name)),
@@ -388,7 +389,7 @@ impl PropertyType {
     #[inline]
     pub fn struct_class_name(&self) -> Option<&str> {
         match self {
-            PropertyType::Complete {
+            Self::Complete {
                 property_type:
                     FPropertyTypeName {
                         name: FString(Some(property_type)),
