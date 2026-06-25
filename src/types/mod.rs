@@ -8,6 +8,7 @@ mod f_bool_property;
 mod f_byte_property;
 mod f_custom_version_container;
 mod f_date_time;
+mod f_enum_property;
 mod f_guid;
 mod f_map_property;
 mod f_package_file_version;
@@ -38,6 +39,7 @@ pub use crate::types::{
     f_bool_property::FBoolProperty,
     f_byte_property::FByteProperty,
     f_custom_version_container::{CustomVersion, FCustomVersionArray, FCustomVersionContainer},
+    f_enum_property::FEnumProperty,
     f_guid::{FGuid, ParseGuidError},
     f_map_property::FMapProperty,
     f_package_file_version::FPackageFileVersion,
@@ -138,7 +140,6 @@ ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32,
 // Properties
 ue_struct!(FDelegateProperty, object: FString, function_name: FString);
 ue_struct!(FDoubleProperty, f64);
-ue_struct!(FEnumProperty, FString);
 ue_struct!(FFloatProperty, f32);
 ue_struct!(FInt16Property, i16);
 ue_struct!(FInt64Property, i64);

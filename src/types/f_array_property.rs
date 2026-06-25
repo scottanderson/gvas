@@ -3,12 +3,11 @@ use binrw::binrw;
 use crate::{
     format::SerializationFormat,
     types::{
-        CollectionProperties, FEnumProperty, FFloatProperty, FGuid, FIntProperty, FNameProperty,
-        FObjectProperty, FPropertyTag, FSoftObjectProperty, FStrProperty, FString, FStructProperty,
-        FTextProperty, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
-        NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-        NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        PropertyType, TArray,
+        CollectionProperties, FFloatProperty, FGuid, FIntProperty, FNameProperty, FObjectProperty,
+        FPropertyTag, FSoftObjectProperty, FStrProperty, FString, FStructProperty, FTextProperty,
+        NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY,
+        NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY, NAME_SOFT_OBJECT_PROPERTY,
+        NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, PropertyType, TArray,
     },
 };
 
@@ -57,7 +56,12 @@ pub enum FArrayProperty {
     Byte(#[br(count = t.size())] Vec<u8>),
 
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
-    Enum(TArray<FEnumProperty>),
+    Enum(
+        #[br(calc = t.enum_name().into())]
+        #[bw(ignore)]
+        FString,
+        TArray<FString>,
+    ),
 
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
     Float(TArray<FFloatProperty>),

@@ -118,6 +118,30 @@ impl PropertyType {
     }
 
     #[inline]
+    pub fn enum_name(&self) -> Option<&str> {
+        match self {
+            PropertyType::Incomplete { extra, .. } => match extra {
+                CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
+                CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
+                CollectionProperties::Array { .. } => None,
+                _ => todo!("{extra:?}"),
+            },
+            Self::Complete { property_type, .. } => {
+                match property_type.name.as_deref().unwrap_or_default() {
+                    NAME_ARRAY_PROPERTY => {
+                        let inner_type = property_type.children.first()?;
+                        match inner_type.name.as_deref().unwrap_or_default() {
+                            NAME_ENUM_PROPERTY => inner_type.children.first()?.name.as_deref(),
+                            _ => todo!("{inner_type}"),
+                        }
+                    }
+                    _ => todo!("{property_type}"),
+                }
+            }
+        }
+    }
+
+    #[inline]
     pub fn flags(&self) -> Option<&EPropertyTagFlags> {
         match self {
             PropertyType::Incomplete { .. } => None,
@@ -326,17 +350,6 @@ impl PropertyType {
             // return None;
         };
         Some((inner, class, guid))
-    }
-
-    #[inline]
-    pub fn enum_name(&self) -> Option<&str> {
-        match self {
-            PropertyType::Incomplete {
-                extra: CollectionProperties::Enum { enum_name },
-                ..
-            } => enum_name.as_deref(),
-            _ => todo!(),
-        }
     }
 
     #[inline]

@@ -28,7 +28,7 @@ pub enum FProperty {
     Byte(FByteProperty),
     Delegate(FDelegateProperty),
     Double(FDoubleProperty),
-    Enum(#[bw(ignore)] FString, FEnumProperty),
+    Enum(FEnumProperty),
     Float(FFloatProperty),
     Int(FIntProperty),
     Int16(FInt16Property),
@@ -141,11 +141,11 @@ impl FProperty {
                     },
                     FProperty::Byte(value) => CollectionProperties::Byte {
                         enum_name: match value {
-                            FByteProperty::Enum(name) => name.clone(),
+                            FByteProperty::Enum(name, _) => name.clone(),
                             FByteProperty::Byte(_) => FString::from(NAME_NONE),
                         },
                     },
-                    FProperty::Enum(enum_name, _) => CollectionProperties::Enum {
+                    FProperty::Enum(FEnumProperty(enum_name, _)) => CollectionProperties::Enum {
                         enum_name: enum_name.clone(),
                     },
                     FProperty::Map(map_property) => {
@@ -331,8 +331,7 @@ impl BinRead for FProperty {
             NAME_BYTE_PROPERTY   => FProperty::Byte  (  FByteProperty::read_options(reader, endian, (t,))?),
             NAME_DELEGATE_PROPERTY => FProperty::Delegate(FDelegateProperty::read_options(reader, endian, ())?),
             NAME_DOUBLE_PROPERTY => FProperty::Double(FDoubleProperty::read_options(reader, endian, ())?),
-            NAME_ENUM_PROPERTY   => FProperty::Enum  ( FString::from(t.enum_name().expect("enum_name")),
-                                                        FEnumProperty::read_options(reader, endian, ())?),
+            NAME_ENUM_PROPERTY   => FProperty::Enum  (  FEnumProperty::read_options(reader, endian, (t,))?),
             NAME_FLOAT_PROPERTY  => FProperty::Float ( FFloatProperty::read_options(reader, endian, ())?),
             NAME_INT16_PROPERTY  => FProperty::Int16 ( FInt16Property::read_options(reader, endian, ())?),
             NAME_INT64_PROPERTY  => FProperty::Int64 ( FInt64Property::read_options(reader, endian, ())?),
