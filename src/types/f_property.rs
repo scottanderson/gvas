@@ -126,6 +126,10 @@ impl FProperty {
         array_index: u32,
         guid: FGuid,
     ) -> PropertyType {
+        if let Self::Unknown(original_tag, _) = self {
+            return original_tag.clone();
+        }
+
         let property_type_name = self.property_type_name();
         let property_type = FString::from(property_type_name);
         let inner_type = FString::from(self.container_inner_type_name());
@@ -204,10 +208,7 @@ impl FProperty {
                     | Self::UInt16(..)
                     | Self::UInt32(..)
                     | Self::UInt64(..) => CollectionProperties::None,
-                    Self::Unknown(property_type, _) => match property_type {
-                        PropertyType::Incomplete { extra, .. } => extra.clone(),
-                        PropertyType::Complete { .. } => todo!(),
-                    }, // _ => todo!("{self:?}"),
+                    Self::Unknown(..) => unimplemented!(),
                 },
             },
             true => {
