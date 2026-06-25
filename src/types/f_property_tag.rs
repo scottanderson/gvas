@@ -449,7 +449,9 @@ impl BinWrite for FPropertyTag {
 #[derive(Debug)]
 pub struct TaggedProperty {
     pub array_index: u32,
+    pub extensions: bool,
     pub guid: FGuid,
+    pub native: bool,
     pub property: FProperty,
 }
 
@@ -477,9 +479,18 @@ impl BinRead for TaggedProperties {
                     // println!("Read {property:?}");
                     let array_index = property_type.array_index();
                     let guid = property_type.struct_guid();
+                    let (native, extensions) = match property_type.flags() {
+                        Some(flags) => (
+                            flags.has_binary_or_native_serialize(),
+                            flags.has_property_extensions(),
+                        ),
+                        None => (false, false),
+                    };
                     let property = TaggedProperty {
                         array_index,
+                        extensions,
                         guid,
+                        native,
                         property,
                     };
                     properties.push((name, property));
@@ -502,7 +513,9 @@ impl BinWrite for TaggedProperties {
         for (name, tagged_property) in self.iter() {
             let TaggedProperty {
                 array_index,
+                extensions,
                 guid,
+                native,
                 property,
             } = tagged_property;
             // Write to temp buffer
@@ -512,7 +525,8 @@ impl BinWrite for TaggedProperties {
             let len = property_buf.len() as u32;
 
             // Generate property tag
-            let property_type = property.property_type(format, len, *array_index, *guid);
+            let property_type =
+                property.property_type(format, len, *array_index, *guid, *native, *extensions);
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;

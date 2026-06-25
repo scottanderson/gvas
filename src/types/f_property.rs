@@ -125,6 +125,8 @@ impl FProperty {
         size: u32,
         array_index: u32,
         guid: FGuid,
+        native: bool,
+        extensions: bool,
     ) -> PropertyType {
         if let Self::Unknown(original_tag, _) = self {
             return original_tag.clone();
@@ -213,8 +215,10 @@ impl FProperty {
             },
             true => {
                 let mut flags = EPropertyTagFlags::new();
-                flags.set_has_property_guid(guid.is_valid());
                 flags.set_has_array_index(array_index != 0);
+                flags.set_has_property_guid(guid.is_valid());
+                flags.set_has_binary_or_native_serialize(native);
+                flags.set_has_property_extensions(extensions);
                 PropertyType::Complete {
                     property_type: FPropertyTypeName {
                         name: property_type,
