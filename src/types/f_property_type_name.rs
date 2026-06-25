@@ -21,6 +21,20 @@ impl FPropertyTypeName {
         }
     }
 
+    pub fn for_struct(
+        struct_type: impl Into<FString>,
+        class: impl Into<FString>,
+        guid: FGuid,
+    ) -> Self {
+        let has_guid = guid.is_valid();
+        let mut children = Vec::with_capacity(1 + has_guid as usize);
+        children.push(Self::with_children(struct_type, [Self::from(class)]));
+        if has_guid {
+            children.push(Self::from(guid.to_string()))
+        }
+        Self::with_children(NAME_STRUCT_PROPERTY, children)
+    }
+
     #[inline]
     pub fn array_struct_guid(&self) -> Option<FGuid> {
         match self.name.as_deref().unwrap_or_default() {

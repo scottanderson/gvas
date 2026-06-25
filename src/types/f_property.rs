@@ -222,10 +222,11 @@ impl FProperty {
                                 match array_property {
                                     FArrayProperty::Struct { struct_type, struct_class, struct_guid, values:_ } => {
                                         TArray::from([
-                                            FPropertyTypeName::with_children(struct_type.to_owned(), [
-                                                FPropertyTypeName::from(struct_class.to_owned())
-                                            ]),
-                                            FPropertyTypeName::from(struct_guid.to_string())
+                                            FPropertyTypeName::for_struct(
+                                                struct_type.to_owned(),
+                                                struct_class.to_owned(),
+                                                *struct_guid,
+                                            ),
                                         ])
                                     },
                                     FArrayProperty::TaggedStruct {..} => todo!(),
@@ -271,24 +272,7 @@ impl FProperty {
                                 let struct_type = struct_property.struct_type();
                                 let struct_class = struct_property.struct_class();
                                 let struct_guid = struct_property.struct_guid();
-                                let cap = if struct_guid.is_valid() { 2 } else { 1 };
-                                let mut children = Vec::with_capacity(cap);
-                                children.push(FPropertyTypeName::with_children(
-                                    struct_type,
-                                    if struct_class.is_none() {
-                                        // Vec::new()
-                                        todo!("{self:?}")
-                                    } else {
-                                        Vec::from([FPropertyTypeName::from(struct_class)])
-                                    }
-                                ));
-                                if struct_guid.is_valid() {
-                                    let struct_guid = struct_guid.to_string();
-                                    let struct_guid = FString::from(struct_guid);
-                                    let struct_guid = FPropertyTypeName::from(struct_guid);
-                                    children.push(struct_guid);
-                                }
-                                TArray(children)
+                                FPropertyTypeName::for_struct(struct_type, struct_class, struct_guid).children
                             },
                             FProperty::Text(_) => TArray::empty(),
                             // Property::UInt16(_) => todo!(),
