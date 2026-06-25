@@ -27,7 +27,7 @@ where
                 )),
             })?,
         };
-        Ok(TOptional(value))
+        Ok(Self(value))
     }
 }
 

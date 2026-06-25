@@ -22,10 +22,10 @@ pub enum FPackageFileVersion {
 impl FPackageFileVersion {
     pub fn version_ue4(&self) -> u32 {
         match self {
-            FPackageFileVersion::UE4 {
+            Self::UE4 {
                 package_file_version,
             } => *package_file_version,
-            FPackageFileVersion::UE5 {
+            Self::UE5 {
                 package_file_version,
                 ..
             } => *package_file_version,
@@ -34,8 +34,8 @@ impl FPackageFileVersion {
 
     pub fn version_ue5(&self) -> u32 {
         match self {
-            FPackageFileVersion::UE4 { .. } => 0,
-            FPackageFileVersion::UE5 {
+            Self::UE4 { .. } => 0,
+            Self::UE5 {
                 package_file_version_ue5,
                 ..
             } => *package_file_version_ue5,

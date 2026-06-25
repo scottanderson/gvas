@@ -426,7 +426,7 @@ impl BinRead for FPropertyTag {
             return Ok(Self::None);
         };
         let property_type = PropertyType::read_options(reader, endian, (format,))?;
-        Ok(FPropertyTag::Some {
+        Ok(Self::Some {
             name,
             property_type,
         })
@@ -443,8 +443,8 @@ impl BinWrite for FPropertyTag {
         args: Self::Args<'_>,
     ) -> binrw::BinResult<()> {
         match self {
-            FPropertyTag::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
-            FPropertyTag::Some {
+            Self::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
+            Self::Some {
                 name,
                 property_type,
             } => {
@@ -495,7 +495,7 @@ impl BinRead for TaggedProperties {
                 }
             }
         }
-        Ok(TaggedProperties(properties))
+        Ok(Self(properties))
     }
 }
 

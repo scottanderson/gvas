@@ -245,7 +245,7 @@ impl FromStr for FGuid {
         let s = s.strip_suffix(')').unwrap_or(s);
 
         if s == "0" {
-            return Ok(FGuid::invalid());
+            return Ok(Self::invalid());
         }
 
         let length = s.len();

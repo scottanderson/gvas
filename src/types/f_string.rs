@@ -66,7 +66,7 @@ impl BinRead for FString {
             })?;
             Some(str)
         };
-        Ok(FString(value))
+        Ok(Self(value))
     }
 }
 
@@ -121,28 +121,28 @@ impl std::ops::DerefMut for FString {
 impl From<String> for FString {
     #[inline]
     fn from(value: String) -> Self {
-        FString(Some(value))
+        Self(Some(value))
     }
 }
 
 impl From<Option<String>> for FString {
     #[inline]
     fn from(value: Option<String>) -> Self {
-        FString(value)
+        Self(value)
     }
 }
 
 impl From<&str> for FString {
     #[inline]
     fn from(value: &str) -> Self {
-        FString(Some(value.to_owned()))
+        Self(Some(value.to_owned()))
     }
 }
 
 impl From<Option<&str>> for FString {
     #[inline]
     fn from(value: Option<&str>) -> Self {
-        FString(value.map(ToOwned::to_owned))
+        Self(value.map(ToOwned::to_owned))
     }
 }
 

@@ -14,7 +14,7 @@ use crate::{
 impl FPropertyTag {
     #[inline]
     fn array_struct_type_name(&self) -> Option<&str> {
-        let FPropertyTag::Some { property_type, .. } = self else {
+        let Self::Some { property_type, .. } = self else {
             return None;
         };
         let PropertyType::Incomplete { extra, .. } = property_type else {
@@ -31,7 +31,7 @@ impl FPropertyTag {
 
     #[inline]
     fn array_struct_guid(&self) -> Option<FGuid> {
-        let FPropertyTag::Some { property_type, .. } = self else {
+        let Self::Some { property_type, .. } = self else {
             return None;
         };
         let PropertyType::Incomplete { extra, .. } = property_type else {

@@ -6,7 +6,7 @@ use crate::types::{FGuid, FString, NAME_ARRAY_PROPERTY, NAME_NONE, NAME_STRUCT_P
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct FPropertyTypeName {
     pub name: FString,
-    pub children: TArray<FPropertyTypeName>,
+    pub children: TArray<Self>,
 }
 
 impl FPropertyTypeName {

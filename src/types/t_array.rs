@@ -25,7 +25,7 @@ where
         for _ in 0..count {
             items.push(T::read_options(reader, endian, args)?);
         }
-        Ok(TArray(items))
+        Ok(Self(items))
     }
 }
 
@@ -74,13 +74,13 @@ impl<T> std::ops::DerefMut for TArray<T> {
 impl<T, const N: usize> From<[T; N]> for TArray<T> {
     #[inline]
     fn from(value: [T; N]) -> Self {
-        TArray(Vec::from(value))
+        Self(Vec::from(value))
     }
 }
 
 impl<T> From<Vec<T>> for TArray<T> {
     #[inline]
     fn from(value: Vec<T>) -> Self {
-        TArray(value)
+        Self(value)
     }
 }

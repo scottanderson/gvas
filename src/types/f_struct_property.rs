@@ -65,44 +65,46 @@ impl FStructProperty {
     #[inline]
     pub fn struct_type(&self) -> FString {
         FString::from(match self {
-            FStructProperty::DateTime(..) => Some(NAME_DATE_TIME),
-            FStructProperty::GameplayTagContainer(..) => Some(NAME_GAMEPLAY_TAG_CONTAINER),
-            FStructProperty::Guid(..) => Some(NAME_GUID),
-            FStructProperty::IntPoint(..) => Some(NAME_INT_POINT),
-            FStructProperty::LinearColor(..) => Some(NAME_LINEAR_COLOR),
-            FStructProperty::Quat(..) => Some(NAME_QUAT),
-            FStructProperty::Rotator(..) => Some(NAME_ROTATOR),
-            FStructProperty::Timespan(..) => Some(NAME_TIMESPAN),
-            FStructProperty::Vector(..) => Some(NAME_VECTOR),
-            FStructProperty::Vector2D(..) => Some(NAME_VECTOR2D),
-            FStructProperty::Unknown(struct_type, _c, _g, _)
-            | FStructProperty::Custom(struct_type, _c, _g, _) => struct_type.as_deref(),
+            Self::DateTime(..) => Some(NAME_DATE_TIME),
+            Self::GameplayTagContainer(..) => Some(NAME_GAMEPLAY_TAG_CONTAINER),
+            Self::Guid(..) => Some(NAME_GUID),
+            Self::IntPoint(..) => Some(NAME_INT_POINT),
+            Self::LinearColor(..) => Some(NAME_LINEAR_COLOR),
+            Self::Quat(..) => Some(NAME_QUAT),
+            Self::Rotator(..) => Some(NAME_ROTATOR),
+            Self::Timespan(..) => Some(NAME_TIMESPAN),
+            Self::Vector(..) => Some(NAME_VECTOR),
+            Self::Vector2D(..) => Some(NAME_VECTOR2D),
+            Self::Unknown(struct_type, _c, _g, _) | Self::Custom(struct_type, _c, _g, _) => {
+                struct_type.as_deref()
+            }
         })
     }
 
     #[inline]
     pub fn struct_class(&self) -> FString {
         match self {
-            FStructProperty::DateTime(..)
-            | FStructProperty::GameplayTagContainer(..)
-            | FStructProperty::Guid(..)
-            | FStructProperty::IntPoint(..)
-            | FStructProperty::LinearColor(..)
-            | FStructProperty::Quat(..)
-            | FStructProperty::Rotator(..)
-            | FStructProperty::Timespan(..)
-            | FStructProperty::Vector(..)
-            | FStructProperty::Vector2D(..) => FString::from(PATH__SCRIPT__CORE_U_OBJECT),
-            FStructProperty::Unknown(_t, struct_class, _g, _)
-            | FStructProperty::Custom(_t, struct_class, _g, _) => struct_class.clone(),
+            Self::DateTime(..)
+            | Self::GameplayTagContainer(..)
+            | Self::Guid(..)
+            | Self::IntPoint(..)
+            | Self::LinearColor(..)
+            | Self::Quat(..)
+            | Self::Rotator(..)
+            | Self::Timespan(..)
+            | Self::Vector(..)
+            | Self::Vector2D(..) => FString::from(PATH__SCRIPT__CORE_U_OBJECT),
+            Self::Unknown(_t, struct_class, _g, _) | Self::Custom(_t, struct_class, _g, _) => {
+                struct_class.clone()
+            }
         }
     }
 
     #[inline]
     pub fn struct_guid(&self) -> FGuid {
         match self {
-            FStructProperty::Unknown(_t, _c, guid, _)
-            | FStructProperty::Custom(_t, _c, guid, _) => *guid,
+            Self::Unknown(_t, _c, guid, _)
+            | Self::Custom(_t, _c, guid, _) => *guid,
             _ => FGuid::invalid(),
         }
     }
