@@ -6,7 +6,7 @@ use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, PATH__SCRIPT__CORE_U_OBJECT,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
 };
 
 #[binrw]
@@ -367,18 +367,7 @@ impl PropertyType {
                     },
                 ..
             } if name == NAME_STRUCT_PROPERTY => {
-                let [inner] = children.as_slice() else {
-                    return None;
-                };
-                let [class] = inner.children.as_slice() else {
-                    return None;
-                };
-                if !class.children.is_empty() {
-                    return None;
-                }
-                if class.name != PATH__SCRIPT__CORE_U_OBJECT {
-                    return None;
-                }
+                let inner = children.first()?;
                 inner.name.as_deref()
             }
             _ => None,
@@ -395,10 +384,11 @@ impl PropertyType {
                         children,
                     },
                 ..
-            } if property_type == NAME_STRUCT_PROPERTY => match children.first() {
-                Some(f) => f.name.as_deref(),
-                None => None,
-            },
+            } if property_type == NAME_STRUCT_PROPERTY => {
+                let inner = children.first()?;
+                let class = inner.children.first()?;
+                class.name.as_deref()
+            }
             _ => None,
         }
     }
