@@ -208,7 +208,7 @@ impl FGuid {
 
 impl Display for FGuid {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        self.format(f, EGuidFormats::DigitsWithHyphensInBraces)
+        self.format(f, EGuidFormats::DigitsWithHyphensLower)
     }
 }
 
@@ -275,7 +275,7 @@ mod test {
 
     #[test]
     fn display() -> Result<()> {
-        let expected = "{E4B068ED-F494-42E9-A231-DA0B2E46BB41}";
+        let expected = "e4b068ed-f494-42e9-a231-da0b2e46bb41";
         for guid in [
             FGuid::from_u32(0xE4B068ED, 0xF49442E9, 0xA231DA0B, 0x2E46BB41),
             FGuid::from_u128(0x2E46BB41A231DA0BF49442E9E4B068ED),
