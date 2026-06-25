@@ -103,8 +103,7 @@ impl FStructProperty {
     #[inline]
     pub fn struct_guid(&self) -> FGuid {
         match self {
-            Self::Unknown(_t, _c, guid, _)
-            | Self::Custom(_t, _c, guid, _) => *guid,
+            Self::Unknown(_t, _c, guid, _) | Self::Custom(_t, _c, guid, _) => *guid,
             _ => FGuid::invalid(),
         }
     }
