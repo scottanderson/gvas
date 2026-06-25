@@ -329,6 +329,17 @@ impl PropertyType {
     }
 
     #[inline]
+    pub fn enum_name(&self) -> Option<&str> {
+        match self {
+            PropertyType::Incomplete {
+                extra: CollectionProperties::Enum { enum_name },
+                ..
+            } => enum_name.as_deref(),
+            _ => todo!(),
+        }
+    }
+
+    #[inline]
     pub fn struct_type_name(&self) -> Option<&str> {
         match self {
             PropertyType::Incomplete {
