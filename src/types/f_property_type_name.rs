@@ -35,17 +35,6 @@ impl FPropertyTypeName {
         Self::with_children(NAME_STRUCT_PROPERTY, children)
     }
 
-    #[inline]
-    pub fn array_struct_guid(&self) -> Option<FGuid> {
-        match self.name.as_deref().unwrap_or_default() {
-            NAME_ARRAY_PROPERTY => match self.children.len() {
-                1 => self.children.first().unwrap().struct_guid(),
-                _ => todo!("array_struct_guid({self:?})"),
-            },
-            _ => None,
-        }
-    }
-
     pub fn struct_guid(&self) -> Option<FGuid> {
         match self.name.as_deref().unwrap_or_default() {
             NAME_STRUCT_PROPERTY => match self.children.len() {

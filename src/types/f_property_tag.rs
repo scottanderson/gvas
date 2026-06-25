@@ -164,7 +164,6 @@ impl PropertyType {
                     // return *guid;
                 }
                 match property_type.name.as_deref().unwrap_or_default() {
-                    NAME_ARRAY_PROPERTY => property_type.array_struct_guid().unwrap_or_default(),
                     NAME_STRUCT_PROPERTY => property_type.struct_guid().unwrap_or_default(),
                     _ => FGuid::invalid(),
                 }
