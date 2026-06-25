@@ -52,10 +52,10 @@ mod test {
         let mut cursor2 = Cursor::new(buf2);
         USaveGame::write(&result, &mut cursor2)?;
 
-        // TODO: Compare
-        // let buf = cursor.into_inner();
-        // let buf2 = cursor2.into_inner();
-        // assert!(buf == buf2);
+        // Compare
+        let buf = cursor.into_inner();
+        let buf2 = cursor2.into_inner();
+        assert!(buf == buf2);
 
         // Success
         Ok(())
