@@ -75,13 +75,15 @@ pub enum PropertyType {
     },
 
     #[br(pre_assert(format.property_tag_complete_type_name))]
+    #[bw(assert(flags.has_array_index() == (*array_index != 0)))]
+    #[bw(assert(flags.has_property_guid() == guid.is_valid()))]
     Complete {
         property_type: FPropertyTypeName,
         size: u32,
         flags: EPropertyTagFlags,
-        #[br(if(flags.has_array_index()))]
+        #[brw(if(flags.has_array_index()))]
         array_index: u32,
-        #[br(if(flags.has_property_guid()))]
+        #[brw(if(flags.has_property_guid()))]
         guid: FGuid,
     },
 }
@@ -651,9 +653,7 @@ mod test {
                 5, 0, 0, 0, b'g', b'u', b'i', b'd', 0, // child 2 name
                 0, 0, 0, 0, // child 2 child count
                 0, 0, 0, 0, // size
-                0, 0, 0, 0, // flags
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // guid
-                0, // terminator
+                0, // flags
             ],
             OPTIONS_COMPLETE,
         )
