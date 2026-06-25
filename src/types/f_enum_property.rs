@@ -1,13 +1,13 @@
 use binrw::binrw;
 
-use crate::types::{FString, PropertyType};
+use crate::types::{FPropertyTypeName, FString, PropertyType};
 
 #[binrw]
 #[br(import(t: &PropertyType))]
 #[derive(Debug)]
 pub struct FEnumProperty(
-    #[br(calc = t.enum_name().into())]
+    #[br(calc = t.enum_type())]
     #[bw(ignore)]
-    pub FString,
+    pub FPropertyTypeName,
     pub FString,
 );

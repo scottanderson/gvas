@@ -1,6 +1,6 @@
 use binrw::binrw;
 
-use crate::types::{FString, PropertyType};
+use crate::types::{FPropertyTypeName, FString, PropertyType};
 
 #[binrw]
 #[br(import(t: &PropertyType))]
@@ -10,9 +10,9 @@ pub enum FByteProperty {
     Byte(u8),
     #[br(pre_assert(t.size() > 1))]
     Enum(
-        #[br(calc = t.enum_name().into())]
+        #[br(calc = t.enum_type())]
         #[bw(ignore)]
-        FString,
+        FPropertyTypeName,
         FString,
     ),
 }

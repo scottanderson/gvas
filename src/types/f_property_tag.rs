@@ -120,22 +120,21 @@ impl PropertyType {
     }
 
     #[inline]
-    pub fn enum_name(&self) -> Option<&str> {
+    pub fn enum_type(&self) -> FPropertyTypeName {
         match self {
-            Self::Incomplete { extra, .. } => match extra {
+            Self::Incomplete { extra, .. } => FString::from(match extra {
                 CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Array { .. } => None,
                 _ => todo!("{extra:?}"),
-            },
+            })
+            .into(),
             Self::Complete { property_type, .. } => {
                 match property_type.name.as_deref().unwrap_or_default() {
                     NAME_ARRAY_PROPERTY => {
-                        let inner_type = property_type.children.first()?;
-                        match inner_type.name.as_deref().unwrap_or_default() {
-                            NAME_ENUM_PROPERTY => inner_type.children.first()?.name.as_deref(),
-                            _ => todo!("{inner_type}"),
-                        }
+                        assert_eq!(property_type.children.len(), 1);
+                        let inner_type = property_type.children.first().unwrap();
+                        inner_type.clone()
                     }
                     _ => todo!("{property_type}"),
                 }

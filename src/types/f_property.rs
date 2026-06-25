@@ -147,13 +147,15 @@ impl FProperty {
                     },
                     Self::Byte(value) => CollectionProperties::Byte {
                         enum_name: match value {
-                            FByteProperty::Enum(name, _) => name.clone(),
+                            FByteProperty::Enum(FPropertyTypeName { name, .. }, _) => name.clone(),
                             FByteProperty::Byte(_) => FString::from(NAME_NONE),
                         },
                     },
-                    Self::Enum(FEnumProperty(enum_name, _)) => CollectionProperties::Enum {
-                        enum_name: enum_name.clone(),
-                    },
+                    Self::Enum(FEnumProperty(FPropertyTypeName { name, .. }, _)) => {
+                        CollectionProperties::Enum {
+                            enum_name: name.clone(),
+                        }
+                    }
                     Self::Map(map_property) => {
                         let (key_type, value_type) = match map_property {
                             FMapProperty::Known {
@@ -219,73 +221,11 @@ impl FProperty {
                 flags.set_has_property_guid(guid.is_valid());
                 flags.set_has_binary_or_native_serialize(native);
                 flags.set_has_property_extensions(extensions);
+                if let Self::Bool(FBoolProperty(value)) = self {
+                    flags.set_bool_true(*value);
+                }
                 PropertyType::Complete {
-                    property_type: FPropertyTypeName {
-                        name: property_type,
-                        children: match self {
-                            Self::Array(array_property) => {
-                                match array_property {
-                                    FArrayProperty::Struct { struct_type, struct_class, struct_guid, values:_ } => {
-                                        TArray::from([
-                                            FPropertyTypeName::for_struct(
-                                                struct_type.to_owned(),
-                                                struct_class.to_owned(),
-                                                *struct_guid,
-                                            ),
-                                        ])
-                                    },
-                                    FArrayProperty::TaggedStruct {..} => todo!(),
-                                    _ => TArray::from([FPropertyTypeName::from(inner_type)]),
-                                }
-                            },
-                            Self::Bool(FBoolProperty(value)) => {
-                                flags.set_bool_true(*value);
-                                TArray::empty()
-                            }
-                            // Property::Delegate(_) => todo!(),
-                            Self::Double(_) |
-                            // Property::Enum(_) => todo!(),
-                            // Property::Float(_) => todo!(),
-                            Self::Int(_) => TArray::empty(),
-                            // Property::Int16(_) => todo!(),
-                            // Property::Int64(_) => todo!(),
-                            // Property::Int8(_) => todo!(),
-                            Self::Map(map_property) => {
-                                let key_type = match map_property {
-                                    FMapProperty::Known { key_type, .. } |
-                                    FMapProperty::Unknown { key_type, .. } => match key_type {
-                                        PropertyType::Incomplete {..} => todo!(),
-                                        PropertyType::Complete { property_type, .. } => property_type.clone(),
-                                    },
-                                };
-                                let value_type = match map_property {
-                                    FMapProperty::Known { value_type, .. } |
-                                    FMapProperty::Unknown { value_type, .. } => match value_type {
-                                        PropertyType::Incomplete {..} => todo!(),
-                                        PropertyType::Complete { property_type, .. } => property_type.clone(),
-                                    },
-                                };
-                                TArray::from([key_type, value_type])
-                            }
-                            // Property::MulticastInlineDelegate(_) => todo!(),
-                            // Property::MulticastSparseDelegate(_) => todo!(),
-                            Self::Name(_) |
-                            Self::Object(_) |
-                            Self::SoftObject(_) |
-                            Self::Str(_) => TArray::empty(),
-                            Self::Struct(struct_property) => {
-                                let struct_type = struct_property.struct_type();
-                                let struct_class = struct_property.struct_class();
-                                let struct_guid = struct_property.struct_guid();
-                                FPropertyTypeName::for_struct(struct_type, struct_class, struct_guid).children
-                            },
-                            Self::Text(_) => TArray::empty(),
-                            // Property::UInt16(_) => todo!(),
-                            // Property::UInt32(_) => todo!(),
-                            // Property::UInt64(_) => todo!(),
-                            _ => todo!("{self:?}"),
-                        },
-                    },
+                    property_type: self.complete_property_type(property_type, inner_type),
                     size,
                     flags,
                     array_index,
@@ -293,6 +233,73 @@ impl FProperty {
                 }
             }
         }
+    }
+
+    fn complete_property_type(&self, name: FString, inner_type: FString) -> FPropertyTypeName {
+        let children = match self {
+            Self::Array(array_property) => {
+                match array_property {
+                    FArrayProperty::Enum(enum_type, _) => TArray::from([
+                        enum_type.clone(),
+                    ]),
+                    FArrayProperty::Struct { struct_type, struct_class, struct_guid, values:_ } => {
+                        TArray::from([
+                            FPropertyTypeName::for_struct(
+                                struct_type.to_owned(),
+                                struct_class.to_owned(),
+                                *struct_guid,
+                            ),
+                        ])
+                    },
+                    FArrayProperty::TaggedStruct {..} => unimplemented!(),
+                    _ => TArray::from([FPropertyTypeName::from(inner_type)]),
+                }
+            },
+            Self::Bool(_) |
+            // Property::Delegate(_) => todo!(),
+            Self::Double(_) |
+            // Property::Enum(_) => todo!(),
+            // Property::Float(_) => todo!(),
+            Self::Int(_) => TArray::empty(),
+            // Property::Int16(_) => todo!(),
+            // Property::Int64(_) => todo!(),
+            // Property::Int8(_) => todo!(),
+            Self::Map(map_property) => {
+                let key_type = match map_property {
+                    FMapProperty::Known { key_type, .. } |
+                        FMapProperty::Unknown { key_type, .. } => match key_type {
+                            PropertyType::Incomplete {..} => todo!(),
+                            PropertyType::Complete { property_type, .. } => property_type.clone(),
+                        },
+                };
+                let value_type = match map_property {
+                    FMapProperty::Known { value_type, .. } |
+                        FMapProperty::Unknown { value_type, .. } => match value_type {
+                            PropertyType::Incomplete {..} => todo!(),
+                            PropertyType::Complete { property_type, .. } => property_type.clone(),
+                        },
+                };
+                TArray::from([key_type, value_type])
+            }
+            // Property::MulticastInlineDelegate(_) => todo!(),
+            // Property::MulticastSparseDelegate(_) => todo!(),
+            Self::Name(_) |
+                Self::Object(_) |
+                Self::SoftObject(_) |
+                Self::Str(_) => TArray::empty(),
+            Self::Struct(struct_property) => {
+                let struct_type = struct_property.struct_type();
+                let struct_class = struct_property.struct_class();
+                let struct_guid = struct_property.struct_guid();
+                FPropertyTypeName::for_struct(struct_type, struct_class, struct_guid).children
+            },
+            Self::Text(_) => TArray::empty(),
+            // Property::UInt16(_) => todo!(),
+            // Property::UInt32(_) => todo!(),
+            // Property::UInt64(_) => todo!(),
+            _ => todo!("{self:?}"),
+        };
+        FPropertyTypeName { name, children }
     }
 }
 
