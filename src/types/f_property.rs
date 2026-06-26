@@ -15,7 +15,7 @@ use crate::{
         NAME_MULTICAST_INLINE_DELGATE_PROPERTY, NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
         NAME_NAME_PROPERTY, NAME_NONE, NAME_OBJECT_PROPERTY, NAME_SET_PROPERTY,
         NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyType, TArray,
+        NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyTag, TArray,
     },
 };
 
@@ -47,7 +47,7 @@ pub enum FProperty {
     UInt16(FUInt16Property),
     UInt32(FUInt32Property),
     UInt64(FUInt64Property),
-    Unknown(#[bw(ignore)] PropertyType, Vec<u8>),
+    Unknown(#[bw(ignore)] PropertyTag, Vec<u8>),
 }
 
 impl FProperty {
@@ -78,11 +78,11 @@ impl FProperty {
             Self::UInt32(..) => NAME_UINT32_PROPERTY,
             Self::UInt64(..) => NAME_UINT64_PROPERTY,
             Self::Unknown(t, ..) => match t {
-                PropertyType::Incomplete {
+                PropertyTag::Incomplete {
                     property_type: FString(Some(name)),
                     ..
                 } => name,
-                PropertyType::Complete {
+                PropertyTag::Complete {
                     property_type:
                         FPropertyTypeName {
                             name: FString(Some(name)),
@@ -119,7 +119,7 @@ impl FProperty {
         }
     }
 
-    pub fn property_type(
+    pub fn generate_tag(
         &self,
         format: SerializationFormat,
         size: u32,
@@ -127,94 +127,22 @@ impl FProperty {
         guid: FGuid,
         native: bool,
         extensions: bool,
-    ) -> PropertyType {
+    ) -> PropertyTag {
         if let Self::Unknown(original_tag, _) = self {
             return original_tag.clone();
         }
 
-        let property_type_name = self.property_type_name();
-        let property_type = FString::from(property_type_name);
-        let inner_type = FString::from(self.container_inner_type_name());
+        let property_type = FString::from(self.property_type_name());
         match format.property_tag_complete_type_name {
-            false => PropertyType::Incomplete {
-                property_type,
-                size,
-                array_index,
-                extra: match &self {
-                    Self::Array(..) => CollectionProperties::Array { inner_type },
-                    Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
-                        value: *value as u8,
-                    },
-                    Self::Byte(value) => CollectionProperties::Byte {
-                        enum_name: match value {
-                            FByteProperty::Enum(FPropertyTypeName { name, .. }, _) => name.clone(),
-                            FByteProperty::Byte(_) => FString::from(NAME_NONE),
-                        },
-                    },
-                    Self::Enum(FEnumProperty(FPropertyTypeName { name, .. }, _)) => {
-                        CollectionProperties::Enum {
-                            enum_name: name.clone(),
-                        }
-                    }
-                    Self::Map(map_property) => {
-                        let (key_type, value_type) = match map_property {
-                            FMapProperty::Known {
-                                key_type,
-                                value_type,
-                                ..
-                            }
-                            | FMapProperty::Unknown {
-                                key_type,
-                                value_type,
-                                ..
-                            } => (key_type, value_type),
-                        };
-
-                        let PropertyType::Incomplete {
-                            property_type: key_type,
-                            ..
-                        } = key_type
-                        else {
-                            todo!()
-                        };
-                        let PropertyType::Incomplete {
-                            property_type: value_type,
-                            ..
-                        } = value_type
-                        else {
-                            todo!()
-                        };
-                        CollectionProperties::Map {
-                            inner_type: key_type.clone(),
-                            value_type: value_type.clone(),
-                        }
-                    }
-                    // Property::Optional(p) => CollectionProperties::Optional { inner_type },
-                    Self::Set(..) => CollectionProperties::Set { inner_type },
-                    Self::Struct(p) => CollectionProperties::Struct {
-                        type_name: p.struct_type(),
-                        guid,
-                    },
-                    Self::Delegate(..)
-                    | Self::Double(..)
-                    | Self::Float(..)
-                    | Self::Int(..)
-                    | Self::Int16(..)
-                    | Self::Int64(..)
-                    | Self::Int8(..)
-                    | Self::MulticastInlineDelegate(..)
-                    | Self::MulticastSparseDelegate(..)
-                    | Self::Name(..)
-                    | Self::Object(..)
-                    | Self::SoftObject(..)
-                    | Self::Str(..)
-                    | Self::Text(..)
-                    | Self::UInt16(..)
-                    | Self::UInt32(..)
-                    | Self::UInt64(..) => CollectionProperties::None,
-                    Self::Unknown(..) => unimplemented!(),
-                },
-            },
+            false => {
+                let extra = self.generate_incomplete_property_extra(guid);
+                PropertyTag::Incomplete {
+                    property_type,
+                    size,
+                    array_index,
+                    extra,
+                }
+            }
             true => {
                 let mut flags = EPropertyTagFlags::new();
                 flags.set_has_array_index(array_index != 0);
@@ -224,8 +152,9 @@ impl FProperty {
                 if let Self::Bool(FBoolProperty(value)) = self {
                     flags.set_bool_true(*value);
                 }
-                PropertyType::Complete {
-                    property_type: self.complete_property_type(property_type, inner_type),
+                let property_type = self.generate_complete_property_type(property_type);
+                PropertyTag::Complete {
+                    property_type,
                     size,
                     flags,
                     array_index,
@@ -235,7 +164,88 @@ impl FProperty {
         }
     }
 
-    fn complete_property_type(&self, name: FString, inner_type: FString) -> FPropertyTypeName {
+    fn generate_incomplete_property_extra(&self, guid: FGuid) -> CollectionProperties {
+        match &self {
+            Self::Array(..) => CollectionProperties::Array {
+                inner_type: self.container_inner_type_name().into(),
+            },
+            Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
+                value: *value as u8,
+            },
+            Self::Byte(value) => CollectionProperties::Byte {
+                enum_name: match value {
+                    FByteProperty::Enum(FPropertyTypeName { name, .. }, _) => name.clone(),
+                    FByteProperty::Byte(_) => FString::from(NAME_NONE),
+                },
+            },
+            Self::Enum(FEnumProperty(FPropertyTypeName { name, .. }, _)) => {
+                CollectionProperties::Enum {
+                    enum_name: name.clone(),
+                }
+            }
+            Self::Map(map_property) => {
+                let (key_type, value_type) = match map_property {
+                    FMapProperty::Known {
+                        key_type,
+                        value_type,
+                        ..
+                    }
+                    | FMapProperty::Unknown {
+                        key_type,
+                        value_type,
+                        ..
+                    } => (key_type, value_type),
+                };
+
+                let PropertyTag::Incomplete {
+                    property_type: key_type,
+                    ..
+                } = key_type
+                else {
+                    todo!()
+                };
+                let PropertyTag::Incomplete {
+                    property_type: value_type,
+                    ..
+                } = value_type
+                else {
+                    todo!()
+                };
+                CollectionProperties::Map {
+                    inner_type: key_type.clone(),
+                    value_type: value_type.clone(),
+                }
+            }
+            // Property::Optional(p) => CollectionProperties::Optional { inner_type },
+            Self::Set(..) => CollectionProperties::Set {
+                inner_type: self.container_inner_type_name().into(),
+            },
+            Self::Struct(p) => CollectionProperties::Struct {
+                type_name: p.struct_type(),
+                guid,
+            },
+            Self::Delegate(..)
+            | Self::Double(..)
+            | Self::Float(..)
+            | Self::Int(..)
+            | Self::Int16(..)
+            | Self::Int64(..)
+            | Self::Int8(..)
+            | Self::MulticastInlineDelegate(..)
+            | Self::MulticastSparseDelegate(..)
+            | Self::Name(..)
+            | Self::Object(..)
+            | Self::SoftObject(..)
+            | Self::Str(..)
+            | Self::Text(..)
+            | Self::UInt16(..)
+            | Self::UInt32(..)
+            | Self::UInt64(..) => CollectionProperties::None,
+            Self::Unknown(..) => unimplemented!(),
+        }
+    }
+
+    fn generate_complete_property_type(&self, name: FString) -> FPropertyTypeName {
         let children = match self {
             Self::Array(array_property) => {
                 match array_property {
@@ -252,7 +262,7 @@ impl FProperty {
                         ])
                     },
                     FArrayProperty::TaggedStruct {..} => unimplemented!(),
-                    _ => TArray::from([FPropertyTypeName::from(inner_type)]),
+                    _ => TArray::from([FPropertyTypeName::from(self.container_inner_type_name())]),
                 }
             },
             Self::Bool(_) |
@@ -268,15 +278,15 @@ impl FProperty {
                 let key_type = match map_property {
                     FMapProperty::Known { key_type, .. } |
                         FMapProperty::Unknown { key_type, .. } => match key_type {
-                            PropertyType::Incomplete {..} => todo!(),
-                            PropertyType::Complete { property_type, .. } => property_type.clone(),
+                            PropertyTag::Incomplete {..} => todo!(),
+                            PropertyTag::Complete { property_type, .. } => property_type.clone(),
                         },
                 };
                 let value_type = match map_property {
                     FMapProperty::Known { value_type, .. } |
                         FMapProperty::Unknown { value_type, .. } => match value_type {
-                            PropertyType::Incomplete {..} => todo!(),
-                            PropertyType::Complete { property_type, .. } => property_type.clone(),
+                            PropertyTag::Incomplete {..} => todo!(),
+                            PropertyTag::Complete { property_type, .. } => property_type.clone(),
                         },
                 };
                 TArray::from([key_type, value_type])
@@ -304,7 +314,7 @@ impl FProperty {
 }
 
 impl BinRead for FProperty {
-    type Args<'a> = (SerializationFormat, &'a PropertyType);
+    type Args<'a> = (SerializationFormat, &'a PropertyTag);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,

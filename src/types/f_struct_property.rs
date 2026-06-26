@@ -6,12 +6,12 @@ use crate::{
         FDateTime, FGameplayTagContainer, FGuid, FIntPoint, FLinearColor, FQuat, FRotator, FString,
         FTimespan, FVector, FVector2D, NAME_DATE_TIME, NAME_GAMEPLAY_TAG_CONTAINER, NAME_GUID,
         NAME_INT_POINT, NAME_LINEAR_COLOR, NAME_QUAT, NAME_ROTATOR, NAME_TIMESPAN, NAME_VECTOR,
-        NAME_VECTOR2D, PATH__SCRIPT__CORE_U_OBJECT, PropertyType, TaggedProperties,
+        NAME_VECTOR2D, PATH__SCRIPT__CORE_U_OBJECT, PropertyTag, TaggedProperties,
     },
 };
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyType, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
+#[br(import(format: SerializationFormat, t: &PropertyTag, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FStructProperty {

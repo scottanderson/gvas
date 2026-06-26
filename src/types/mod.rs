@@ -44,7 +44,7 @@ pub use crate::types::{
     f_map_property::FMapProperty,
     f_package_file_version::FPackageFileVersion,
     f_property::FProperty,
-    f_property_tag::{CollectionProperties, FPropertyTag, PropertyType, TaggedProperties},
+    f_property_tag::{CollectionProperties, FPropertyTag, PropertyTag, TaggedProperties},
     f_property_type_name::FPropertyTypeName,
     f_save_game_header::{FSaveGameHeader, SaveGameFileVersion},
     f_set_property::FSetProperty,

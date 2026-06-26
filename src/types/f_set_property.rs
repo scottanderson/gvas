@@ -1,11 +1,11 @@
 use crate::{
     format::SerializationFormat,
-    types::{FProperty, PropertyType, TArray},
+    types::{FProperty, PropertyTag, TArray},
 };
 use binrw::binrw;
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyType))]
+#[br(import(format: SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FSetProperty {
@@ -13,7 +13,7 @@ pub enum FSetProperty {
         allocation_flags: u32,
         #[br(calc = t.set_element_type().expect("set_element_type"))]
         #[bw(ignore)]
-        element_type: PropertyType,
+        element_type: PropertyTag,
 
         #[br(args(format, &element_type))]
         #[bw(args(format))]

@@ -61,7 +61,7 @@ pub enum CollectionProperties {
 #[binrw]
 #[br(import(format: SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
-pub enum PropertyType {
+pub enum PropertyTag {
     #[br(pre_assert(!format.property_tag_complete_type_name))]
     Incomplete {
         property_type: FString,
@@ -88,7 +88,7 @@ pub enum PropertyType {
     },
 }
 
-impl PropertyType {
+impl PropertyTag {
     #[inline]
     fn synthetic_incomplete(name: &str, size: u32) -> Self {
         Self::Incomplete {
@@ -398,7 +398,7 @@ pub enum FPropertyTag {
     None,
     Some {
         name: FString,
-        property_type: PropertyType,
+        property_tag: PropertyTag,
     },
 }
 
@@ -414,11 +414,8 @@ impl BinRead for FPropertyTag {
         if name == NAME_NONE {
             return Ok(Self::None);
         };
-        let property_type = PropertyType::read_options(reader, endian, (format,))?;
-        Ok(Self::Some {
-            name,
-            property_type,
-        })
+        let property_tag = PropertyTag::read_options(reader, endian, (format,))?;
+        Ok(Self::Some { name, property_tag })
     }
 }
 
@@ -433,12 +430,9 @@ impl BinWrite for FPropertyTag {
     ) -> binrw::BinResult<()> {
         match self {
             Self::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
-            Self::Some {
-                name,
-                property_type,
-            } => {
+            Self::Some { name, property_tag } => {
                 name.write_options(writer, endian, args)?;
-                property_type.write_options(writer, endian, args)
+                property_tag.write_options(writer, endian, args)
             }
         }
     }
@@ -468,16 +462,13 @@ impl BinRead for TaggedProperties {
         loop {
             match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
-                FPropertyTag::Some {
-                    name,
-                    property_type,
-                } => {
+                FPropertyTag::Some { name, property_tag } => {
                     let property =
-                        FProperty::read_options(reader, endian, (format, &property_type))?;
+                        FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
-                    let array_index = property_type.array_index();
-                    let guid = property_type.struct_guid();
-                    let (native, extensions) = match property_type.flags() {
+                    let array_index = property_tag.array_index();
+                    let guid = property_tag.struct_guid();
+                    let (native, extensions) = match property_tag.flags() {
                         Some(flags) => (
                             flags.has_binary_or_native_serialize(),
                             flags.has_property_extensions(),
@@ -524,7 +515,7 @@ impl BinWrite for TaggedProperties {
 
             // Generate property tag
             let property_type =
-                property.property_type(format, len, *array_index, *guid, *native, *extensions);
+                property.generate_tag(format, len, *array_index, *guid, *native, *extensions);
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;
@@ -558,7 +549,7 @@ mod test {
 
     use super::*;
 
-    const OPTIONS_INCOMPLETE: SerializationFormat = SerializationFormat {
+    const FORMAT_INCOMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: false,
         property_tag_set_map_support: false,
         property_tag_complete_type_name: false,
@@ -569,7 +560,7 @@ mod test {
         culture_invariant_stability: false,
     };
 
-    const OPTIONS_COMPLETE: SerializationFormat = SerializationFormat {
+    const FORMAT_COMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: true,
         property_tag_set_map_support: true,
         property_tag_complete_type_name: true,
@@ -604,7 +595,7 @@ mod test {
         test_fpropertytag(
             FPropertyTag::Some {
                 name: FString::from("test"),
-                property_type: PropertyType::Incomplete {
+                property_tag: PropertyTag::Incomplete {
                     property_type: FString::from(NAME_STRUCT_PROPERTY),
                     size: 0,
                     array_index: 0,
@@ -625,7 +616,7 @@ mod test {
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // guid
                 0, // footer
             ],
-            OPTIONS_INCOMPLETE,
+            FORMAT_INCOMPLETE,
         )
     }
 
@@ -634,7 +625,7 @@ mod test {
         test_fpropertytag(
             FPropertyTag::Some {
                 name: FString::from("test"),
-                property_type: PropertyType::Complete {
+                property_tag: PropertyTag::Complete {
                     property_type: FPropertyTypeName::with_children(
                         NAME_STRUCT_PROPERTY,
                         [
@@ -666,7 +657,7 @@ mod test {
                 0, 0, 0, 0, // size
                 0, // flags
             ],
-            OPTIONS_COMPLETE,
+            FORMAT_COMPLETE,
         )
     }
 }

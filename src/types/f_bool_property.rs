@@ -1,8 +1,8 @@
 use binrw::BinRead;
 
-use crate::types::{CollectionProperties, PropertyType};
+use crate::types::{CollectionProperties, PropertyTag};
 
-impl PropertyType {
+impl PropertyTag {
     fn bool_value(&self) -> binrw::BinResult<bool> {
         match self {
             Self::Incomplete {
@@ -19,5 +19,5 @@ impl PropertyType {
 }
 
 #[derive(BinRead, Debug)]
-#[br(import(t: &PropertyType))]
+#[br(import(t: &PropertyTag))]
 pub struct FBoolProperty(#[br(calc = t.bool_value()?)] pub bool);

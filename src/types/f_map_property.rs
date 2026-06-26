@@ -1,11 +1,11 @@
 use crate::{
     format::SerializationFormat,
-    types::{EPropertyTagFlags, FProperty, PropertyType, TArray},
+    types::{EPropertyTagFlags, FProperty, PropertyTag, TArray},
 };
 use binrw::binrw;
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyType))]
+#[br(import(format: SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FMapProperty {
@@ -15,11 +15,11 @@ pub enum FMapProperty {
 
         #[br(calc = t.map_key_type().expect("key_type"))]
         #[bw(ignore)]
-        key_type: PropertyType,
+        key_type: PropertyTag,
 
         #[br(calc = t.map_value_type().expect("value_type"))]
         #[bw(ignore)]
-        value_type: PropertyType,
+        value_type: PropertyTag,
 
         #[br(args(format, &key_type, &value_type))]
         #[bw(args(format))]
@@ -28,11 +28,11 @@ pub enum FMapProperty {
     Unknown {
         #[br(calc = t.map_key_type().expect("key_type"))]
         #[bw(ignore)]
-        key_type: PropertyType,
+        key_type: PropertyTag,
 
         #[br(calc = t.map_value_type().expect("value_type"))]
         #[bw(ignore)]
-        value_type: PropertyType,
+        value_type: PropertyTag,
 
         #[br(count = t.size())]
         data: Vec<u8>,
@@ -40,7 +40,7 @@ pub enum FMapProperty {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat, key_type: &PropertyType, value_type: &PropertyType))]
+#[br(import(format: SerializationFormat, key_type: &PropertyTag, value_type: &PropertyTag))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub struct MapEntry {

@@ -1,9 +1,9 @@
 use binrw::binrw;
 
-use crate::types::{FPropertyTypeName, FString, PropertyType};
+use crate::types::{FPropertyTypeName, FString, PropertyTag};
 
 #[binrw]
-#[br(import(t: &PropertyType))]
+#[br(import(t: &PropertyTag))]
 #[derive(Debug)]
 pub enum FByteProperty {
     #[br(pre_assert(t.size() <= 1))]

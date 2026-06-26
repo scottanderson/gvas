@@ -8,17 +8,17 @@ use crate::{
         FStructProperty, FTextProperty, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
         NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
         NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        PropertyType, TArray,
+        PropertyTag, TArray,
     },
 };
 
 impl FPropertyTag {
     #[inline]
     fn array_struct_type_name(&self) -> Option<&str> {
-        let Self::Some { property_type, .. } = self else {
+        let Self::Some { property_tag, .. } = self else {
             return None;
         };
-        let PropertyType::Incomplete { extra, .. } = property_type else {
+        let PropertyTag::Incomplete { extra, .. } = property_tag else {
             return None;
         };
         let CollectionProperties::Struct { type_name, .. } = extra else {
@@ -32,10 +32,10 @@ impl FPropertyTag {
 
     #[inline]
     fn array_struct_guid(&self) -> Option<FGuid> {
-        let Self::Some { property_type, .. } = self else {
+        let Self::Some { property_tag, .. } = self else {
             return None;
         };
-        let PropertyType::Incomplete { extra, .. } = property_type else {
+        let PropertyTag::Incomplete { extra, .. } = property_tag else {
             return None;
         };
         let CollectionProperties::Struct { guid, .. } = extra else {
@@ -46,7 +46,7 @@ impl FPropertyTag {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyType, inner_type: &FString))]
+#[br(import(format: SerializationFormat, t: &PropertyTag, inner_type: &FString))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug)]
 pub enum FArrayProperty {
