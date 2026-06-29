@@ -17,6 +17,7 @@ pub const COMPONENT8_PATH: &str = "resources/test/component8.sav";
 pub const DELEGATE_PATH: &str = "resources/test/Delegate.sav";
 pub const ENUM_ARRAY_PATH: &str = "resources/test/enum_array.sav";
 pub const FEATURES_01_PATH: &str = "resources/test/features_01.bin";
+pub const MEDIEVAL_DYNASTY_PATH: &str = "resources/test/medieval_dynasty.sav";
 pub const OPTIONS_PATH: &str = "resources/test/Options.sav";
 pub const PACKAGE_VERSION_524_PATH: &str = "resources/test/package_version_524.sav";
 pub const PACKAGE_VERSION_525_PATH: &str = "resources/test/package_version_525.sav";
@@ -35,13 +36,14 @@ pub const TEXT_PROPERTY_NOARRAY: &str = "resources/test/text_property_noarray.bi
 pub const TRANSFORM_PATH: &str = "resources/test/transform.sav";
 pub const VECTOR2D_PATH: &str = "resources/test/vector2d.sav";
 
-pub const ALL_TEST_PATHS: [&str; 21] = [
+pub const ALL_TEST_PATHS: [&str; 22] = [
     ASSERT_FAILED_PATH,
     COMPLETE_PROPERTY_TAG_PATH,
     COMPONENT8_PATH,
     DELEGATE_PATH,
     ENUM_ARRAY_PATH,
     FEATURES_01_PATH,
+    MEDIEVAL_DYNASTY_PATH,
     OPTIONS_PATH,
     PACKAGE_VERSION_524_PATH,
     PACKAGE_VERSION_525_PATH,
