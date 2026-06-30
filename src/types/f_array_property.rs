@@ -54,6 +54,18 @@ impl FPropertyTag {
             message: format!("array_struct_guid({self:?})"),
         })
     }
+
+    #[inline]
+    fn some_tag(&self) -> BinResult<&PropertyTag> {
+        match self {
+            Self::Some { property_tag, .. } => Some(property_tag),
+            _ => None,
+        }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("some_tag({self:?})"),
+        })
+    }
 }
 
 #[binrw]
@@ -129,6 +141,11 @@ pub enum FArrayProperty {
         struct_tag: FPropertyTag,
 
         #[br(temp)]
+        #[br(calc = struct_tag.some_tag()?)]
+        #[bw(ignore)]
+        struct_t: &PropertyTag,
+
+        #[br(temp)]
         #[br(calc = struct_tag.array_struct_type_name()?)]
         #[bw(ignore)]
         type_name: &str,
@@ -139,7 +156,7 @@ pub enum FArrayProperty {
         struct_guid: FGuid,
 
         #[br(count = count)]
-        #[br(args { inner: (format, t, type_name, None, struct_guid, ) })]
+        #[br(args { inner: (format, struct_t, type_name, None, struct_guid, ) })]
         #[bw(args(format))]
         values: Vec<FStructProperty>,
     },
