@@ -27,7 +27,7 @@ impl FPropertyTag {
                         ..
                     },
                 ..
-            } => Some(type_name.as_str()),
+            } => Some(type_name.as_ref()),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -57,7 +57,7 @@ impl FPropertyTag {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyTag, inner_type: &FString))]
+#[br(import(format: SerializationFormat, t: &PropertyTag, inner_type: &str))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FArrayProperty {
@@ -103,11 +103,11 @@ pub enum FArrayProperty {
 
         #[br(calc = meta.0.into())]
         #[bw(ignore)]
-        field_name: FString,
+        type_name: FString,
 
         #[br(calc = meta.1.into())]
         #[bw(ignore)]
-        type_name: FString,
+        class_name: FString,
 
         #[br(calc = meta.2)]
         #[bw(ignore)]

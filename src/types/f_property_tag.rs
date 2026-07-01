@@ -6,7 +6,7 @@ use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, ParseGuidError,
 };
 
 #[binrw]
@@ -90,9 +90,9 @@ pub enum PropertyTag {
 
 impl PropertyTag {
     #[inline]
-    fn synthetic_incomplete(name: &str, size: u32) -> Self {
+    fn synthetic_incomplete(property_type: FString, size: u32) -> Self {
         Self::Incomplete {
-            property_type: FString::from(name),
+            property_type,
             size,
             array_index: 0,
             extra: CollectionProperties::None,
@@ -121,29 +121,28 @@ impl PropertyTag {
 
     #[inline]
     pub fn enum_type(&self) -> BinResult<FPropertyTypeName> {
-        let result = match self {
-            Self::Incomplete { extra, .. } => FString::from(match extra {
-                CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
-                CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
-                CollectionProperties::Array { .. } => None,
-                CollectionProperties::None => None,
-                _ => todo!("{extra:?}"),
-            })
-            .into(),
-            Self::Complete { property_type, .. } => {
-                match property_type.name.as_deref().unwrap_or_default() {
-                    NAME_ARRAY_PROPERTY => {
-                        assert_eq!(property_type.children.len(), 1);
-                        let inner_type = property_type.children.first();
-                        let inner_type = inner_type.ok_or_else(|| binrw::Error::AssertFail {
-                            pos: 0,
-                            message: format!("{property_type}"),
-                        })?;
-                        inner_type.clone()
+        let result: FPropertyTypeName = match self {
+            Self::Incomplete {
+                property_type,
+                extra,
+                ..
+            } => FPropertyTypeName::Enum {
+                enum_class: match extra {
+                    CollectionProperties::Byte { enum_name }
+                    | CollectionProperties::Enum { enum_name } => enum_name.clone(),
+                    CollectionProperties::Array { .. } => FString(None),
+                    CollectionProperties::None if property_type == NAME_ENUM_PROPERTY => {
+                        FString(None)
                     }
-                    _ => todo!("{property_type}"),
-                }
-            }
+                    _ => todo!("{self:?}"),
+                },
+                class_path: None,
+                inner_type: None,
+            },
+            Self::Complete { property_type, .. } => match property_type {
+                FPropertyTypeName::Array(inner) => *inner.clone(),
+                other => other.clone(),
+            },
         };
         Ok(result)
     }
@@ -157,27 +156,16 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn struct_guid(&self) -> FGuid {
-        match self {
-            Self::Complete {
-                property_type,
-                guid,
+    pub fn struct_guid(&self) -> Result<FGuid, ParseGuidError> {
+        let result = match self {
+            Self::Complete { property_type, .. } => property_type.struct_guid().unwrap_or_default(),
+            Self::Incomplete {
+                extra: CollectionProperties::Struct { guid, .. },
                 ..
-            } => {
-                if guid.is_valid() {
-                    todo!("valid guid in PropertyType")
-                    // return *guid;
-                }
-                match property_type.name.as_deref().unwrap_or_default() {
-                    NAME_STRUCT_PROPERTY => property_type.struct_guid().unwrap_or_default(),
-                    _ => FGuid::default(),
-                }
-            }
-            Self::Incomplete { extra, .. } => match extra {
-                CollectionProperties::Struct { guid, .. } => *guid,
-                _ => FGuid::default(),
-            },
-        }
+            } => *guid,
+            _ => FGuid::default(),
+        };
+        Ok(result)
     }
 
     #[inline]
@@ -185,20 +173,13 @@ impl PropertyTag {
         let size = 0;
         match self {
             Self::Incomplete {
-                extra:
-                    CollectionProperties::Map {
-                        inner_type: FString(Some(name)),
-                        ..
-                    },
+                extra: CollectionProperties::Map { inner_type, .. },
                 ..
-            } => Some(Self::synthetic_incomplete(name, size)),
+            } => Some(Self::synthetic_incomplete(inner_type.clone(), size)),
             Self::Complete {
-                property_type: FPropertyTypeName { children, .. },
+                property_type: FPropertyTypeName::Map { key, .. },
                 ..
-            } => children
-                .first()
-                .cloned()
-                .map(|t| Self::synthetic_complete(t, size)),
+            } => Some(Self::synthetic_complete(*key.clone(), size)),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -212,20 +193,13 @@ impl PropertyTag {
         let size = 0;
         match self {
             Self::Incomplete {
-                extra:
-                    CollectionProperties::Map {
-                        value_type: FString(Some(name)),
-                        ..
-                    },
+                extra: CollectionProperties::Map { value_type, .. },
                 ..
-            } => Some(Self::synthetic_incomplete(name, size)),
+            } => Some(Self::synthetic_incomplete(value_type.clone(), size)),
             Self::Complete {
-                property_type: FPropertyTypeName { children, .. },
+                property_type: FPropertyTypeName::Map { value, .. },
                 ..
-            } => children
-                .get(1)
-                .cloned()
-                .map(|t| Self::synthetic_complete(t, size)),
+            } => Some(Self::synthetic_complete(*value.clone(), size)),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -239,19 +213,13 @@ impl PropertyTag {
         let size = 0;
         match self {
             Self::Incomplete {
-                extra:
-                    CollectionProperties::Set {
-                        inner_type: FString(Some(name)),
-                    },
+                extra: CollectionProperties::Set { inner_type },
                 ..
-            } => Some(Self::synthetic_incomplete(name, size)),
+            } => Some(Self::synthetic_incomplete(inner_type.clone(), size)),
             Self::Complete {
-                property_type: FPropertyTypeName { children, .. },
+                property_type: FPropertyTypeName::Set(e),
                 ..
-            } => children
-                .first()
-                .cloned()
-                .map(|t| Self::synthetic_complete(t, size)),
+            } => Some(Self::synthetic_complete(*e.clone(), size)),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -263,10 +231,9 @@ impl PropertyTag {
     #[inline]
     pub fn property_type(&self) -> BinResult<&str> {
         match self {
-            Self::Incomplete { property_type, .. } => property_type,
-            Self::Complete { property_type, .. } => &property_type.name,
+            Self::Incomplete { property_type, .. } => property_type.as_deref(),
+            Self::Complete { property_type, .. } => Some(property_type.name()),
         }
-        .as_deref()
         .ok_or_else(|| binrw::Error::AssertFail {
             pos: 0,
             message: format!("property_type({self:?})"),
@@ -282,16 +249,16 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_inner_type(&self) -> BinResult<&FString> {
+    pub fn array_inner_type(&self) -> BinResult<&str> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Array { inner_type, .. },
                 ..
-            } => Some(inner_type),
+            } => inner_type.as_deref(),
             Self::Complete {
-                property_type: FPropertyTypeName { children, .. },
+                property_type: FPropertyTypeName::Array(inner_type),
                 ..
-            } => children.first().map(|head| &head.name),
+            } => Some(inner_type.name()),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -302,79 +269,27 @@ impl PropertyTag {
 
     #[inline]
     pub fn array_complete_type(&self) -> Option<&FPropertyTypeName> {
-        let Self::Complete {
-            property_type: FPropertyTypeName { name, children },
-            ..
-        } = self
-        else {
-            return None;
-        };
-        if name != NAME_ARRAY_PROPERTY {
-            return None;
+        match self {
+            Self::Complete {
+                property_type: FPropertyTypeName::Array(inner_type),
+                ..
+            } => Some(inner_type.as_ref()),
+            _ => None,
         }
-        let [array_inner_type] = children.as_slice() else {
-            todo!("children={children:?}");
-            // return None;
-        };
-        Some(array_inner_type)
     }
 
     #[inline]
     pub fn array_struct_type(&self) -> Option<(&str, &str, FGuid)> {
-        let Some(struct_property_type) = self.array_complete_type() else {
-            todo!("self={self:?}");
-            // return None;
-        };
-        let FPropertyTypeName {
-            name: FString(Some(name)),
-            children,
-        } = struct_property_type
+        let Some(FPropertyTypeName::Struct {
+            type_name: FString(Some(type_name)),
+            class_name: FString(Some(class_name)),
+            guid,
+        }) = self.array_complete_type()
         else {
-            todo!("struct_property_type={struct_property_type:?}");
+            todo!("array_struct_type={self:?}");
             // return None;
         };
-        if name != NAME_STRUCT_PROPERTY {
-            todo!("name={name:?}");
-            // return None;
-        }
-        let mut it = children.iter();
-        let Some(inner) = it.next() else {
-            todo!("Expected children len 1-2, got {children:?}");
-            // return None;
-        };
-        let [class] = inner.children.as_slice() else {
-            todo!("Expected inner children len 1, got {:?}", inner.children);
-            // return None;
-        };
-        if !class.children.is_empty() {
-            println!("Class children not empty: {:?}", class.children);
-            return None;
-        }
-        // if class.name != PATH__SCRIPT__CORE_U_OBJECT {
-        //     return None;
-        // }
-        let FString(Some(ref inner)) = inner.name else {
-            return None;
-        };
-        let FString(Some(ref class)) = class.name else {
-            return None;
-        };
-        let Some(guid) = it.next() else {
-            return Some((inner, class, FGuid::default()));
-        };
-        if !guid.children.is_empty() {
-            todo!("Guid children not empty: {:?}", guid.children);
-            // return None;
-        }
-        let FString(Some(ref guid)) = guid.name else {
-            todo!("Invalid guid name {:?}", guid.name);
-            // return None;
-        };
-        let Ok(guid) = std::str::FromStr::from_str(guid) else {
-            todo!("Invalid guid {guid}");
-            // return None;
-        };
-        Some((inner.as_str(), class, guid))
+        Some((type_name, class_name, *guid))
     }
 
     #[inline]
@@ -390,20 +305,13 @@ impl PropertyTag {
     pub fn struct_type_name(&self) -> Option<&str> {
         match self {
             Self::Incomplete {
-                extra: CollectionProperties::Struct { type_name, guid: _ },
+                extra: CollectionProperties::Struct { type_name, .. },
                 ..
             } => type_name.as_deref(),
             Self::Complete {
-                property_type:
-                    FPropertyTypeName {
-                        name: FString(Some(name)),
-                        children,
-                    },
+                property_type: FPropertyTypeName::Struct { type_name, .. },
                 ..
-            } if name == NAME_STRUCT_PROPERTY => {
-                let inner = children.first()?;
-                inner.name.as_deref()
-            }
+            } => type_name.as_deref(),
             _ => None,
         }
     }
@@ -412,17 +320,9 @@ impl PropertyTag {
     pub fn struct_class_name(&self) -> Option<&str> {
         match self {
             Self::Complete {
-                property_type:
-                    FPropertyTypeName {
-                        name: FString(Some(property_type)),
-                        children,
-                    },
+                property_type: FPropertyTypeName::Struct { class_name, .. },
                 ..
-            } if property_type == NAME_STRUCT_PROPERTY => {
-                let inner = children.first()?;
-                let class = inner.children.first()?;
-                class.name.as_deref()
-            }
+            } => class_name.as_deref(),
             _ => None,
         }
     }
@@ -498,11 +398,15 @@ impl BinRead for TaggedProperties {
             match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
                 FPropertyTag::Some { name, property_tag } => {
+                    let pos = reader.stream_position()?;
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
                     let array_index = property_tag.array_index();
-                    let guid = property_tag.struct_guid();
+                    let guid = property_tag
+                        .struct_guid()
+                        .map_err(Box::new)
+                        .map_err(|err| binrw::Error::Custom { pos, err })?;
                     let (native, extensions) = match property_tag.flags() {
                         Some(flags) => (
                             flags.has_binary_or_native_serialize(),
@@ -681,16 +585,11 @@ mod test {
             FPropertyTag::Some {
                 name: FString::from("test"),
                 property_tag: PropertyTag::Complete {
-                    property_type: FPropertyTypeName::with_children(
-                        NAME_STRUCT_PROPERTY,
-                        [
-                            FPropertyTypeName::with_children(
-                                "TestClass",
-                                [FPropertyTypeName::from("/path")],
-                            ),
-                            FPropertyTypeName::from("guid"),
-                        ],
-                    ),
+                    property_type: FPropertyTypeName::Struct {
+                        type_name: "TestClass".into(),
+                        class_name: "/path".into(),
+                        guid: FGuid::from_u32(0xFF000088, 0xEE111199, 0xDD2222AA, 0xCC3333BB),
+                    },
                     size: 0,
                     flags: EPropertyTagFlags::new(),
                     array_index: 0,
@@ -707,7 +606,10 @@ mod test {
                 1, 0, 0, 0, // child 1 child count
                 6, 0, 0, 0, b'/', b'p', b'a', b't', b'h', 0, // child 1.1 name
                 0, 0, 0, 0, // child 1.1 child count
-                5, 0, 0, 0, b'g', b'u', b'i', b'd', 0, // child 2 name
+                37, 0, 0, 0, b'f', b'f', b'0', b'0', b'0', b'0', b'8', b'8', b'-', b'e', b'e',
+                b'1', b'1', b'-', b'1', b'1', b'9', b'9', b'-', b'd', b'd', b'2', b'2', b'-', b'2',
+                b'2', b'a', b'a', b'c', b'c', b'3', b'3', b'3', b'3', b'b', b'b',
+                0, // child 2 name
                 0, 0, 0, 0, // child 2 child count
                 0, 0, 0, 0, // size
                 0, // flags

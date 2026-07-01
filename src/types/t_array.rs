@@ -90,3 +90,12 @@ impl<T> From<Vec<T>> for TArray<T> {
         Self(value)
     }
 }
+
+impl<T> IntoIterator for TArray<T> {
+    type Item = T;
+    type IntoIter = std::vec::IntoIter<T>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
