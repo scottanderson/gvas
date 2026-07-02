@@ -26,11 +26,11 @@ impl BinRead for FString {
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
-        _endian: binrw::Endian,
+        endian: binrw::Endian,
         _args: Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let pos = reader.stream_position()?;
-        let length = i32::read_le(reader)?;
+        let length = i32::read_options(reader, endian, ())?;
         let value = if length == 0 {
             None
         } else if length > 0 {
@@ -38,7 +38,7 @@ impl BinRead for FString {
             let mut buf = vec![0u8; count];
             reader.read_exact(&mut buf)?;
 
-            let terminator = u8::read_le(reader)?;
+            let terminator = u8::read_options(reader, endian, ())?;
             if terminator != 0 {
                 Err(binrw::Error::AssertFail {
                     pos,
@@ -55,11 +55,10 @@ impl BinRead for FString {
             Some(str)
         } else {
             let count = -length as usize - 1;
-            let buf: Vec<u16> = (0..count)
-                .map(|_| u16::read_options(reader, _endian, ()))
-                .collect::<binrw::BinResult<_>>()?;
+            let mut bytes = vec![0u8; count * 2];
+            reader.read_exact(&mut bytes)?;
 
-            let terminator = u16::read_le(reader)?;
+            let terminator = u16::read_options(reader, endian, ())?;
             if terminator != 0 {
                 Err(binrw::Error::AssertFail {
                     pos,
@@ -67,6 +66,14 @@ impl BinRead for FString {
                 })?
             }
 
+            let buf: Vec<u16> = bytes
+                .chunks_exact(2)
+                .map(|b| [b[0], b[1]])
+                .map(match endian {
+                    binrw::Endian::Big => u16::from_be_bytes,
+                    binrw::Endian::Little => u16::from_le_bytes,
+                })
+                .collect();
             let str = String::from_utf16(&buf).map_err(|_| -> binrw::Error {
                 binrw::Error::AssertFail {
                     pos,
