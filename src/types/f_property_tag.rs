@@ -120,8 +120,8 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn enum_type(&self) -> FPropertyTypeName {
-        match self {
+    pub fn enum_type(&self) -> Result<FPropertyTypeName, binrw::Error> {
+        let result = match self {
             Self::Incomplete { extra, .. } => FString::from(match extra {
                 CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
@@ -133,13 +133,18 @@ impl PropertyTag {
                 match property_type.name.as_deref().unwrap_or_default() {
                     NAME_ARRAY_PROPERTY => {
                         assert_eq!(property_type.children.len(), 1);
-                        let inner_type = property_type.children.first().unwrap();
+                        let inner_type = property_type.children.first();
+                        let inner_type = inner_type.ok_or_else(|| binrw::Error::AssertFail {
+                            pos: 0,
+                            message: format!("{property_type}"),
+                        })?;
                         inner_type.clone()
                     }
                     _ => todo!("{property_type}"),
                 }
             }
-        }
+        };
+        Ok(result)
     }
 
     #[inline]
@@ -175,7 +180,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_key_type(&self) -> Option<Self> {
+    pub fn map_key_type(&self) -> Result<Self, binrw::Error> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -195,10 +200,14 @@ impl PropertyTag {
                 .map(|t| Self::synthetic_complete(t, size)),
             _ => None,
         }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("map_key_type({self:?})"),
+        })
     }
 
     #[inline]
-    pub fn map_value_type(&self) -> Option<Self> {
+    pub fn map_value_type(&self) -> Result<Self, binrw::Error> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -218,10 +227,14 @@ impl PropertyTag {
                 .map(|t| Self::synthetic_complete(t, size)),
             _ => None,
         }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("map_value_type({self:?})"),
+        })
     }
 
     #[inline]
-    pub fn set_element_type(&self) -> Option<Self> {
+    pub fn set_element_type(&self) -> Result<Self, binrw::Error> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -240,15 +253,23 @@ impl PropertyTag {
                 .map(|t| Self::synthetic_complete(t, size)),
             _ => None,
         }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("map_value_type({self:?})"),
+        })
     }
 
     #[inline]
-    pub fn property_type(&self) -> Option<&str> {
+    pub fn property_type(&self) -> Result<&str, binrw::Error> {
         match self {
             Self::Incomplete { property_type, .. } => property_type,
             Self::Complete { property_type, .. } => &property_type.name,
         }
         .as_deref()
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("property_type({self:?})"),
+        })
     }
 
     #[inline]
@@ -260,7 +281,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_inner_type(&self) -> Option<&FString> {
+    pub fn array_inner_type(&self) -> Result<&FString, binrw::Error> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Array { inner_type, .. },
@@ -272,6 +293,10 @@ impl PropertyTag {
             } => children.first().map(|head| &head.name),
             _ => None,
         }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("array_inner_type({self:?})"),
+        })
     }
 
     #[inline]
@@ -287,7 +312,7 @@ impl PropertyTag {
             return None;
         }
         let [array_inner_type] = children.as_slice() else {
-            panic!("children={children:?}");
+            todo!("children={children:?}");
             // return None;
         };
         Some(array_inner_type)
@@ -296,7 +321,7 @@ impl PropertyTag {
     #[inline]
     pub fn array_struct_type(&self) -> Option<(&str, &str, FGuid)> {
         let Some(struct_property_type) = self.array_complete_type() else {
-            panic!("self={self:?}");
+            todo!("self={self:?}");
             // return None;
         };
         let FPropertyTypeName {
@@ -304,20 +329,20 @@ impl PropertyTag {
             children,
         } = struct_property_type
         else {
-            panic!("struct_property_type={struct_property_type:?}");
+            todo!("struct_property_type={struct_property_type:?}");
             // return None;
         };
         if name != NAME_STRUCT_PROPERTY {
-            panic!("name={name:?}");
+            todo!("name={name:?}");
             // return None;
         }
         let mut it = children.iter();
         let Some(inner) = it.next() else {
-            panic!("Expected children len 1-2, got {children:?}");
+            todo!("Expected children len 1-2, got {children:?}");
             // return None;
         };
         let [class] = inner.children.as_slice() else {
-            panic!("Expected inner children len 1, got {:?}", inner.children);
+            todo!("Expected inner children len 1, got {:?}", inner.children);
             // return None;
         };
         if !class.children.is_empty() {
@@ -337,18 +362,27 @@ impl PropertyTag {
             return Some((inner, class, FGuid::default()));
         };
         if !guid.children.is_empty() {
-            panic!("Guid children not empty: {:?}", guid.children);
+            todo!("Guid children not empty: {:?}", guid.children);
             // return None;
         }
         let FString(Some(ref guid)) = guid.name else {
-            panic!("Invalid guid name {:?}", guid.name);
+            todo!("Invalid guid name {:?}", guid.name);
             // return None;
         };
         let Ok(guid) = std::str::FromStr::from_str(guid) else {
-            panic!("Invalid guid {guid}");
+            todo!("Invalid guid {guid}");
             // return None;
         };
-        Some((inner, class, guid))
+        Some((inner.as_str(), class, guid))
+    }
+
+    #[inline]
+    pub fn array_struct_type_binrw(&self) -> Result<(&str, &str, FGuid), binrw::Error> {
+        self.array_struct_type()
+            .ok_or_else(|| binrw::Error::AssertFail {
+                pos: 0,
+                message: format!("map_key_type({self:?})"),
+            })
     }
 
     #[inline]

@@ -76,11 +76,11 @@ const GUID_NON_HEX: &str = "x805ec1d-h25f-45a9-ec42-aa6580416ac5";
 
 #[test]
 fn test_guid_from_str_invalid() {
-    let err = FGuid::from_str(GUID_TOO_SHORT).unwrap_err();
-    assert_matches!(err, ParseGuidError::InvalidLength(28),);
-    let err = FGuid::from_str(GUID_NON_HEX).unwrap_err();
+    let err = FGuid::from_str(GUID_TOO_SHORT);
+    assert_matches!(err, Err(ParseGuidError::InvalidLength(28)));
+    let err = FGuid::from_str(GUID_NON_HEX);
     assert_matches!(
         err,
-        ParseGuidError::ParseIntError(e)
+        Err(ParseGuidError::ParseIntError(e))
         if format!("{e:?}") == "ParseIntError { kind: InvalidDigit }");
 }

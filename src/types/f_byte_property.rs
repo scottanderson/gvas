@@ -10,7 +10,7 @@ pub enum FByteProperty {
     Byte(u8),
     #[br(pre_assert(t.size() > 1))]
     Enum(
-        #[br(calc = t.enum_type())]
+        #[br(calc = t.enum_type()?)]
         #[bw(ignore)]
         FPropertyTypeName,
         FString,

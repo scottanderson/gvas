@@ -11,7 +11,7 @@ use binrw::binrw;
 pub enum FSetProperty {
     Known {
         allocation_flags: u32,
-        #[br(calc = t.set_element_type().expect("set_element_type"))]
+        #[br(calc = t.set_element_type()?)]
         #[bw(ignore)]
         element_type: PropertyTag,
 

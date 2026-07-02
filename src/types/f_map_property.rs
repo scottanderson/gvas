@@ -13,11 +13,11 @@ pub enum FMapProperty {
     Known {
         allocation_flags: u32,
 
-        #[br(calc = t.map_key_type().expect("key_type"))]
+        #[br(calc = t.map_key_type()?)]
         #[bw(ignore)]
         key_type: PropertyTag,
 
-        #[br(calc = t.map_value_type().expect("value_type"))]
+        #[br(calc = t.map_value_type()?)]
         #[bw(ignore)]
         value_type: PropertyTag,
 
@@ -26,11 +26,11 @@ pub enum FMapProperty {
         properties: TArray<MapEntry>,
     },
     Unknown {
-        #[br(calc = t.map_key_type().expect("key_type"))]
+        #[br(calc = t.map_key_type()?)]
         #[bw(ignore)]
         key_type: PropertyTag,
 
-        #[br(calc = t.map_value_type().expect("value_type"))]
+        #[br(calc = t.map_value_type()?)]
         #[bw(ignore)]
         value_type: PropertyTag,
 

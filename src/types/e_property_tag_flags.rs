@@ -1,3 +1,5 @@
+#![allow(clippy::expect_used)]
+
 use binrw::binrw;
 use modular_bitfield::{bitfield, prelude::B3};
 

@@ -44,7 +44,7 @@ mod test {
     fn test_save_game_header() -> Result<()> {
         for path in ALL_TEST_PATHS {
             // Open
-            let mut file = File::open(&path)?;
+            let mut file = File::open(path)?;
 
             // Read
             let mut buf = Vec::new();

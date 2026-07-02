@@ -178,6 +178,8 @@ impl PartialEq<&str> for FString {
 mod test {
     use std::io::Cursor;
 
+    use crate::error::Result;
+
     use super::*;
 
     const BYTES_NULL: &[u8; 4] = b"\x00\x00\x00\x00";
@@ -190,62 +192,70 @@ mod test {
     const STR_UTF16: &str = "§";
 
     #[test]
-    fn read_fstring_null() {
+    fn read_fstring_null() -> Result<()> {
         let mut cursor = Cursor::new(BYTES_NULL);
-        let string = FString::read_le(&mut cursor).unwrap();
+        let string = FString::read_le(&mut cursor)?;
         assert_eq!(string, FString(None));
+        Ok(())
     }
 
     #[test]
-    fn read_fstring_empty() {
+    fn read_fstring_empty() -> Result<()> {
         let mut cursor = Cursor::new(BYTES_EMPTY);
-        let string = FString::read_le(&mut cursor).expect("FString::read_le");
+        let string = FString::read_le(&mut cursor)?;
         assert_eq!(string, FString::from(STR_EMPTY));
+        Ok(())
     }
 
     #[test]
-    fn read_fstring_ascii() {
+    fn read_fstring_ascii() -> Result<()> {
         let mut cursor = Cursor::new(BYTES_PROPERTY);
-        let string = FString::read_le(&mut cursor).expect("FString::read_le");
+        let string = FString::read_le(&mut cursor)?;
         assert_eq!(string, FString::from(STR_PROPERTY));
+        Ok(())
     }
 
     #[test]
-    fn read_fstring_utf16() {
+    fn read_fstring_utf16() -> Result<()> {
         let mut cursor = Cursor::new(BYTES_UTF16);
-        let string = FString::read_le(&mut cursor).expect("FString::read_le");
+        let string = FString::read_le(&mut cursor)?;
         assert_eq!(string, FString::from(STR_UTF16));
+        Ok(())
     }
 
     #[test]
-    fn write_fstring_null() {
+    fn write_fstring_null() -> Result<()> {
         let mut cursor = Cursor::new(vec![]);
         let string = FString(None);
-        string.write_le(&mut cursor).expect("FString::write_le");
-        assert_eq!(cursor.into_inner().as_slice(), BYTES_NULL)
+        string.write_le(&mut cursor)?;
+        assert_eq!(cursor.into_inner().as_slice(), BYTES_NULL);
+        Ok(())
     }
 
     #[test]
-    fn write_fstring_empty() {
+    fn write_fstring_empty() -> Result<()> {
         let mut cursor = Cursor::new(vec![]);
         let string = FString::from(STR_EMPTY);
-        string.write_le(&mut cursor).expect("FString::write_le");
-        assert_eq!(cursor.into_inner().as_slice(), BYTES_EMPTY)
+        string.write_le(&mut cursor)?;
+        assert_eq!(cursor.into_inner().as_slice(), BYTES_EMPTY);
+        Ok(())
     }
 
     #[test]
-    fn write_fstring_ascii() {
+    fn write_fstring_ascii() -> Result<()> {
         let mut cursor = Cursor::new(vec![]);
         let string = FString::from(STR_PROPERTY);
-        string.write_le(&mut cursor).expect("FString::write_le");
-        assert_eq!(cursor.into_inner().as_slice(), BYTES_PROPERTY)
+        string.write_le(&mut cursor)?;
+        assert_eq!(cursor.into_inner().as_slice(), BYTES_PROPERTY);
+        Ok(())
     }
 
     #[test]
-    fn write_fstring_utf16() {
+    fn write_fstring_utf16() -> Result<()> {
         let mut cursor = Cursor::new(vec![]);
         let string = FString::from(STR_UTF16);
-        string.write_le(&mut cursor).expect("FString::write_le");
-        assert_eq!(cursor.into_inner().as_slice(), BYTES_UTF16)
+        string.write_le(&mut cursor)?;
+        assert_eq!(cursor.into_inner().as_slice(), BYTES_UTF16);
+        Ok(())
     }
 }

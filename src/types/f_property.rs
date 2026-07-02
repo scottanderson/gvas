@@ -324,12 +324,12 @@ impl BinRead for FProperty {
         let size = t.size();
         let start = reader.stream_position()?;
 
-        let property_type = t.property_type().expect("property_type");
+        let property_type = t.property_type()?;
 
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
             NAME_ARRAY_PROPERTY  => {
-                let inner_type = t.array_inner_type().expect("inner_type");
+                let inner_type = t.array_inner_type()?;
                 let array_property = FArrayProperty::read_options(reader, endian, (format, t, inner_type))?;
                 Self::Array(array_property)
             },

@@ -10,15 +10,15 @@ const UNEXPECTED_EOF: [u8; 0] = [];
 #[test]
 fn test_unexpected_eof() {
     let mut reader = Cursor::new(UNEXPECTED_EOF);
-    let err = USaveGame::read(&mut reader).unwrap_err();
+    let err = USaveGame::read(&mut reader);
     assert_matches!(
         err,
-        binrw::Error::Backtrace(binrw::error::Backtrace { error, .. })
+        Err(binrw::Error::Backtrace(binrw::error::Backtrace { error, .. }))
         if matches!(
             error.as_ref(),
             binrw::Error::Io(error)
             if format!("{error}") == r#"failed to fill whole buffer"#
-        )
+        ),
     );
 }
 
@@ -27,10 +27,10 @@ const INVALID_HEADER: [u8; 4] = *b"GVAZ";
 #[test]
 fn test_invalid_header() {
     let mut reader = Cursor::new(INVALID_HEADER);
-    let err = USaveGame::read(&mut reader).unwrap_err();
+    let err = USaveGame::read(&mut reader);
     assert_matches!(
         err,
-        binrw::Error::Backtrace(binrw::error::Backtrace { error, .. })
+        Err(binrw::Error::Backtrace(binrw::error::Backtrace { error, .. }))
         if matches!(
             error.as_ref(),
             binrw::Error::BadMagic { pos: 0, found }

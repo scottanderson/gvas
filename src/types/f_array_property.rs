@@ -14,34 +14,45 @@ use crate::{
 
 impl FPropertyTag {
     #[inline]
-    fn array_struct_type_name(&self) -> Option<&str> {
-        let Self::Some { property_tag, .. } = self else {
-            return None;
-        };
-        let PropertyTag::Incomplete { extra, .. } = property_tag else {
-            return None;
-        };
-        let CollectionProperties::Struct { type_name, .. } = extra else {
-            return None;
-        };
-        let FString(Some(type_name)) = type_name else {
-            return None;
-        };
-        Some(type_name)
+    fn array_struct_type_name(&self) -> Result<&str, binrw::Error> {
+        match self {
+            Self::Some {
+                property_tag:
+                    PropertyTag::Incomplete {
+                        extra:
+                            CollectionProperties::Struct {
+                                type_name: FString(Some(type_name)),
+                                ..
+                            },
+                        ..
+                    },
+                ..
+            } => Some(type_name.as_str()),
+            _ => None,
+        }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("array_struct_type_name({self:?})"),
+        })
     }
 
     #[inline]
-    fn array_struct_guid(&self) -> Option<FGuid> {
-        let Self::Some { property_tag, .. } = self else {
-            return None;
-        };
-        let PropertyTag::Incomplete { extra, .. } = property_tag else {
-            return None;
-        };
-        let CollectionProperties::Struct { guid, .. } = extra else {
-            return None;
-        };
-        Some(*guid)
+    fn array_struct_guid(&self) -> Result<FGuid, binrw::Error> {
+        match self {
+            Self::Some {
+                property_tag:
+                    PropertyTag::Incomplete {
+                        extra: CollectionProperties::Struct { guid, .. },
+                        ..
+                    },
+                ..
+            } => Some(*guid),
+            _ => None,
+        }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("array_struct_guid({self:?})"),
+        })
     }
 }
 
@@ -58,7 +69,7 @@ pub enum FArrayProperty {
 
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
     Enum(
-        #[br(calc = t.enum_type())]
+        #[br(calc = t.enum_type()?)]
         #[bw(ignore)]
         FPropertyTypeName,
         TArray<FString>,
@@ -86,7 +97,7 @@ pub enum FArrayProperty {
     #[bw(assert(format.property_tag_complete_type_name))]
     Struct {
         #[br(temp)]
-        #[br(calc = t.array_struct_type().expect("array_struct_type"))]
+        #[br(calc = t.array_struct_type_binrw()?)]
         #[bw(ignore)]
         meta: (&str, &str, FGuid),
 
@@ -118,12 +129,12 @@ pub enum FArrayProperty {
         struct_tag: FPropertyTag,
 
         #[br(temp)]
-        #[br(calc = struct_tag.array_struct_type_name().expect("array_struct_type_name"))]
+        #[br(calc = struct_tag.array_struct_type_name()?)]
         #[bw(ignore)]
         type_name: &str,
 
         #[br(temp)]
-        #[br(calc = struct_tag.array_struct_guid().expect("array_struct_guid"))]
+        #[br(calc = struct_tag.array_struct_guid()?)]
         #[bw(ignore)]
         guid: FGuid,
 
