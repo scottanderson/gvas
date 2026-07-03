@@ -1,6 +1,6 @@
 use std::io::Cursor;
 
-use binrw::{BinRead, BinWrite, binrw};
+use binrw::{BinRead, BinResult, BinWrite, binrw};
 
 use crate::format::SerializationFormat;
 use crate::types::{
@@ -120,7 +120,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn enum_type(&self) -> Result<FPropertyTypeName, binrw::Error> {
+    pub fn enum_type(&self) -> BinResult<FPropertyTypeName> {
         let result = match self {
             Self::Incomplete { extra, .. } => FString::from(match extra {
                 CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
@@ -181,7 +181,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_key_type(&self) -> Result<Self, binrw::Error> {
+    pub fn map_key_type(&self) -> BinResult<Self> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -208,7 +208,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_value_type(&self) -> Result<Self, binrw::Error> {
+    pub fn map_value_type(&self) -> BinResult<Self> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -235,7 +235,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn set_element_type(&self) -> Result<Self, binrw::Error> {
+    pub fn set_element_type(&self) -> BinResult<Self> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -261,7 +261,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn property_type(&self) -> Result<&str, binrw::Error> {
+    pub fn property_type(&self) -> BinResult<&str> {
         match self {
             Self::Incomplete { property_type, .. } => property_type,
             Self::Complete { property_type, .. } => &property_type.name,
@@ -282,7 +282,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_inner_type(&self) -> Result<&FString, binrw::Error> {
+    pub fn array_inner_type(&self) -> BinResult<&FString> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Array { inner_type, .. },
@@ -378,7 +378,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_struct_type_binrw(&self) -> Result<(&str, &str, FGuid), binrw::Error> {
+    pub fn array_struct_type_binrw(&self) -> BinResult<(&str, &str, FGuid)> {
         self.array_struct_type()
             .ok_or_else(|| binrw::Error::AssertFail {
                 pos: 0,

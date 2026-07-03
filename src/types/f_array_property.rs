@@ -1,4 +1,4 @@
-use binrw::binrw;
+use binrw::{BinResult, binrw};
 
 use crate::{
     format::SerializationFormat,
@@ -14,7 +14,7 @@ use crate::{
 
 impl FPropertyTag {
     #[inline]
-    fn array_struct_type_name(&self) -> Result<&str, binrw::Error> {
+    fn array_struct_type_name(&self) -> BinResult<&str> {
         match self {
             Self::Some {
                 property_tag:
@@ -37,7 +37,7 @@ impl FPropertyTag {
     }
 
     #[inline]
-    fn array_struct_guid(&self) -> Result<FGuid, binrw::Error> {
+    fn array_struct_guid(&self) -> BinResult<FGuid> {
         match self {
             Self::Some {
                 property_tag:
