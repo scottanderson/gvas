@@ -89,7 +89,7 @@ jobs:
           path: |
             ~/.cargo
             ~/.rustup
-          key: ${{ runner.os }}-${{ matrix.toolchain }}
+          key: ${{ matrix.arch }}-${{ matrix.toolchain }}
 
       - name: Install Rust ${{ matrix.toolchain }}
         uses: dtolnay/rust-toolchain@master
