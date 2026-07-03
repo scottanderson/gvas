@@ -126,6 +126,7 @@ impl PropertyTag {
                 CollectionProperties::Byte { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Enum { enum_name } => enum_name.as_deref(),
                 CollectionProperties::Array { .. } => None,
+                CollectionProperties::None => None,
                 _ => todo!("{extra:?}"),
             })
             .into(),

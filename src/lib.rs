@@ -26,8 +26,10 @@
 //! # Ok::<(), Error>(())
 //! ```
 
+pub mod detect;
 pub mod error;
 pub mod format;
+pub mod palworld;
 pub mod types;
 
 mod test;

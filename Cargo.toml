@@ -15,3 +15,7 @@ binrw = "0.15.1"
 chrono = "0.4.45"
 modular-bitfield = "0.13.1"
 thiserror = "2.0.18"
+flate2 = { version="1.1.5", optional = true }
+
+[features]
+palworld = ["dep:flate2"]
