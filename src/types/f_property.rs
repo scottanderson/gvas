@@ -88,31 +88,7 @@ impl FProperty {
         }
     }
 
-    fn container_inner_type_name(&self) -> Option<&str> {
-        match &self {
-            Self::Array(array_property) => Some(match array_property {
-                FArrayProperty::Bool(..) => NAME_BOOL_PROPERTY,
-                FArrayProperty::Byte(..) => NAME_BYTE_PROPERTY,
-                FArrayProperty::Enum(..) => NAME_ENUM_PROPERTY,
-                FArrayProperty::Float(..) => NAME_FLOAT_PROPERTY,
-                FArrayProperty::Int(..) => NAME_INT_PROPERTY,
-                FArrayProperty::Name(..) => NAME_NAME_PROPERTY,
-                FArrayProperty::Object(..) => NAME_OBJECT_PROPERTY,
-                FArrayProperty::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
-                FArrayProperty::Str(..) => NAME_STR_PROPERTY,
-                FArrayProperty::Struct { .. } => NAME_STRUCT_PROPERTY,
-                FArrayProperty::TaggedStruct { .. } => NAME_STRUCT_PROPERTY,
-                FArrayProperty::Text(..) => NAME_TEXT_PROPERTY,
-                _ => todo!("{array_property:?}"),
-            }),
-            // FProperty::Map(p) => todo!("{p:?}"),
-            // FProperty::Optional(p) => todo!("{p:?}"),
-            // FProperty::Set(p) => todo!("{p:?}"),
-            _ => None,
-        }
-    }
-
-    pub fn generate_tag(
+    pub(crate) fn generate_tag(
         &self,
         format: SerializationFormat,
         size: u32,
@@ -159,8 +135,8 @@ impl FProperty {
 
     fn generate_incomplete_property_extra(&self, guid: FGuid) -> CollectionProperties {
         match &self {
-            Self::Array(..) => CollectionProperties::Array {
-                inner_type: self.container_inner_type_name().into(),
+            Self::Array(p) => CollectionProperties::Array {
+                inner_type: p.element_property_type_name().into(),
             },
             Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
                 value: *value as u8,
@@ -210,8 +186,8 @@ impl FProperty {
                 }
             }
             // Property::Optional(p) => CollectionProperties::Optional { inner_type },
-            Self::Set(..) => CollectionProperties::Set {
-                inner_type: self.container_inner_type_name().into(),
+            Self::Set(p) => CollectionProperties::Set {
+                inner_type: p.element_property_type_name().into(),
             },
             Self::Struct(p) => CollectionProperties::Struct {
                 type_name: p.struct_type(),

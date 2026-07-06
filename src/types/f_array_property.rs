@@ -155,3 +155,23 @@ pub enum FArrayProperty {
         #[br(count = t.size())] Vec<u8>,
     ),
 }
+
+impl FArrayProperty {
+    pub(crate) fn element_property_type_name(&self) -> &str {
+        match self {
+            Self::Bool(..) => NAME_BOOL_PROPERTY,
+            Self::Byte(..) => NAME_BYTE_PROPERTY,
+            Self::Enum(..) => NAME_ENUM_PROPERTY,
+            Self::Float(..) => NAME_FLOAT_PROPERTY,
+            Self::Int(..) => NAME_INT_PROPERTY,
+            Self::Name(..) => NAME_NAME_PROPERTY,
+            Self::Object(..) => NAME_OBJECT_PROPERTY,
+            Self::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
+            Self::Str(..) => NAME_STR_PROPERTY,
+            Self::Struct { .. } => NAME_STRUCT_PROPERTY,
+            Self::TaggedStruct { .. } => NAME_STRUCT_PROPERTY,
+            Self::Text(..) => NAME_TEXT_PROPERTY,
+            Self::Unknown(property_tag, _) => todo!("{property_tag:?}"),
+        }
+    }
+}

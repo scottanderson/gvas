@@ -1,23 +1,28 @@
+use binrw::binrw;
+
 use crate::{
     format::SerializationFormat,
     types::{FProperty, PropertyTag, TArray},
 };
-use binrw::binrw;
 
 #[binrw]
 #[br(import(format: SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug, PartialEq)]
-pub enum FSetProperty {
-    Known {
-        allocation_flags: u32,
-        #[br(calc = t.set_element_type()?)]
-        #[bw(ignore)]
-        element_type: PropertyTag,
+pub struct FSetProperty {
+    allocation_flags: u32,
+    #[br(calc = t.set_element_tag()?)]
+    #[bw(ignore)]
+    element_type: PropertyTag,
+    #[br(args(format, &element_type))]
+    #[bw(args(format))]
+    properties: TArray<FProperty>,
+}
 
-        #[br(args(format, &element_type))]
-        #[bw(args(format))]
-        properties: TArray<FProperty>,
-    },
-    Unknown(#[br(count = t.size())] Vec<u8>),
+impl FSetProperty {
+    pub(crate) fn element_property_type_name(&self) -> &str {
+        self.element_type
+            .property_type()
+            .unwrap_or_else(|_| todo!("{:?}", self.element_type))
+    }
 }

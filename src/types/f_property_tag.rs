@@ -209,7 +209,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn set_element_type(&self) -> BinResult<Self> {
+    pub fn set_element_tag(&self) -> BinResult<Self> {
         let size = 0;
         match self {
             Self::Incomplete {
