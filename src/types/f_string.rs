@@ -67,8 +67,10 @@ impl BinRead for FString {
             }
 
             let buf: Vec<u16> = bytes
-                .chunks_exact(2)
-                .map(|b| [b[0], b[1]])
+                .as_chunks::<2>()
+                .0
+                .iter()
+                .copied()
                 .map(match endian {
                     binrw::Endian::Big => u16::from_be_bytes,
                     binrw::Endian::Little => u16::from_le_bytes,
