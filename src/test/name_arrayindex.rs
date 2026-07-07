@@ -45,7 +45,7 @@ fn name_property_with_array_index() -> Result<()> {
             size: 29,
             array_index: 1,
             extra: CollectionProperties::None,
-            guid: PropertyTagIncompleteGuid(None),
+            maybe_property_guid: PropertyTagIncompleteGuid(None),
         } if property_type == NAME_NAME_PROPERTY
     );
     assert_eq!(

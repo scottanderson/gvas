@@ -57,7 +57,7 @@ pub enum FPropertyTypeName {
     Struct {
         type_name: FString,
         class_name: FString,
-        guid: FGuid,
+        struct_guid: FGuid,
     },
     Text,
     Unknown(RawPropertyTypeName),
@@ -168,7 +168,7 @@ impl FPropertyTypeName {
         Some(Self::Struct {
             type_name: type_node.name,
             class_name: class_node.name,
-            guid,
+            struct_guid: guid,
         })
     }
 
@@ -220,7 +220,7 @@ impl FPropertyTypeName {
             Self::Struct {
                 type_name,
                 class_name,
-                guid,
+                struct_guid: guid,
             } => {
                 let child1 = RawPropertyTypeName {
                     name: type_name,
@@ -270,7 +270,9 @@ impl FPropertyTypeName {
 
     pub fn struct_guid(&self) -> Option<FGuid> {
         match self {
-            Self::Struct { guid, .. } => Some(*guid),
+            Self::Struct {
+                struct_guid: guid, ..
+            } => Some(*guid),
             _ => None,
         }
     }

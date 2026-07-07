@@ -42,11 +42,11 @@ impl FPropertyTag {
             Self::Some {
                 property_tag:
                     PropertyTag::Incomplete {
-                        extra: CollectionProperties::Struct { guid, .. },
+                        extra: CollectionProperties::Struct { struct_guid, .. },
                         ..
                     },
                 ..
-            } => Some(*guid),
+            } => Some(*struct_guid),
             _ => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
@@ -136,10 +136,10 @@ pub enum FArrayProperty {
         #[br(temp)]
         #[br(calc = struct_tag.array_struct_guid()?)]
         #[bw(ignore)]
-        guid: FGuid,
+        struct_guid: FGuid,
 
         #[br(count = count)]
-        #[br(args { inner: (format, t, type_name, None, guid, ) })]
+        #[br(args { inner: (format, t, type_name, None, struct_guid, ) })]
         #[bw(args(format))]
         values: Vec<FStructProperty>,
     },

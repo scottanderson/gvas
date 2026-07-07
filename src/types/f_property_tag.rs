@@ -67,12 +67,12 @@ pub enum PropertyTag {
         #[br(args(format, property_type.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
         #[brw(args(format, property_type.as_deref().unwrap_or("")))]
-        guid: PropertyTagIncompleteGuid,
+        maybe_property_guid: PropertyTagIncompleteGuid,
     },
 
     #[br(pre_assert(format.property_tag_complete_type_name))]
     #[bw(assert(flags.has_array_index() == (*array_index != 0)))]
-    #[bw(assert(flags.has_property_guid() == guid.is_valid()))]
+    #[bw(assert(flags.has_property_guid() == property_guid.is_valid()))]
     Complete {
         property_type: FPropertyTypeName,
         size: u32,
@@ -80,7 +80,7 @@ pub enum PropertyTag {
         #[brw(if(flags.has_array_index()))]
         array_index: u32,
         #[brw(if(flags.has_property_guid()))]
-        guid: FGuid,
+        property_guid: FGuid,
     },
 }
 
@@ -92,7 +92,7 @@ impl PropertyTag {
             size,
             array_index: 0,
             extra: CollectionProperties::None,
-            guid: PropertyTagIncompleteGuid::default(),
+            maybe_property_guid: PropertyTagIncompleteGuid::default(),
         }
     }
 
@@ -103,7 +103,7 @@ impl PropertyTag {
             size,
             flags: EPropertyTagFlags::new(),
             array_index: 0,
-            guid: FGuid::default(),
+            property_guid: FGuid::default(),
         }
     }
 
@@ -155,8 +155,11 @@ impl PropertyTag {
     #[inline]
     fn guid(&self) -> FGuid {
         match self {
-            Self::Incomplete { guid, .. } => guid.into(),
-            Self::Complete { guid, .. } => *guid,
+            Self::Incomplete {
+                maybe_property_guid,
+                ..
+            } => maybe_property_guid.into(),
+            Self::Complete { property_guid, .. } => *property_guid,
         }
     }
 
@@ -165,9 +168,9 @@ impl PropertyTag {
         let result = match self {
             Self::Complete { property_type, .. } => property_type.struct_guid().unwrap_or_default(),
             Self::Incomplete {
-                extra: CollectionProperties::Struct { guid, .. },
+                extra: CollectionProperties::Struct { struct_guid, .. },
                 ..
-            } => *guid,
+            } => *struct_guid,
             _ => FGuid::default(),
         };
         Ok(result)
@@ -288,7 +291,7 @@ impl PropertyTag {
         let Some(FPropertyTypeName::Struct {
             type_name: FString(Some(type_name)),
             class_name: FString(Some(class_name)),
-            guid,
+            struct_guid: guid,
         }) = self.array_complete_type()
         else {
             todo!("array_struct_type={self:?}");
@@ -376,7 +379,7 @@ pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
     Struct {
         type_name: FString,
-        guid: FGuid,
+        struct_guid: FGuid,
     },
 
     None,
@@ -457,10 +460,31 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
 #[derive(Debug, PartialEq)]
 pub struct TaggedProperty {
     pub array_index: u32,
-    pub extensions: bool,
-    pub guid: FGuid,
-    pub native: bool,
+    pub has_binary_or_native_serialize: bool,
+    pub has_property_extensions: bool,
     pub property: FProperty,
+    pub property_guid: FGuid,
+}
+
+impl TaggedProperty {
+    fn new(property_tag: PropertyTag, property: FProperty) -> Self {
+        let array_index = property_tag.array_index();
+        let property_guid = property_tag.guid();
+        let flags = property_tag.flags();
+        let has_binary_or_native_serialize = flags
+            .map(EPropertyTagFlags::has_binary_or_native_serialize)
+            .unwrap_or(false);
+        let has_property_extensions = flags
+            .map(EPropertyTagFlags::has_property_extensions)
+            .unwrap_or(false);
+        Self {
+            array_index,
+            has_binary_or_native_serialize,
+            has_property_extensions,
+            property,
+            property_guid,
+        }
+    }
 }
 
 #[derive(PartialEq)]
@@ -482,22 +506,7 @@ impl BinRead for TaggedProperties {
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
-                    let array_index = property_tag.array_index();
-                    let guid = property_tag.guid();
-                    let (native, extensions) = match property_tag.flags() {
-                        Some(flags) => (
-                            flags.has_binary_or_native_serialize(),
-                            flags.has_property_extensions(),
-                        ),
-                        None => (false, false),
-                    };
-                    let property = TaggedProperty {
-                        array_index,
-                        extensions,
-                        guid,
-                        native,
-                        property,
-                    };
+                    let property = TaggedProperty::new(property_tag, property);
                     properties.push((name, property));
                 }
             }
@@ -518,10 +527,10 @@ impl BinWrite for TaggedProperties {
         for (name, tagged_property) in self.iter() {
             let TaggedProperty {
                 array_index,
-                extensions,
-                guid,
-                native,
+                has_binary_or_native_serialize,
+                has_property_extensions,
                 property,
+                property_guid,
             } = tagged_property;
             // Write to temp buffer
             let mut buf = Cursor::new(Vec::new());
@@ -530,8 +539,14 @@ impl BinWrite for TaggedProperties {
             let len = property_buf.len() as u32;
 
             // Generate property tag
-            let property_type =
-                property.generate_tag(format, len, *array_index, *guid, *native, *extensions);
+            let property_type = property.generate_tag(
+                format,
+                len,
+                *array_index,
+                *has_binary_or_native_serialize,
+                *has_property_extensions,
+                *property_guid,
+            );
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;
@@ -639,9 +654,9 @@ mod test {
                     array_index: 0,
                     extra: CollectionProperties::Struct {
                         type_name: FString::from("TestClass"),
-                        guid: FGuid::default(),
+                        struct_guid: FGuid::default(),
                     },
-                    guid: PropertyTagIncompleteGuid::default(),
+                    maybe_property_guid: PropertyTagIncompleteGuid::default(),
                 },
             },
             &[
@@ -667,12 +682,14 @@ mod test {
                     property_type: FPropertyTypeName::Struct {
                         type_name: "TestClass".into(),
                         class_name: "/path".into(),
-                        guid: FGuid::from_u32(0xFF000088, 0xEE111199, 0xDD2222AA, 0xCC3333BB),
+                        struct_guid: FGuid::from_u32(
+                            0xFF000088, 0xEE111199, 0xDD2222AA, 0xCC3333BB,
+                        ),
                     },
                     size: 0,
                     flags: EPropertyTagFlags::new(),
                     array_index: 0,
-                    guid: FGuid::default(),
+                    property_guid: FGuid::default(),
                 },
             },
             &[

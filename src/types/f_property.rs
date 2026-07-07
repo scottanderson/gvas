@@ -17,6 +17,7 @@ use crate::{
         NAME_NAME_PROPERTY, NAME_NONE, NAME_OBJECT_PROPERTY, NAME_SET_PROPERTY,
         NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
         NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyTag,
+        PropertyTagIncompleteGuid,
     },
 };
 
@@ -94,9 +95,9 @@ impl FProperty {
         format: SerializationFormat,
         size: u32,
         array_index: u32,
-        guid: FGuid,
-        native: bool,
-        extensions: bool,
+        has_binary_or_native_serialize: bool,
+        has_property_extensions: bool,
+        property_guid: FGuid,
     ) -> PropertyTag {
         if let Self::Unknown(original_tag, _) = self {
             return original_tag.clone();
@@ -106,21 +107,21 @@ impl FProperty {
             false => {
                 let property_type = FString::from(self.property_type_name());
                 let extra = self.generate_incomplete_property_extra();
-                let guid = guid.into();
+                let maybe_property_guid = PropertyTagIncompleteGuid::from(property_guid);
                 PropertyTag::Incomplete {
                     property_type,
                     size,
                     array_index,
                     extra,
-                    guid,
+                    maybe_property_guid,
                 }
             }
             true => {
                 let mut flags = EPropertyTagFlags::new();
                 flags.set_has_array_index(array_index != 0);
-                flags.set_has_property_guid(guid.is_valid());
-                flags.set_has_binary_or_native_serialize(native);
-                flags.set_has_property_extensions(extensions);
+                flags.set_has_property_guid(property_guid.is_valid());
+                flags.set_has_binary_or_native_serialize(has_binary_or_native_serialize);
+                flags.set_has_property_extensions(has_property_extensions);
                 if let Self::Bool(FBoolProperty(value)) = self {
                     flags.set_bool_true(*value);
                 }
@@ -130,7 +131,7 @@ impl FProperty {
                     size,
                     flags,
                     array_index,
-                    guid,
+                    property_guid,
                 }
             }
         }
@@ -194,7 +195,7 @@ impl FProperty {
             },
             Self::Struct(p) => CollectionProperties::Struct {
                 type_name: p.struct_type(),
-                guid: p.struct_guid(),
+                struct_guid: p.struct_guid(),
             },
             Self::Delegate(..)
             | Self::Double(..)
@@ -241,7 +242,7 @@ impl FProperty {
                     } => FPropertyTypeName::Struct {
                         type_name: type_name.clone(),
                         class_name: class_name.clone(),
-                        guid: *struct_guid,
+                        struct_guid: *struct_guid,
                     },
                     FArrayProperty::TaggedStruct { .. } => unimplemented!(),
                     FArrayProperty::Text(_) => FPropertyTypeName::Text,
@@ -271,7 +272,7 @@ impl FProperty {
             Self::Struct(struct_property) => FPropertyTypeName::Struct {
                 type_name: struct_property.struct_type(),
                 class_name: struct_property.struct_class(),
-                guid: struct_property.struct_guid(),
+                struct_guid: struct_property.struct_guid(),
             },
             Self::Text(_) => FPropertyTypeName::Text,
             // Property::UInt16(_) => todo!(),

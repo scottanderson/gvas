@@ -213,22 +213,21 @@ pub(crate) fn expected() -> USaveGame {
                 FString::from("DynamicDelegate"),
                 TaggedProperty {
                     array_index: 0,
-                    extensions: false,
-                    guid: FGuid::default(),
-                    native: false,
+                    has_binary_or_native_serialize: false,
+                    has_property_extensions: false,
                     property: FProperty::Delegate(FDelegateProperty {
                         object: FString::from(DELEGATE_STR),
                         function_name: FString::from("FirstBinding"),
                     }),
+                    property_guid: FGuid::default(),
                 },
             ),
             (
                 FString::from("MulticastDelegate"),
                 TaggedProperty {
                     array_index: 0,
-                    extensions: false,
-                    guid: FGuid::default(),
-                    native: false,
+                    has_binary_or_native_serialize: false,
+                    has_property_extensions: false,
                     property: FProperty::MulticastInlineDelegate(FMulticastInlineDelegateProperty(
                         TArray::from([
                             FDelegateProperty {
@@ -241,21 +240,22 @@ pub(crate) fn expected() -> USaveGame {
                             },
                         ]),
                     )),
+                    property_guid: FGuid::default(),
                 },
             ),
             (
                 FString::from("MulticastSparseDelegate"),
                 TaggedProperty {
                     array_index: 0,
-                    extensions: false,
-                    guid: FGuid::default(),
-                    native: false,
+                    has_binary_or_native_serialize: false,
+                    has_property_extensions: false,
                     property: FProperty::MulticastSparseDelegate(FMulticastSparseDelegateProperty(
                         TArray::from([FDelegateProperty {
                             object: FString::from(DELEGATE_STR),
                             function_name: FString::from("FirstBinding"),
                         }]),
                     )),
+                    property_guid: FGuid::default(),
                 },
             ),
         ]),
