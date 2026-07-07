@@ -9,6 +9,16 @@ use thiserror::Error;
 
 use crate::types::ParseGuidError;
 
+pub(crate) fn binrw_custom<T>(pos: u64) -> impl Fn(T) -> binrw::Error
+where
+    T: binrw::error::CustomError + 'static,
+{
+    move |e| binrw::Error::Custom {
+        pos,
+        err: Box::new(e),
+    }
+}
+
 /// Gets thrown when there is a deserialization error
 #[derive(Error, Debug)]
 pub enum DeserializeError {

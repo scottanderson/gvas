@@ -1,5 +1,7 @@
 use binrw::{BinRead, BinWrite};
 
+use crate::error::binrw_custom;
+
 #[derive(Clone, Eq, PartialEq)]
 pub struct TArray<T>(pub Vec<T>);
 
@@ -43,10 +45,7 @@ where
     ) -> binrw::BinResult<()> {
         let pos = writer.stream_position()?;
         let count = self.len();
-        let count = u32::try_from(count).map_err(|e| binrw::Error::Custom {
-            pos,
-            err: Box::new(e),
-        })?;
+        let count = u32::try_from(count).map_err(binrw_custom(pos))?;
         count.write_options(writer, endian, ())?;
         for item in self.iter() {
             item.write_options(writer, endian, args)?;

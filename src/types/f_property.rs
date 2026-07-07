@@ -1,6 +1,7 @@
 use binrw::{BinRead, binwrite};
 
 use crate::{
+    error::binrw_custom,
     format::SerializationFormat,
     types::{
         CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FByteProperty,
@@ -320,7 +321,7 @@ impl BinRead for FProperty {
             NAME_STRUCT_PROPERTY => {
                 let type_name = t.struct_type_name().unwrap_or_default();
                 let class_name = t.struct_class_name();
-                let guid = t.struct_guid().map_err(|e| binrw::Error::Custom { pos: start, err: Box::new(e) })?;
+                let guid = t.struct_guid().map_err(binrw_custom(start))?;
                                     Self::Struct(FStructProperty::read_options(reader, endian, (format, t, type_name, class_name, guid))?)
             },
             NAME_STR_PROPERTY    => Self::Str   (   FStrProperty::read_options(reader, endian, ())?),

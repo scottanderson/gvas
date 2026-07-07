@@ -19,12 +19,9 @@ where
         let value = match count {
             0 => None,
             1 => Some(T::read_options(reader, endian, args)?),
-            n => Err(binrw::Error::Custom {
+            n => Err(binrw::Error::AssertFail {
                 pos,
-                err: Box::new(std::io::Error::new(
-                    std::io::ErrorKind::InvalidData,
-                    format!("TOption expected 0 or 1 elements, got {n}"),
-                )),
+                message: format!("TOptional expected 0 or 1 elements, got {n}"),
             })?,
         };
         Ok(Self(value))

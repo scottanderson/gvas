@@ -10,7 +10,7 @@ use std::io::{Cursor, Read, Seek, Write};
 use binrw::{BinRead, BinResult, BinWrite, Endian, binrw};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
 
-use crate::types::USaveGame;
+use crate::{error::binrw_custom, types::USaveGame};
 
 #[binrw]
 #[derive(Debug, PartialEq)]
@@ -105,15 +105,9 @@ impl BinWrite for PalworldSaveGame {
         let mut uncompressed = Cursor::new(Vec::new());
         self.content.write_options(&mut uncompressed, endian, ())?;
         let pos = writer.stream_position()?;
+        let err_handler = binrw_custom(pos);
         let uncompressed = uncompressed.into_inner();
-        let uncompressed_size =
-            uncompressed
-                .len()
-                .try_into()
-                .map_err(|e| binrw::Error::Custom {
-                    pos,
-                    err: Box::new(e),
-                })?;
+        let uncompressed_size = uncompressed.len().try_into().map_err(err_handler)?;
 
         // Buffer compressed data
         let level = Compression::default();

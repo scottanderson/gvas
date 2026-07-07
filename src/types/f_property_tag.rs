@@ -2,6 +2,7 @@ use std::io::Cursor;
 
 use binrw::{BinRead, BinResult, BinWrite, binrw};
 
+use crate::error::binrw_custom;
 use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
@@ -403,10 +404,7 @@ impl BinRead for TaggedProperties {
                         FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
                     let array_index = property_tag.array_index();
-                    let guid = property_tag
-                        .struct_guid()
-                        .map_err(Box::new)
-                        .map_err(|err| binrw::Error::Custom { pos, err })?;
+                    let guid = property_tag.struct_guid().map_err(binrw_custom(pos))?;
                     let (native, extensions) = match property_tag.flags() {
                         Some(flags) => (
                             flags.has_binary_or_native_serialize(),

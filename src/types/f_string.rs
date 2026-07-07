@@ -1,5 +1,7 @@
 use binrw::{BinRead, BinWrite};
 
+use crate::error::binrw_custom;
+
 #[derive(Clone, Eq, Hash, PartialEq)]
 pub struct FString(pub Option<String>);
 
@@ -31,6 +33,12 @@ impl BinRead for FString {
     ) -> binrw::BinResult<Self> {
         let pos = reader.stream_position()?;
         let length = i32::read_options(reader, endian, ())?;
+        if !(-0x20000..0x20000).contains(&length) {
+            Err(binrw::Error::AssertFail {
+                pos,
+                message: format!("Invalid FString length 0x{length:x}"),
+            })?
+        }
         let value = if length == 0 {
             None
         } else if length > 0 {
@@ -42,16 +50,11 @@ impl BinRead for FString {
             if terminator != 0 {
                 Err(binrw::Error::AssertFail {
                     pos,
-                    message: format!("Invalid terminator value for string length {length}"),
+                    message: format!("Invalid terminator value for string length {count}"),
                 })?
             }
 
-            let str = String::from_utf8(buf).map_err(|_| -> binrw::Error {
-                binrw::Error::AssertFail {
-                    pos,
-                    message: "FromUtf8Error".into(),
-                }
-            })?;
+            let str = String::from_utf8(buf).map_err(binrw_custom(pos))?;
             Some(str)
         } else {
             let count = -length as usize - 1;
@@ -62,7 +65,7 @@ impl BinRead for FString {
             if terminator != 0 {
                 Err(binrw::Error::AssertFail {
                     pos,
-                    message: "Invalid terminator value".into(),
+                    message: format!("Invalid terminator value for string length {count}"),
                 })?
             }
 
@@ -76,12 +79,7 @@ impl BinRead for FString {
                     binrw::Endian::Little => u16::from_le_bytes,
                 })
                 .collect();
-            let str = String::from_utf16(&buf).map_err(|_| -> binrw::Error {
-                binrw::Error::AssertFail {
-                    pos,
-                    message: "FromUtf16Error".into(),
-                }
-            })?;
+            let str = String::from_utf16(&buf).map_err(binrw_custom(pos))?;
             Some(str)
         };
         Ok(Self(value))
