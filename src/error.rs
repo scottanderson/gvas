@@ -1,9 +1,13 @@
+//! Error types.
+
 use std::{
     io,
     string::{FromUtf8Error, FromUtf16Error},
 };
 
 use thiserror::Error;
+
+use crate::types::ParseGuidError;
 
 /// Gets thrown when there is a deserialization error
 #[derive(Error, Debug)]
@@ -117,13 +121,22 @@ impl SerializeError {
 /// A wrapper for the various error types this crate can emit
 #[derive(Error, Debug)]
 pub enum Error {
-    /// A `DeserializeError` occurred
+    /// A [`DeserializeError`] occurred
     #[error(transparent)]
     Deserialize(#[from] DeserializeError),
-    /// A `SerializeError` occurred
+    /// A [`SerializeError`] occurred
     #[error(transparent)]
     Serialize(#[from] SerializeError),
-    /// An `std::io::Error` occured
+    /// An [`std::io::Error`] occured
     #[error(transparent)]
     Io(#[from] io::Error),
+    /// A [`binrw::Error`] occured
+    #[error(transparent)]
+    Binrw(#[from] binrw::Error),
+    /// A [`ParseGuidError`] occureed.
+    #[error(transparent)]
+    ParseGuidError(#[from] ParseGuidError),
 }
+
+/// A type alias for [`core::result::Result<T, Error>`].
+pub type Result<T> = core::result::Result<T, Error>;

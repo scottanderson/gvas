@@ -1,33 +1,17 @@
 [package]
 name = "gvas"
-description = "Crate for parsing UE4 gvas save files."
+description = "Crate for reading and writing UE4+ save files."
 authors = ["localcc <work@localcc.cc>", "Scott Anderson"]
 keywords = ["ue4", "unrealengine", "ue5", "gvas", "uasset"]
 homepage = "https://github.com/localcc/gvas"
 repository = "https://github.com/localcc/gvas"
 readme = "README.md"
 license = "MIT"
-version = "0.10.0"
+version = "0.11.0"
 edition = "2024"
 
 [dependencies]
-enum_dispatch = "0.3.13"
-byteorder = "1.5.0"
-ordered-float = "5.1.0"
-serde = { version = "1.0.228", optional = true, features = ["derive"] }
-serde_with = { version = "3.15.1", optional = true, features = ["hex"] }
-indexmap = "2.12.0"
-thiserror = "2.0.17"
-num_enum = "0.7.5"
-flate2 = "1.1.5"
-cfg_eval = "0.1.2"
-
-[features]
-serde = ["dep:serde", "dep:serde_with", "ordered-float/serde", "indexmap/serde"]
-
-[dev-dependencies]
-serde_json = { version = "1.0.145", features = ["float_roundtrip", "preserve_order"] }
-
-[[test]]
-name = "serde"
-required-features = ["serde"]
+binrw = "0.15.1"
+chrono = "0.4.45"
+modular-bitfield = "0.13.1"
+thiserror = "2.0.18"
