@@ -1,8 +1,8 @@
 use std::{assert_matches, str::FromStr};
 
 use crate::{
-    error::Result,
-    types::{FGuid, ParseGuidError},
+    error::{ParseGuidError, Result},
+    types::FGuid,
 };
 
 const GUID_0_BYTES: [u8; 16] = [0; 16];

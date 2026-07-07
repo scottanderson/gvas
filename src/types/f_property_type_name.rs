@@ -16,7 +16,7 @@ pub struct RawPropertyTypeName {
 
 impl RawPropertyTypeName {
     #[inline]
-    pub fn from_name(name: impl Into<FString>) -> Self {
+    fn from_name(name: impl Into<FString>) -> Self {
         Self {
             name: name.into(),
             children: TArray::empty(),

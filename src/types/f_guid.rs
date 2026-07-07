@@ -1,6 +1,8 @@
-use std::{fmt::Display, num::ParseIntError, str::FromStr};
+use std::{fmt::Display, str::FromStr};
 
 use binrw::binrw;
+
+use crate::error::ParseGuidError;
 
 /// Enumerates known GUID formats.
 pub enum EGuidFormats {
@@ -243,27 +245,6 @@ from!([u8; 16], FGuid, Self::from_u8);
 from!(FGuid, u128, FGuid::to_u128);
 from!(FGuid, [u32; 4], FGuid::to_u32);
 from!(FGuid, [u8; 16], FGuid::to_u8);
-
-/// An error ocurred while parsing a Guid
-#[derive(Debug)]
-pub enum ParseGuidError {
-    InvalidLength(usize),
-    ParseIntError(ParseIntError),
-}
-
-impl Display for ParseGuidError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "invalid GUID syntax")
-    }
-}
-
-impl std::error::Error for ParseGuidError {}
-
-impl From<ParseIntError> for ParseGuidError {
-    fn from(value: ParseIntError) -> Self {
-        Self::ParseIntError(value)
-    }
-}
 
 impl FromStr for FGuid {
     type Err = ParseGuidError;

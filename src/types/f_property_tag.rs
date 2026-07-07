@@ -2,12 +2,12 @@ use std::io::Cursor;
 
 use binrw::{BinRead, BinResult, BinWrite, binrw};
 
-use crate::error::binrw_custom;
+use crate::error::{ParseGuidError, binrw_custom};
 use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, ParseGuidError,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
 };
 
 #[binrw]

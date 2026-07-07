@@ -42,7 +42,7 @@ pub use crate::types::{
     f_byte_property::FByteProperty,
     f_custom_version_container::{CustomVersion, FCustomVersionArray, FCustomVersionContainer},
     f_enum_property::FEnumProperty,
-    f_guid::{FGuid, ParseGuidError},
+    f_guid::FGuid,
     f_map_property::{FMapProperty, MapEntry},
     f_package_file_version::FPackageFileVersion,
     f_property::FProperty,
