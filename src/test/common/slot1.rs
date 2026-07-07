@@ -421,6 +421,7 @@ pub(crate) fn expected() -> USaveGame {
                                     type_name: FString::from("CustomStruct"),
                                     guid: FGuid::default(),
                                 },
+                                guid: FGuid::default(),
                             },
                         },
                         values: vec![

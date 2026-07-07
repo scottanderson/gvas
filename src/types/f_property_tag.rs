@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use binrw::{BinRead, BinResult, BinWrite, binrw};
 
-use crate::error::{ParseGuidError, binrw_custom};
+use crate::error::ParseGuidError;
 use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
@@ -70,9 +70,11 @@ pub enum PropertyTag {
         array_index: u32,
         #[br(args(format, property_type.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
-        #[br(temp, assert(footer == 0))]
-        #[bw(calc(0))]
-        footer: u8,
+        #[br(temp)]
+        #[bw(calc(guid.is_valid() as u8))]
+        has_property_guid: u8,
+        #[brw(if(has_property_guid != 0))]
+        guid: FGuid,
     },
 
     #[br(pre_assert(format.property_tag_complete_type_name))]
@@ -97,6 +99,7 @@ impl PropertyTag {
             size,
             array_index: 0,
             extra: CollectionProperties::None,
+            guid: FGuid::default(),
         }
     }
 
@@ -153,6 +156,14 @@ impl PropertyTag {
         match self {
             Self::Incomplete { .. } => None,
             Self::Complete { flags, .. } => Some(flags),
+        }
+    }
+
+    #[inline]
+    fn guid(&self) -> FGuid {
+        match self {
+            Self::Incomplete { guid, .. } => *guid,
+            Self::Complete { guid, .. } => *guid,
         }
     }
 
@@ -399,12 +410,11 @@ impl BinRead for TaggedProperties {
             match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
                 FPropertyTag::Some { name, property_tag } => {
-                    let pos = reader.stream_position()?;
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
                     let array_index = property_tag.array_index();
-                    let guid = property_tag.struct_guid().map_err(binrw_custom(pos))?;
+                    let guid = property_tag.guid();
                     let (native, extensions) = match property_tag.flags() {
                         Some(flags) => (
                             flags.has_binary_or_native_serialize(),
@@ -560,6 +570,7 @@ mod test {
                         type_name: FString::from("TestClass"),
                         guid: FGuid::default(),
                     },
+                    guid: FGuid::default(),
                 },
             },
             &[

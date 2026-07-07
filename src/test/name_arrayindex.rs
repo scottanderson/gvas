@@ -5,7 +5,9 @@ use binrw::{BinRead, BinWrite};
 use crate::{
     error::Result,
     format::SerializationFormat,
-    types::{CollectionProperties, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag},
+    types::{
+        CollectionProperties, FGuid, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
+    },
 };
 
 #[test]
@@ -39,7 +41,8 @@ fn name_property_with_array_index() -> Result<()> {
             property_type: NAME_NAME_PROPERTY.into(),
             size: 29,
             array_index: 1,
-            extra: CollectionProperties::None
+            extra: CollectionProperties::None,
+            guid: FGuid::default(),
         },
         tag
     );

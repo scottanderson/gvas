@@ -105,12 +105,13 @@ impl FProperty {
         match format.property_tag_complete_type_name {
             false => {
                 let property_type = FString::from(self.property_type_name());
-                let extra = self.generate_incomplete_property_extra(guid);
+                let extra = self.generate_incomplete_property_extra();
                 PropertyTag::Incomplete {
                     property_type,
                     size,
                     array_index,
                     extra,
+                    guid,
                 }
             }
             true => {
@@ -134,7 +135,7 @@ impl FProperty {
         }
     }
 
-    fn generate_incomplete_property_extra(&self, guid: FGuid) -> CollectionProperties {
+    fn generate_incomplete_property_extra(&self) -> CollectionProperties {
         match &self {
             Self::Array(p) => CollectionProperties::Array {
                 inner_type: p.element_property_type_name().into(),
@@ -192,7 +193,7 @@ impl FProperty {
             },
             Self::Struct(p) => CollectionProperties::Struct {
                 type_name: p.struct_type(),
-                guid,
+                guid: p.struct_guid(),
             },
             Self::Delegate(..)
             | Self::Double(..)
