@@ -1,4 +1,4 @@
-use std::io::Cursor;
+use std::{assert_matches, io::Cursor};
 
 use binrw::{BinRead, BinWrite};
 
@@ -6,7 +6,8 @@ use crate::{
     error::Result,
     format::SerializationFormat,
     types::{
-        CollectionProperties, FGuid, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
+        CollectionProperties, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
+        PropertyTagIncompleteGuid,
     },
 };
 
@@ -22,6 +23,7 @@ fn name_property_with_array_index() -> Result<()> {
     let format = SerializationFormat {
         ftext_history_date_timezone: false,
         property_tag_set_map_support: false,
+        property_guid_in_property_tag: true,
         property_tag_complete_type_name: false,
         fsoftobjectpath_remove_asset_path_fnames: false,
         text_64bit_support: false,
@@ -36,15 +38,15 @@ fn name_property_with_array_index() -> Result<()> {
     let prop = FProperty::read_le_args(&mut cursor, (format, &tag))?;
 
     // Compare the parsed value to its expected value
-    assert_eq!(
+    assert_matches!(
+        tag,
         PropertyTag::Incomplete {
-            property_type: NAME_NAME_PROPERTY.into(),
+            ref property_type,
             size: 29,
             array_index: 1,
             extra: CollectionProperties::None,
-            guid: FGuid::default(),
-        },
-        tag
+            guid: PropertyTagIncompleteGuid(None),
+        } if property_type == NAME_NAME_PROPERTY
     );
     assert_eq!(
         FProperty::Name(FNameProperty("QU91_InvestigateTower_B2".into())),
@@ -53,7 +55,7 @@ fn name_property_with_array_index() -> Result<()> {
 
     // Convert the NameProperty back to a Vec<u8>
     let mut writer = Cursor::new(Vec::new());
-    tag.write_le_args(&mut writer, ())?;
+    tag.write_le_args(&mut writer, (format,))?;
     prop.write_le_args(&mut writer, (format,))?;
 
     // Compare the two Vec<u8>s

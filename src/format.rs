@@ -21,6 +21,7 @@ use crate::types::{
 pub struct SerializationFormat {
     pub ftext_history_date_timezone: bool,
     pub property_tag_set_map_support: bool,
+    pub property_guid_in_property_tag: bool,
     pub property_tag_complete_type_name: bool,
     pub fsoftobjectpath_remove_asset_path_fnames: bool,
     pub text_64bit_support: bool,
@@ -47,6 +48,8 @@ impl FSaveGameHeader {
                 >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32,
             property_tag_set_map_support: package_file_version
                 >= EUnrealEngineObjectUE4Version::PropertyTagSetMapSupport as u32,
+            property_guid_in_property_tag: package_file_version
+                >= EUnrealEngineObjectUE4Version::PropertyGuidInPropertyTag as u32,
             property_tag_complete_type_name: package_file_version_ue5
                 >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32,
             fsoftobjectpath_remove_asset_path_fnames: package_file_version_ue5

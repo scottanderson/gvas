@@ -125,7 +125,7 @@ pub enum FArrayProperty {
         #[bw(try_calc(u32::try_from(values.len())))]
         count: u32,
 
-        #[br(args(format))]
+        #[brw(args(format))]
         struct_tag: FPropertyTag,
 
         #[br(temp)]

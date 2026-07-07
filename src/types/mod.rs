@@ -47,7 +47,8 @@ pub use crate::types::{
     f_package_file_version::FPackageFileVersion,
     f_property::FProperty,
     f_property_tag::{
-        CollectionProperties, FPropertyTag, PropertyTag, TaggedProperties, TaggedProperty,
+        CollectionProperties, FPropertyTag, PropertyTag, PropertyTagIncompleteGuid,
+        TaggedProperties, TaggedProperty,
     },
     f_property_type_name::FPropertyTypeName,
     f_save_game_header::{FSaveGameHeader, SaveGameFileVersion},

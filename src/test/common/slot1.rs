@@ -3,8 +3,8 @@ use crate::types::{
     FDateTime, FDoubleProperty, FEngineVersion, FFloatProperty, FGuid, FInt8Property,
     FInt16Property, FInt64Property, FIntProperty, FPackageFileVersion, FProperty, FPropertyTag,
     FSaveGameHeader, FStrProperty, FString, FStructProperty, FUInt16Property, FUInt32Property,
-    FUInt64Property, PropertyTag, SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty,
-    USaveGame,
+    FUInt64Property, PropertyTag, PropertyTagIncompleteGuid, SaveGameFileVersion, TArray,
+    TaggedProperties, TaggedProperty, USaveGame,
 };
 
 #[allow(clippy::approx_constant)]
@@ -421,7 +421,7 @@ pub(crate) fn expected() -> USaveGame {
                                     type_name: FString::from("CustomStruct"),
                                     guid: FGuid::default(),
                                 },
-                                guid: FGuid::default(),
+                                guid: PropertyTagIncompleteGuid::default(),
                             },
                         },
                         values: vec![

@@ -7,60 +7,56 @@ use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
 };
 
-#[binrw]
-#[derive(Clone, Debug, Eq, PartialEq)]
-#[br(import(format: SerializationFormat, property_type: &str))]
-pub enum CollectionProperties {
-    #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
-    Array {
-        inner_type: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_BOOL_PROPERTY)))]
-    Bool {
-        value: u8,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_BYTE_PROPERTY)))]
-    Byte {
-        enum_name: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_ENUM_PROPERTY)))]
-    Enum {
-        enum_name: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && format.property_tag_set_map_support))]
-    Map {
-        inner_type: FString,
-        value_type: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_OPTION_PROPERTY)))]
-    Option {
-        inner_type: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && format.property_tag_set_map_support))]
-    Set {
-        inner_type: FString,
-    },
-
-    #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
-    Struct {
-        type_name: FString,
-        guid: FGuid,
-    },
-
+#[derive(Debug, Eq, PartialEq)]
+pub enum FPropertyTag {
     None,
+    Some {
+        name: FString,
+        property_tag: PropertyTag,
+    },
+}
+
+impl BinRead for FPropertyTag {
+    type Args<'a> = (SerializationFormat,);
+
+    fn read_options<R: std::io::Read + std::io::Seek>(
+        reader: &mut R,
+        endian: binrw::Endian,
+        (format,): Self::Args<'_>,
+    ) -> binrw::BinResult<Self> {
+        let name = FString::read_options(reader, endian, ())?;
+        if name == NAME_NONE {
+            return Ok(Self::None);
+        };
+        let property_tag = PropertyTag::read_options(reader, endian, (format,))?;
+        Ok(Self::Some { name, property_tag })
+    }
+}
+
+impl BinWrite for FPropertyTag {
+    type Args<'a> = (SerializationFormat,);
+
+    fn write_options<W: std::io::Write + std::io::Seek>(
+        &self,
+        writer: &mut W,
+        endian: binrw::Endian,
+        args: Self::Args<'_>,
+    ) -> binrw::BinResult<()> {
+        match self {
+            Self::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
+            Self::Some { name, property_tag } => {
+                name.write_options(writer, endian, ())?;
+                property_tag.write_options(writer, endian, args)
+            }
+        }
+    }
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat))]
+#[brw(import(format: SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PropertyTag {
     #[br(pre_assert(!format.property_tag_complete_type_name))]
@@ -70,11 +66,8 @@ pub enum PropertyTag {
         array_index: u32,
         #[br(args(format, property_type.as_deref().unwrap_or("")))]
         extra: CollectionProperties,
-        #[br(temp)]
-        #[bw(calc(guid.is_valid() as u8))]
-        has_property_guid: u8,
-        #[brw(if(has_property_guid != 0))]
-        guid: FGuid,
+        #[brw(args(format, property_type.as_deref().unwrap_or("")))]
+        guid: PropertyTagIncompleteGuid,
     },
 
     #[br(pre_assert(format.property_tag_complete_type_name))]
@@ -99,7 +92,7 @@ impl PropertyTag {
             size,
             array_index: 0,
             extra: CollectionProperties::None,
-            guid: FGuid::default(),
+            guid: PropertyTagIncompleteGuid::default(),
         }
     }
 
@@ -162,7 +155,7 @@ impl PropertyTag {
     #[inline]
     fn guid(&self) -> FGuid {
         match self {
-            Self::Incomplete { guid, .. } => *guid,
+            Self::Incomplete { guid, .. } => guid.into(),
             Self::Complete { guid, .. } => *guid,
         }
     }
@@ -340,48 +333,124 @@ impl PropertyTag {
     }
 }
 
-#[derive(Debug, Eq, PartialEq)]
-pub enum FPropertyTag {
-    None,
-    Some {
-        name: FString,
-        property_tag: PropertyTag,
+#[binrw]
+#[derive(Clone, Debug, Eq, PartialEq)]
+#[br(import(format: SerializationFormat, property_type: &str))]
+pub enum CollectionProperties {
+    #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
+    Array {
+        inner_type: FString,
     },
+
+    #[br(pre_assert(matches!(property_type, NAME_BOOL_PROPERTY)))]
+    Bool {
+        value: u8,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_BYTE_PROPERTY)))]
+    Byte {
+        enum_name: FString,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_ENUM_PROPERTY)))]
+    Enum {
+        enum_name: FString,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && format.property_tag_set_map_support))]
+    Map {
+        inner_type: FString,
+        value_type: FString,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_OPTION_PROPERTY)))]
+    Option {
+        inner_type: FString,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && format.property_tag_set_map_support))]
+    Set {
+        inner_type: FString,
+    },
+
+    #[br(pre_assert(matches!(property_type, NAME_STRUCT_PROPERTY)))]
+    Struct {
+        type_name: FString,
+        guid: FGuid,
+    },
+
+    None,
 }
 
-impl BinRead for FPropertyTag {
-    type Args<'a> = (SerializationFormat,);
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct PropertyTagIncompleteGuid(pub Option<FGuid>);
+
+impl BinRead for PropertyTagIncompleteGuid {
+    type Args<'a> = (SerializationFormat, &'a str);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (format,): Self::Args<'_>,
+        (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
-        let name = FString::read_options(reader, endian, ())?;
-        if name == NAME_NONE {
-            return Ok(Self::None);
+        let has_property_guid = if !format.property_guid_in_property_tag {
+            property_type == NAME_TEXT_PROPERTY
+        } else {
+            match u8::read_options(reader, endian, ())? {
+                0 => false,
+                1 => true,
+                l => unimplemented!("unsupported length: {l}"),
+            }
         };
-        let property_tag = PropertyTag::read_options(reader, endian, (format,))?;
-        Ok(Self::Some { name, property_tag })
+        let maybe_guid = has_property_guid
+            .then(|| FGuid::read_options(reader, endian, ()))
+            .transpose()?;
+        Ok(Self(maybe_guid))
     }
 }
 
-impl BinWrite for FPropertyTag {
-    type Args<'a> = ();
+impl BinWrite for PropertyTagIncompleteGuid {
+    type Args<'a> = (SerializationFormat, &'a str);
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
         writer: &mut W,
         endian: binrw::Endian,
-        args: Self::Args<'_>,
+        (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        match self {
-            Self::None => Ok(writer.write_all(b"\x05\x00\x00\x00None\x00")?),
-            Self::Some { name, property_tag } => {
-                name.write_options(writer, endian, args)?;
-                property_tag.write_options(writer, endian, args)
+        if !format.property_guid_in_property_tag {
+            let guid = FGuid::from(self);
+            if property_type == NAME_TEXT_PROPERTY {
+                guid.write_options(writer, endian, ())
+            } else {
+                assert!(!guid.is_valid(), "illegal guid for this property");
+                Ok(())
+            }
+        } else {
+            match self.0 {
+                None => {
+                    let has_property_guid = 0u8;
+                    has_property_guid.write_options(writer, endian, ())
+                }
+                Some(guid) => {
+                    let has_property_guid = 1u8;
+                    has_property_guid.write_options(writer, endian, ())?;
+                    guid.write_options(writer, endian, ())
+                }
             }
         }
+    }
+}
+
+impl From<FGuid> for PropertyTagIncompleteGuid {
+    fn from(value: FGuid) -> Self {
+        Self(value.is_valid().then_some(value))
+    }
+}
+
+impl From<&PropertyTagIncompleteGuid> for FGuid {
+    fn from(value: &PropertyTagIncompleteGuid) -> Self {
+        value.0.unwrap_or_default()
     }
 }
 
@@ -466,11 +535,11 @@ impl BinWrite for TaggedProperties {
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;
-            property_type.write_options(writer, endian, ())?;
+            property_type.write_options(writer, endian, (format,))?;
             property_buf.write_options(writer, endian, ())?;
         }
         // Write the sentinel value "None" to terminate the list
-        FPropertyTag::None.write_options(writer, endian, ())?;
+        FPropertyTag::None.write_options(writer, endian, (format,))?;
         Ok(())
     }
 }
@@ -519,6 +588,7 @@ mod test {
     const FORMAT_INCOMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: false,
         property_tag_set_map_support: false,
+        property_guid_in_property_tag: false,
         property_tag_complete_type_name: false,
         fsoftobjectpath_remove_asset_path_fnames: false,
         text_64bit_support: false,
@@ -530,6 +600,7 @@ mod test {
     const FORMAT_COMPLETE: SerializationFormat = SerializationFormat {
         ftext_history_date_timezone: true,
         property_tag_set_map_support: true,
+        property_guid_in_property_tag: true,
         property_tag_complete_type_name: true,
         fsoftobjectpath_remove_asset_path_fnames: true,
         text_64bit_support: true,
@@ -545,7 +616,7 @@ mod test {
     ) -> Result<()> {
         // Write
         let mut buf = Cursor::new(vec![]);
-        tag.write_le(&mut buf)?;
+        tag.write_le_args(&mut buf, (format,))?;
         let buf = buf.into_inner();
         assert_eq!(buf, expected);
 
@@ -570,7 +641,7 @@ mod test {
                         type_name: FString::from("TestClass"),
                         guid: FGuid::default(),
                     },
-                    guid: FGuid::default(),
+                    guid: PropertyTagIncompleteGuid::default(),
                 },
             },
             &[
@@ -581,8 +652,7 @@ mod test {
                 0, 0, 0, 0, // array_index
                 10, 0, 0, 0, b'T', b'e', b's', b't', b'C', b'l', b'a', b's', b's',
                 0, // type_name
-                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // guid
-                0, // footer
+                0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // struct_guid
             ],
             FORMAT_INCOMPLETE,
         )

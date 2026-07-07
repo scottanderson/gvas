@@ -106,6 +106,7 @@ impl FProperty {
             false => {
                 let property_type = FString::from(self.property_type_name());
                 let extra = self.generate_incomplete_property_extra();
+                let guid = guid.into();
                 PropertyTag::Incomplete {
                     property_type,
                     size,

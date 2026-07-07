@@ -6,5 +6,6 @@ use binrw::binrw;
 pub enum EUnrealEngineObjectUE4Version {
     OldestLoadablePackage = 214,
     FtextHistoryDateTimezone = 422,
+    PropertyGuidInPropertyTag = 503,
     PropertyTagSetMapSupport = 509,
 }

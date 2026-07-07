@@ -11,7 +11,8 @@ use crate::types::{
     FStructProperty::{Custom, DateTime},
     MapEntry,
     PropertyTag::Incomplete,
-    SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty, USaveGame,
+    PropertyTagIncompleteGuid, SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty,
+    USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -317,14 +318,14 @@ pub(crate) fn expected() -> USaveGame {
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
-                            guid: FGuid::default(),
+                            guid: PropertyTagIncompleteGuid::default(),
                         },
                         value_type: Incomplete {
                             property_type: FString::from("StructProperty"),
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
-                            guid: FGuid::default(),
+                            guid: PropertyTagIncompleteGuid::default(),
                         },
                         properties: TArray::from([
                             MapEntry {
@@ -499,14 +500,14 @@ pub(crate) fn expected() -> USaveGame {
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
-                            guid: FGuid::default(),
+                            guid: PropertyTagIncompleteGuid::default(),
                         },
                         value_type: Incomplete {
                             property_type: FString::from("FloatProperty"),
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
-                            guid: FGuid::default(),
+                            guid: PropertyTagIncompleteGuid::default(),
                         },
                         properties: TArray::from([
                             MapEntry {
@@ -542,7 +543,7 @@ pub(crate) fn expected() -> USaveGame {
                                                         size: 64,
                                                         array_index: 0,
                                                         extra: CollectionProperties::None,
-                                                        guid: FGuid::default(),
+                                                        guid: PropertyTagIncompleteGuid::default(),
                                                     },
                                                     vec![
                                                         1, 0, 0, 0, 20, 0, 0, 0, 67, 117, 114, 114,
@@ -605,7 +606,7 @@ pub(crate) fn expected() -> USaveGame {
                                                         size: 62,
                                                         array_index: 0,
                                                         extra: CollectionProperties::None,
-                                                        guid: FGuid::default(),
+                                                        guid: PropertyTagIncompleteGuid::default(),
                                                     },
                                                     vec![
                                                         1, 0, 0, 0, 18, 0, 0, 0, 67, 117, 114, 114,
