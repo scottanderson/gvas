@@ -7,15 +7,17 @@ const UE5_VERSION: u32 = SaveGameFileVersion::PackageFileSummaryVersionChange as
 #[binrw]
 #[br(import(save_game_file_version: u32))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FPackageFileVersion {
-    #[br(pre_assert(save_game_file_version < UE5_VERSION))]
-    UE4 {
-        file_version: u32, //EUnrealEngineObjectUE4Version,
-    },
     #[br(pre_assert(save_game_file_version >= UE5_VERSION))]
     UE5 {
         file_version_ue4: u32, //EUnrealEngineObjectUE4Version,
         file_version_ue5: u32, //EUnrealEngineObjectUE5Version,
+    },
+    #[br(pre_assert(save_game_file_version < UE5_VERSION))]
+    UE4 {
+        file_version: u32, //EUnrealEngineObjectUE4Version,
     },
 }
 

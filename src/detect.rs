@@ -42,6 +42,7 @@ pub enum AutoDetectFile {
 #[binrw]
 #[br(little)]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AutoDetectFile {
     GVAS(USaveGame),
     Palworld(PalworldSaveGame),

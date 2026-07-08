@@ -8,6 +8,7 @@ use binrw::binrw;
 #[br(import(format: &SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FMapProperty {
     #[br(pre_assert(!t.flags().is_some_and(EPropertyTagFlags::has_binary_or_native_serialize)))]
     Known {
@@ -59,6 +60,7 @@ impl FMapProperty {
 #[br(import(format: &SerializationFormat, key_type: &PropertyTag, value_type: &PropertyTag))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MapEntry {
     #[br(args(format, key_type))]
     #[bw(args(format))]

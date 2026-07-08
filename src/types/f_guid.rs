@@ -60,6 +60,10 @@ pub enum EGuidFormats {
 
 #[binrw]
 #[derive(Copy, Clone, Default, Hash, PartialEq, Eq)]
+#[cfg_attr(
+    feature = "serde",
+    derive(serde_with::DeserializeFromStr, serde_with::SerializeDisplay)
+)]
 pub struct FGuid {
     a: u32,
     b: u32,

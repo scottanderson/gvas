@@ -20,10 +20,13 @@ pub trait CustomVersion {
 
 #[binrw]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
 pub struct FCustomVersionContainer {
     #[br(temp, assert(custom_version_format == ECustomVersionSerializationFormat::Optimized))]
     #[bw(calc(ECustomVersionSerializationFormat::Optimized))]
     custom_version_format: ECustomVersionSerializationFormat,
+    #[cfg_attr(feature = "serde", serde(with = "crate::serde::custom_version_map"))]
     pub custom_versions: FCustomVersionArray,
 }
 
@@ -35,6 +38,7 @@ impl FCustomVersionContainer {
             .map_or(0, |v| v.value)
     }
 
+    #[inline]
     pub fn get_custom<V: CustomVersion>(&self) -> u32 {
         self.get(V::GUID)
     }

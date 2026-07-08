@@ -30,6 +30,7 @@ pub mod detect;
 pub mod error;
 pub mod format;
 pub mod palworld;
+pub(crate) mod serde;
 pub mod types;
 
 mod test;

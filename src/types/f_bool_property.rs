@@ -23,4 +23,5 @@ impl PropertyTag {
 
 #[derive(BinRead, Debug, PartialEq)]
 #[br(import(t: &PropertyTag))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FBoolProperty(#[br(try_calc = t.bool_value())] pub bool);

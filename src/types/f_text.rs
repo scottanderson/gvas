@@ -8,6 +8,7 @@ use crate::{
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FText {
     flags: u32,
     // #[br(dbg)]
@@ -18,6 +19,7 @@ pub struct FText {
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FTextHistory {
     // #[brw(magic = -1i8)]
     // #[br(pre_assert(!format.culture_invariant_stability))]
@@ -55,6 +57,7 @@ pub enum FTextHistory {
 #[binrw]
 #[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FTextHistoryNone {
     #[br(pre_assert(!format.culture_invariant_stability()))]
     Old(),
@@ -65,11 +68,13 @@ pub enum FTextHistoryNone {
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ArgumentFormatEntry(FString, #[brw(args(format))] FormatArgumentValue);
 
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[rustfmt::skip]
 pub enum FormatArgumentValue {
     #[brw(magic = 0i8)] Int(#[br(args(format))] FormatArgumentValueInt),
@@ -83,6 +88,7 @@ pub enum FormatArgumentValue {
 #[binrw]
 #[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[rustfmt::skip]
 pub enum FormatArgumentValueInt {
     #[br(pre_assert(!format.text_64bit_support()))] Int32(i32),
@@ -92,6 +98,7 @@ pub enum FormatArgumentValueInt {
 #[binrw]
 #[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[rustfmt::skip]
 pub enum FormatArgumentValueUInt {
     #[br(pre_assert(!format.text_64bit_support()))] UInt32(u32),
@@ -101,6 +108,7 @@ pub enum FormatArgumentValueUInt {
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct NumberFormattingOptions {
     #[brw(if(format.include_always_sign()))]
     always_sign: i32,
@@ -115,6 +123,7 @@ pub struct NumberFormattingOptions {
 #[binrw]
 #[brw(repr(i8))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum RoundingMode {
     HalfToEven,
     HalfFromZero,

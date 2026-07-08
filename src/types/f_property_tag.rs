@@ -11,6 +11,7 @@ use crate::types::{
 };
 
 #[derive(Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FPropertyTag {
     None,
     Some {
@@ -58,6 +59,7 @@ impl BinWrite for FPropertyTag {
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PropertyTag {
     #[br(pre_assert(!format.property_tag_complete_type_name()))]
     Incomplete {
@@ -340,6 +342,7 @@ impl PropertyTag {
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[br(import(format: &SerializationFormat, property_type: &str))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
     Array {
@@ -387,6 +390,7 @@ pub enum CollectionProperties {
 }
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PropertyTagIncompleteGuid(pub Option<FGuid>);
 
 impl BinRead for PropertyTagIncompleteGuid {
@@ -458,14 +462,25 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
     }
 }
 
+#[cfg(feature = "serde")]
+pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
+    value == &T::default()
+}
+
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TaggedProperty {
     pub property_name: FString,
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub array_index: u32,
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub has_binary_or_native_serialize: bool,
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub has_property_extensions: bool,
-    pub property: FProperty,
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub property_guid: FGuid,
+    #[cfg_attr(feature = "serde", serde(flatten))]
+    pub property: FProperty,
 }
 
 impl TaggedProperty {
@@ -489,7 +504,11 @@ impl TaggedProperty {
 }
 
 #[derive(PartialEq)]
-pub struct TaggedProperties(pub Vec<TaggedProperty>);
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct TaggedProperties(
+    #[cfg_attr(feature = "serde", serde(with = "crate::serde::tagged_properties_map"))]
+    pub  Vec<TaggedProperty>,
+);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (&'a SerializationFormat,);

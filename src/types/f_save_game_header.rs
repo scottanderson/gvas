@@ -16,12 +16,14 @@ pub enum SaveGameFileVersion {
 #[binrw]
 #[brw(little, magic = b"GVAS")]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FSaveGameHeader {
     #[br(temp)]
     #[bw(calc = self.save_game_file_version())]
     pub save_game_file_version: u32, //SaveGameFileVersion,
 
     #[br(args(save_game_file_version))]
+    #[cfg_attr(feature = "serde", serde(flatten))]
     pub package_file_version: FPackageFileVersion,
 
     pub engine_version: FEngineVersion,

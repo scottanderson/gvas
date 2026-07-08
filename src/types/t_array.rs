@@ -3,6 +3,7 @@ use binrw::{BinRead, BinWrite};
 use crate::error::binrw_custom;
 
 #[derive(Clone, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TArray<T>(pub Vec<T>);
 
 impl<T> TArray<T> {

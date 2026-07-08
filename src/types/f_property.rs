@@ -24,33 +24,64 @@ use crate::{
 #[binwrite]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
 pub enum FProperty {
+    #[cfg_attr(feature = "serde", serde(rename = "ArrayProperty"))]
     Array(#[bw(args(format))] FArrayProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "BoolProperty"))]
     Bool(#[bw(ignore)] FBoolProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "ByteProperty"))]
     Byte(FByteProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "DelegateProperty"))]
     Delegate(FDelegateProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "DoubleProperty"))]
     Double(FDoubleProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "EnumProperty"))]
     Enum(FEnumProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "FieldPathProperty"))]
     FieldPath(FFieldPathProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "FloatProperty"))]
     Float(FFloatProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "IntProperty"))]
     Int(FIntProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "Int16Property"))]
     Int16(FInt16Property),
+    #[cfg_attr(feature = "serde", serde(rename = "Int64Property"))]
     Int64(FInt64Property),
+    #[cfg_attr(feature = "serde", serde(rename = "Int8Property"))]
     Int8(FInt8Property),
+    #[cfg_attr(feature = "serde", serde(rename = "MapProperty"))]
     Map(#[bw(args(format))] FMapProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "MulticastInlineDelegateProperty"))]
     MulticastInlineDelegate(FMulticastInlineDelegateProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "MultiCastSparseDelegateProperty"))]
     MulticastSparseDelegate(FMulticastSparseDelegateProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "NameProperty"))]
     Name(FNameProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "ObjectProperty"))]
     Object(FObjectProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "SetProperty"))]
     Set(#[bw(args(format))] FSetProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "SoftObjectProperty"))]
     SoftObject(FSoftObjectProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "StrProperty"))]
     Str(FStrProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "StructProperty"))]
     Struct(#[bw(args(format))] FStructProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "TextProperty"))]
     Text(#[bw(args(format))] FTextProperty),
+    #[cfg_attr(feature = "serde", serde(rename = "UInt16Property"))]
     UInt16(FUInt16Property),
+    #[cfg_attr(feature = "serde", serde(rename = "UInt32Property"))]
     UInt32(FUInt32Property),
+    #[cfg_attr(feature = "serde", serde(rename = "UInt64Property"))]
     UInt64(FUInt64Property),
-    Unknown(#[bw(ignore)] PropertyTag, Vec<u8>),
+    Unknown {
+        #[bw(ignore)]
+        tag: PropertyTag,
+        value: Vec<u8>,
+    },
 }
 
 impl FProperty {
@@ -81,13 +112,13 @@ impl FProperty {
             Self::UInt16(..) => NAME_UINT16_PROPERTY,
             Self::UInt32(..) => NAME_UINT32_PROPERTY,
             Self::UInt64(..) => NAME_UINT64_PROPERTY,
-            Self::Unknown(t, ..) => match t {
+            Self::Unknown { tag, .. } => match tag {
                 PropertyTag::Incomplete {
                     property_type: FString(Some(name)),
                     ..
                 } => name,
                 PropertyTag::Complete { property_type, .. } => property_type.name(),
-                PropertyTag::Incomplete { .. } => todo!("{t:?}"),
+                PropertyTag::Incomplete { .. } => todo!("{tag:?}"),
             },
         }
     }
@@ -101,8 +132,8 @@ impl FProperty {
         has_property_extensions: bool,
         property_guid: FGuid,
     ) -> Result<PropertyTag, PropertyTagError> {
-        if let Self::Unknown(original_tag, _) = self {
-            return Ok(original_tag.clone());
+        if let Self::Unknown { tag, .. } = self {
+            return Ok(tag.clone());
         }
 
         if format.property_tag_complete_type_name() {
@@ -210,7 +241,7 @@ impl FProperty {
             | Self::UInt16(..)
             | Self::UInt32(..)
             | Self::UInt64(..) => CollectionProperties::None,
-            Self::Unknown(..) => unimplemented!(),
+            Self::Unknown { .. } => unimplemented!(),
         }
     }
 
@@ -218,19 +249,19 @@ impl FProperty {
         Ok(match self {
             Self::Array(array_property) => {
                 let x = match array_property {
-                    FArrayProperty::Bool(_) => FPropertyTypeName::Bool,
-                    FArrayProperty::Byte(_) => FPropertyTypeName::Byte(None),
-                    FArrayProperty::Enum(enum_type, _) => match enum_type {
-                        FPropertyTypeName::Enum { .. } => enum_type.clone(),
-                        _ => unimplemented!("{enum_type:?}"),
+                    FArrayProperty::Bools { .. } => FPropertyTypeName::Bool,
+                    FArrayProperty::Bytes { .. } => FPropertyTypeName::Byte(None),
+                    FArrayProperty::Enums { type_name, .. } => match type_name {
+                        FPropertyTypeName::Enum { .. } => type_name.clone(),
+                        _ => unimplemented!("{type_name:?}"),
                     },
-                    FArrayProperty::Float(_) => FPropertyTypeName::Float,
-                    FArrayProperty::Int(_) => FPropertyTypeName::Int,
-                    FArrayProperty::Name(_) => FPropertyTypeName::Name,
-                    FArrayProperty::Object(_) => FPropertyTypeName::Object,
-                    FArrayProperty::SoftObject(_) => FPropertyTypeName::SoftObject,
-                    FArrayProperty::Str(_) => FPropertyTypeName::Str,
-                    FArrayProperty::Struct {
+                    FArrayProperty::Floats { .. } => FPropertyTypeName::Float,
+                    FArrayProperty::Ints { .. } => FPropertyTypeName::Int,
+                    FArrayProperty::Names { .. } => FPropertyTypeName::Name,
+                    FArrayProperty::Objects { .. } => FPropertyTypeName::Object,
+                    FArrayProperty::SoftObjects { .. } => FPropertyTypeName::SoftObject,
+                    FArrayProperty::Strs { .. } => FPropertyTypeName::Str,
+                    FArrayProperty::Structs {
                         type_name,
                         class_name,
                         struct_guid,
@@ -240,26 +271,26 @@ impl FProperty {
                         class_name: class_name.as_ref().into(),
                         struct_guid: *struct_guid,
                     },
-                    FArrayProperty::TaggedStruct { .. } => unimplemented!(),
-                    FArrayProperty::Text(_) => FPropertyTypeName::Text,
+                    FArrayProperty::TaggedStructs { .. } => unimplemented!(),
+                    FArrayProperty::Texts { .. } => FPropertyTypeName::Text,
                 };
                 FPropertyTypeName::Array(Box::new(x))
             }
             Self::Bool(_) => FPropertyTypeName::Bool,
-            // Property::Delegate(_) => todo!(),
+            Self::Delegate(_) => FPropertyTypeName::Delegate,
             Self::Double(_) => FPropertyTypeName::Double,
-            // Property::Enum(_) => todo!(),
-            // Property::Float(_) => todo!(),
+            Self::Enum(FEnumProperty(type_name, _)) => type_name.clone(),
+            Self::Float(_) => FPropertyTypeName::Float,
             Self::Int(_) => FPropertyTypeName::Int,
-            // Property::Int16(_) => todo!(),
-            // Property::Int64(_) => todo!(),
-            // Property::Int8(_) => todo!(),
+            Self::Int16(_) => FPropertyTypeName::Int16,
+            Self::Int64(_) => FPropertyTypeName::Int64,
+            Self::Int8(_) => FPropertyTypeName::Int8,
             Self::Map(map_property) => FPropertyTypeName::Map {
                 key: Box::new(map_property.key_type().property_type_name()?),
                 value: Box::new(map_property.value_type().property_type_name()?),
             },
-            // Property::MulticastInlineDelegate(_) => todo!(),
-            // Property::MulticastSparseDelegate(_) => todo!(),
+            Self::MulticastInlineDelegate(_) => FPropertyTypeName::MulticastInlineDelegate,
+            Self::MulticastSparseDelegate(_) => FPropertyTypeName::MulticastSparseDelegate,
             Self::Name(_) => FPropertyTypeName::Name,
             Self::Object(_) => FPropertyTypeName::Object,
             Self::SoftObject(_) => FPropertyTypeName::SoftObject,
@@ -270,9 +301,9 @@ impl FProperty {
                 struct_guid: struct_property.struct_guid(),
             },
             Self::Text(_) => FPropertyTypeName::Text,
-            // Property::UInt16(_) => todo!(),
-            // Property::UInt32(_) => todo!(),
-            // Property::UInt64(_) => todo!(),
+            Self::UInt16(_) => FPropertyTypeName::UInt16,
+            Self::UInt32(_) => FPropertyTypeName::UInt32,
+            Self::UInt64(_) => FPropertyTypeName::UInt64,
             _ => todo!("{self:?}"),
         })
     }
@@ -333,9 +364,9 @@ impl BinRead for FProperty {
                 println!("Warning: Unrecognized property type {property_type}");
                 let err_convert = &binrw_custom(start);
                 let size = usize::try_from(size).map_err(err_convert)?;
-                let mut buf = vec![0u8; size];
-                reader.read_exact(&mut buf)?;
-                let result = Self::Unknown(t.clone(), buf);
+                let mut value = vec![0u8; size];
+                reader.read_exact(&mut value)?;
+                let result = Self::Unknown { tag: t.clone(), value };
                 return Ok(result);
             }
         };
@@ -362,7 +393,10 @@ impl BinRead for FProperty {
             let size = usize::try_from(size).map_err(err_convert)?;
             let mut buf = vec![0u8; size];
             reader.read_exact(&mut buf)?;
-            let result = Self::Unknown(t.clone(), buf);
+            let result = Self::Unknown {
+                tag: t.clone(),
+                value: buf,
+            };
             return Ok(result);
         }
 

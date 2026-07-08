@@ -9,6 +9,7 @@ use crate::{
 #[br(import(format: &SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FSetProperty {
     allocation_flags: u32,
     #[br(try_calc = t.set_element_tag())]

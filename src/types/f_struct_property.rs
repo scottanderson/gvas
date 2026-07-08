@@ -14,6 +14,7 @@ use crate::{
 #[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FStructProperty {
     #[br(pre_assert(struct_type == NAME_DATE_TIME))]
     DateTime(FDateTime),
@@ -77,9 +78,8 @@ impl FStructProperty {
             Self::Timespan(..) => Some(NAME_TIMESPAN),
             Self::Vector(..) => Some(NAME_VECTOR),
             Self::Vector2D(..) => Some(NAME_VECTOR2D),
-            Self::Unknown { struct_type, .. } | Self::Custom { struct_type, .. } => {
-                struct_type.as_deref()
-            }
+            Self::Custom { struct_type, .. } => struct_type.as_deref(),
+            Self::Unknown { struct_type, .. } => struct_type.as_deref(),
         })
     }
 
@@ -96,9 +96,8 @@ impl FStructProperty {
             | Self::Timespan(..)
             | Self::Vector(..)
             | Self::Vector2D(..) => FString::from(PATH__SCRIPT__CORE_U_OBJECT),
-            Self::Unknown { class_name, .. } | Self::Custom { class_name, .. } => {
-                class_name.clone()
-            }
+            Self::Custom { class_name, .. } => class_name.clone(),
+            Self::Unknown { class_name, .. } => class_name.clone(),
         }
     }
 

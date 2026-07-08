@@ -84,42 +84,65 @@ impl PropertyTag {
 #[br(import(format: &SerializationFormat, t: &PropertyTag, inner_type: &str))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", serde_with::serde_as)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FArrayProperty {
+    /// An array of BoolProperty values.
     #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
-    Bool(#[br(count = t.size())] Vec<u8>),
+    Bools {
+        #[br(count = t.size())]
+        bools: Vec<u8>,
+    },
 
+    /// An array of ByteProperty values.
     #[br(pre_assert(inner_type == NAME_BYTE_PROPERTY))]
-    Byte(#[br(count = t.size())] Vec<u8>),
+    Bytes {
+        #[cfg_attr(feature = "serde", serde_as(as = "serde_with::hex::Hex"))]
+        #[br(count = t.size())]
+        bytes: Vec<u8>,
+    },
 
+    /// An array of EnumProperty values.
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
-    Enum(
+    Enums {
         #[br(try_calc = t.enum_type())]
         #[bw(ignore)]
-        FPropertyTypeName,
-        TArray<FString>,
-    ),
+        type_name: FPropertyTypeName,
+        enums: TArray<FString>,
+    },
 
+    /// An array of FloatProperty values.
     #[br(pre_assert(inner_type == NAME_FLOAT_PROPERTY))]
-    Float(TArray<FFloatProperty>),
+    Floats { floats: TArray<FFloatProperty> },
 
+    /// An array of IntProperty values.
     #[br(pre_assert(inner_type == NAME_INT_PROPERTY))]
-    Int(TArray<FIntProperty>),
+    Ints { ints: TArray<FIntProperty> },
 
+    /// An array of NameProperty values.
     #[br(pre_assert(inner_type == NAME_NAME_PROPERTY))]
-    Name(TArray<FNameProperty>),
+    Names { names: TArray<FNameProperty> },
 
+    /// An array of ObjectProperty values.
     #[br(pre_assert(inner_type == NAME_OBJECT_PROPERTY))]
-    Object(TArray<FObjectProperty>),
+    Objects { objects: TArray<FObjectProperty> },
 
+    /// An array of SoftObjectProperty values.
     #[br(pre_assert(inner_type == NAME_SOFT_OBJECT_PROPERTY))]
-    SoftObject(#[br(args(format))] TArray<FSoftObjectProperty>),
+    SoftObjects {
+        #[br(args(format))]
+        soft_objects: TArray<FSoftObjectProperty>,
+    },
 
+    /// An array of StrProperty values.
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
-    Str(TArray<FStrProperty>),
+    Strs { strings: TArray<FStrProperty> },
 
+    /// An array of StructProperty values with complete types.
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && format.property_tag_complete_type_name()))]
     #[bw(assert(format.property_tag_complete_type_name()))]
-    Struct {
+    Structs {
         #[br(temp)]
         #[br(try_calc = t.array_struct_type())]
         #[bw(ignore)]
@@ -146,9 +169,10 @@ pub enum FArrayProperty {
         values: TArray<FStructProperty>,
     },
 
+    /// An array of StructProperty values.
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name()))]
     #[bw(assert(!format.property_tag_complete_type_name()))]
-    TaggedStruct {
+    TaggedStructs {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]
         count: u32,
@@ -191,25 +215,29 @@ pub enum FArrayProperty {
         values: Vec<FStructProperty>,
     },
 
+    /// An array of TextProperty values.
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
-    Text(#[brw(args(format))] TArray<FTextProperty>),
+    Texts {
+        #[brw(args(format))]
+        texts: TArray<FTextProperty>,
+    },
 }
 
 impl FArrayProperty {
     pub(crate) fn element_property_type_name(&self) -> &str {
         match self {
-            Self::Bool(..) => NAME_BOOL_PROPERTY,
-            Self::Byte(..) => NAME_BYTE_PROPERTY,
-            Self::Enum(..) => NAME_ENUM_PROPERTY,
-            Self::Float(..) => NAME_FLOAT_PROPERTY,
-            Self::Int(..) => NAME_INT_PROPERTY,
-            Self::Name(..) => NAME_NAME_PROPERTY,
-            Self::Object(..) => NAME_OBJECT_PROPERTY,
-            Self::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
-            Self::Str(..) => NAME_STR_PROPERTY,
-            Self::Struct { .. } => NAME_STRUCT_PROPERTY,
-            Self::TaggedStruct { .. } => NAME_STRUCT_PROPERTY,
-            Self::Text(..) => NAME_TEXT_PROPERTY,
+            Self::Bools { .. } => NAME_BOOL_PROPERTY,
+            Self::Bytes { .. } => NAME_BYTE_PROPERTY,
+            Self::Enums { .. } => NAME_ENUM_PROPERTY,
+            Self::Floats { .. } => NAME_FLOAT_PROPERTY,
+            Self::Ints { .. } => NAME_INT_PROPERTY,
+            Self::Names { .. } => NAME_NAME_PROPERTY,
+            Self::Objects { .. } => NAME_OBJECT_PROPERTY,
+            Self::SoftObjects { .. } => NAME_SOFT_OBJECT_PROPERTY,
+            Self::Strs { .. } => NAME_STR_PROPERTY,
+            Self::Structs { .. } => NAME_STRUCT_PROPERTY,
+            Self::TaggedStructs { .. } => NAME_STRUCT_PROPERTY,
+            Self::Texts { .. } => NAME_TEXT_PROPERTY,
         }
     }
 }

@@ -1,6 +1,7 @@
 use binrw::{BinRead, BinWrite};
 
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TOptional<T>(pub Option<T>);
 
 impl<T: BinRead + std::fmt::Debug> BinRead for TOptional<T>

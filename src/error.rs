@@ -7,27 +7,31 @@ use std::{
 
 use thiserror::Error;
 
-/// A type alias for [`core::result::Result<T, Error>`].
-pub type Result<T> = core::result::Result<T, Error>;
+/// A type alias for [`::core::result::Result<T, Error>`].
+pub type Result<T> = ::core::result::Result<T, Error>;
 
-/// A wrapper for the various error types this crate can emit
+/// A wrapper for the various error types this crate can emit.
 #[derive(Debug, Error)]
 pub enum Error {
-    /// A [`ParseGuidError`] occureed.
+    /// An error ocurred while parsing a Guid.
     #[error(transparent)]
     ParseGuidError(#[from] ParseGuidError),
-    /// An [`std::io::Error`] occured
-    #[error(transparent)]
-    Io(#[from] io::Error),
-    /// A [`binrw::Error`] occured
-    #[error(transparent)]
-    Binrw(#[from] binrw::Error),
     /// A [`TryFromIntError`] occureed.
     #[error(transparent)]
     TryFromIntError(#[from] TryFromIntError),
+    /// An [`std::io::Error`] occured.
+    #[error(transparent)]
+    Io(#[from] io::Error),
+    /// A binary serialization or deserialziation error from [`binrw`] occured.
+    #[error(transparent)]
+    Binrw(#[from] binrw::Error),
+    /// A JSON serialization or deserialization error from [`serde_json`] occurred.
+    #[cfg(all(test, feature = "serde"))]
+    #[error(transparent)]
+    SerdeJsonError(#[from] serde_json::Error),
 }
 
-/// An error ocurred while parsing a Guid
+/// An error ocurred while parsing a Guid.
 #[derive(Debug, Error)]
 pub enum ParseGuidError {
     #[error("invalid guid length {0}")]

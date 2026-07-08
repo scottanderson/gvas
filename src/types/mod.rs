@@ -112,6 +112,7 @@ macro_rules! ue_struct {
         #[binrw]
         #[br(import(format: &SerializationFormat))]
         #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub enum $name {
             #[br(pre_assert(!format.large_world_coordinates()))]
             F {
@@ -126,13 +127,24 @@ macro_rules! ue_struct {
     ($name:ident, $($ty:ty),+) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
         pub struct $name(
             $(pub $ty),+
         );
     };
-    ($name:ident, $($field_name:ident : $ty:ty),+) => {
+    ($name:ident, $($(#[$field_attr:meta])* $field_name:ident : $ty:ty),+) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        pub struct $name {
+            $(pub $field_name: $ty),+
+        }
+    };
+    ($name:ident, SerdeString, $($field_name:ident : $ty:ty),+) => {
+        #[binrw]
+        #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", serde_with::serde_as)]
+        #[cfg_attr(feature = "serde", derive(serde_with::DeserializeFromStr, serde_with::SerializeDisplay))]
         pub struct $name {
             $(pub $field_name: $ty),+
         }
@@ -162,7 +174,7 @@ ue_struct!(FUInt32Property, u32);
 ue_struct!(FUInt64Property, u64);
 
 // StructProperty structs
-ue_struct!(FDateTime, ticks: i64);
+ue_struct!(FDateTime, SerdeString, ticks: i64);
 ue_struct!(FGameplayTag, FString);
 ue_struct!(FGameplayTagContainer, TArray<FGameplayTag>);
 ue_struct!(FIntPoint, x: i32, y: i32);

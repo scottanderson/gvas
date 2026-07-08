@@ -13,6 +13,7 @@ use crate::types::{
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct RawPropertyTypeName {
     name: FString,
     children: TArray<Self>,
@@ -37,6 +38,7 @@ impl RawPropertyTypeName {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FPropertyTypeName {
     Array(Box<Self>),
     Bool,

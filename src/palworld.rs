@@ -26,6 +26,7 @@ struct PlZHeader {
 /// records the compression method and payload sizes. The header sizes are
 /// recalculated when writing.
 #[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PalworldSaveGame {
     pub compression: PalworldCompression,
     pub content: USaveGame,
@@ -34,6 +35,7 @@ pub struct PalworldSaveGame {
 /// Compression methods used by [`PalworldSaveGame`].
 #[binrw]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum PalworldCompression {
     /// Uncompressed payload, identified by the `PlZ0` magic.
     #[brw(magic = b"PlZ0")]
