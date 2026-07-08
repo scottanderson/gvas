@@ -142,15 +142,11 @@ impl FProperty {
             Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
                 value: u8::from(*value),
             },
-            Self::Byte(b) => CollectionProperties::Byte {
-                enum_name: match b {
-                    FByteProperty::Byte(_) => NAME_NONE.into(),
-                    FByteProperty::Enum(FEnumProperty(enum_type, _)) => {
-                        enum_type.enum_class_name().clone()
-                    }
-                },
+            Self::Byte(FByteProperty::Byte(_)) => CollectionProperties::Byte {
+                enum_name: NAME_NONE.into(),
             },
-            Self::Enum(FEnumProperty(enum_type, _)) => CollectionProperties::Enum {
+            Self::Byte(FByteProperty::Enum(FEnumProperty(enum_type, _)))
+            | Self::Enum(FEnumProperty(enum_type, _)) => CollectionProperties::Enum {
                 enum_name: enum_type.enum_class_name().clone(),
             },
             Self::Map(map_property) => {
@@ -256,8 +252,8 @@ impl FProperty {
             // Property::Int64(_) => todo!(),
             // Property::Int8(_) => todo!(),
             Self::Map(map_property) => FPropertyTypeName::Map {
-                key: Box::new(map_property.key_type().clone()),
-                value: Box::new(map_property.value_type().clone()),
+                key: Box::new(map_property.key_type().property_type_field()),
+                value: Box::new(map_property.value_type().property_type_field()),
             },
             // Property::MulticastInlineDelegate(_) => todo!(),
             // Property::MulticastSparseDelegate(_) => todo!(),

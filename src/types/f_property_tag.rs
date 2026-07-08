@@ -108,6 +108,29 @@ impl PropertyTag {
     }
 
     #[inline]
+    pub fn type_name(&self) -> BinResult<FPropertyTypeName> {
+        match self {
+            Self::Complete { property_type, .. } => Ok(property_type.clone()),
+            Self::Incomplete { property_type, .. } => {
+                let property_type =
+                    property_type
+                        .as_deref()
+                        .ok_or_else(|| binrw::Error::AssertFail {
+                            pos: 0,
+                            message: format!("type_name({self:?})"),
+                        })?;
+
+                FPropertyTypeName::from_name(property_type).ok_or_else(|| {
+                    binrw::Error::AssertFail {
+                        pos: 0,
+                        message: format!("unsupported legacy property type name: {property_type}"),
+                    }
+                })
+            }
+        }
+    }
+
+    #[inline]
     pub fn array_index(&self) -> u32 {
         match self {
             Self::Incomplete { array_index, .. } | Self::Complete { array_index, .. } => {
@@ -246,6 +269,17 @@ impl PropertyTag {
             pos: 0,
             message: format!("property_type({self:?})"),
         })
+    }
+
+    pub fn property_type_field(&self) -> FPropertyTypeName {
+        match self {
+            Self::Complete { property_type, .. } => property_type.clone(),
+            Self::Incomplete {
+                property_type,
+                extra,
+                ..
+            } => FPropertyTypeName::from_incomplete(property_type, extra),
+        }
     }
 
     #[inline]
