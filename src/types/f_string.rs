@@ -37,12 +37,12 @@ impl BinRead for FString {
             Err(binrw::Error::AssertFail {
                 pos,
                 message: format!("Invalid FString length 0x{length:x}"),
-            })?
+            })?;
         }
         let value = if length == 0 {
             None
         } else if length > 0 {
-            let count = length as usize - 1;
+            let count = usize::try_from(length - 1).map_err(binrw_custom(pos))?;
             let mut buf = vec![0u8; count];
             reader.read_exact(&mut buf)?;
 
@@ -51,13 +51,13 @@ impl BinRead for FString {
                 Err(binrw::Error::AssertFail {
                     pos,
                     message: format!("Invalid terminator value for string length {count}"),
-                })?
+                })?;
             }
 
             let str = String::from_utf8(buf).map_err(binrw_custom(pos))?;
             Some(str)
         } else {
-            let count = -length as usize - 1;
+            let count = usize::try_from(-length - 1).map_err(binrw_custom(pos))?;
             let mut bytes = vec![0u8; count * 2];
             reader.read_exact(&mut bytes)?;
 
@@ -66,7 +66,7 @@ impl BinRead for FString {
                 Err(binrw::Error::AssertFail {
                     pos,
                     message: format!("Invalid terminator value for string length {count}"),
-                })?
+                })?;
             }
 
             let buf: Vec<u16> = bytes
@@ -98,16 +98,18 @@ impl BinWrite for FString {
         match self.as_deref() {
             None => u32::write_options(&0, writer, endian, ())?,
             Some(str) => {
+                let pos = writer.stream_position()?;
+                let err_convert = binrw_custom(pos);
                 if str.is_ascii() {
                     // ASCII strings do not require encoding
-                    let len: i32 = (str.len() + 1) as i32;
+                    let len = i32::try_from(str.len() + 1).map_err(err_convert)?;
                     i32::write_options(&len, writer, endian, ())?;
                     let _ = writer.write(str.as_bytes())?;
                     let _ = writer.write(&[0u8; 1])?;
                 } else {
                     // Perform UTF-16 encoding when non-ASCII characters are detected
                     let words: Vec<u16> = str.encode_utf16().collect();
-                    let len = -((words.len() + 1) as i32);
+                    let len = -i32::try_from(words.len() + 1).map_err(err_convert)?;
                     i32::write_options(&len, writer, endian, ())?;
                     for word in words {
                         u16::write_options(&word, writer, endian, ())?;

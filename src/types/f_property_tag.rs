@@ -2,7 +2,7 @@ use std::io::Cursor;
 
 use binrw::{BinRead, BinResult, BinWrite, binrw};
 
-use crate::error::ParseGuidError;
+use crate::error::{ParseGuidError, binrw_custom};
 use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
@@ -30,7 +30,7 @@ impl BinRead for FPropertyTag {
         let name = FString::read_options(reader, endian, ())?;
         if name == NAME_NONE {
             return Ok(Self::None);
-        };
+        }
         let property_tag = PropertyTag::read_options(reader, endian, (format,))?;
         Ok(Self::Some { name, property_tag })
     }
@@ -171,7 +171,7 @@ impl PropertyTag {
                 extra: CollectionProperties::Struct { struct_guid, .. },
                 ..
             } => *struct_guid,
-            _ => FGuid::default(),
+            Self::Incomplete { .. } => FGuid::default(),
         };
         Ok(result)
     }
@@ -396,14 +396,14 @@ impl BinRead for PropertyTagIncompleteGuid {
         endian: binrw::Endian,
         (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
-        let has_property_guid = if !format.property_guid_in_property_tag {
-            property_type == NAME_TEXT_PROPERTY
-        } else {
+        let has_property_guid = if format.property_guid_in_property_tag {
             match u8::read_options(reader, endian, ())? {
                 0 => false,
                 1 => true,
                 l => unimplemented!("unsupported length: {l}"),
             }
+        } else {
+            property_type == NAME_TEXT_PROPERTY
         };
         let maybe_guid = has_property_guid
             .then(|| FGuid::read_options(reader, endian, ()))
@@ -421,15 +421,7 @@ impl BinWrite for PropertyTagIncompleteGuid {
         endian: binrw::Endian,
         (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        if !format.property_guid_in_property_tag {
-            let guid = FGuid::from(self);
-            if property_type == NAME_TEXT_PROPERTY {
-                guid.write_options(writer, endian, ())
-            } else {
-                assert!(!guid.is_valid(), "illegal guid for this property");
-                Ok(())
-            }
-        } else {
+        if format.property_guid_in_property_tag {
             match self.0 {
                 None => {
                     let has_property_guid = 0u8;
@@ -440,6 +432,14 @@ impl BinWrite for PropertyTagIncompleteGuid {
                     has_property_guid.write_options(writer, endian, ())?;
                     guid.write_options(writer, endian, ())
                 }
+            }
+        } else {
+            let guid = FGuid::from(self);
+            if property_type == NAME_TEXT_PROPERTY {
+                guid.write_options(writer, endian, ())
+            } else {
+                assert!(!guid.is_valid(), "illegal guid for this property");
+                Ok(())
             }
         }
     }
@@ -471,12 +471,10 @@ impl TaggedProperty {
         let array_index = property_tag.array_index();
         let property_guid = property_tag.guid();
         let flags = property_tag.flags();
-        let has_binary_or_native_serialize = flags
-            .map(EPropertyTagFlags::has_binary_or_native_serialize)
-            .unwrap_or(false);
-        let has_property_extensions = flags
-            .map(EPropertyTagFlags::has_property_extensions)
-            .unwrap_or(false);
+        let (has_binary_or_native_serialize, has_property_extensions) = (
+            flags.is_some_and(EPropertyTagFlags::has_binary_or_native_serialize),
+            flags.is_some_and(EPropertyTagFlags::has_property_extensions),
+        );
         Self {
             array_index,
             has_binary_or_native_serialize,
@@ -536,7 +534,9 @@ impl BinWrite for TaggedProperties {
             let mut buf = Cursor::new(Vec::new());
             property.write_options(&mut buf, endian, (format,))?;
             let property_buf = buf.into_inner();
-            let len = property_buf.len() as u32;
+            let pos = writer.stream_position()?;
+            let len = property_buf.len();
+            let len = u32::try_from(len).map_err(binrw_custom(pos))?;
 
             // Generate property tag
             let property_tag = property.generate_tag(

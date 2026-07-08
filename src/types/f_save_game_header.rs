@@ -55,7 +55,8 @@ mod test {
             let result = FSaveGameHeader::read(&mut cursor)?;
 
             // Write
-            let len = cursor.stream_position()? as usize;
+            let len = cursor.stream_position()?;
+            let len = usize::try_from(len)?;
             let buf2 = vec![0u8; len];
             let mut cursor2 = Cursor::new(buf2);
             FSaveGameHeader::write(&result, &mut cursor2)?;

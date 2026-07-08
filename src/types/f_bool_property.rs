@@ -10,7 +10,7 @@ impl PropertyTag {
                 ..
             } => Ok(*value != 0),
             Self::Complete { flags, .. } => Ok(flags.bool_true()),
-            _ => Err(binrw::Error::AssertFail {
+            Self::Incomplete { .. } => Err(binrw::Error::AssertFail {
                 pos: 0,
                 message: "BoolProperty type not found".to_string(),
             }),

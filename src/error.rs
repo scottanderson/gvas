@@ -1,6 +1,9 @@
 //! Error types.
 
-use std::{io, num::ParseIntError};
+use std::{
+    io,
+    num::{ParseIntError, TryFromIntError},
+};
 
 use thiserror::Error;
 
@@ -19,6 +22,9 @@ pub enum Error {
     /// A [`binrw::Error`] occured
     #[error(transparent)]
     Binrw(#[from] binrw::Error),
+    /// A [`TryFromIntError`] occureed.
+    #[error(transparent)]
+    TryFromIntError(#[from] TryFromIntError),
 }
 
 /// An error ocurred while parsing a Guid

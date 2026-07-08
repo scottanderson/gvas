@@ -5,6 +5,7 @@ use binrw::binrw;
 use crate::error::ParseGuidError;
 
 /// Enumerates known GUID formats.
+#[derive(Clone, Copy)]
 pub enum EGuidFormats {
     /// 32 digits.
     ///

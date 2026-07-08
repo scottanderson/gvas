@@ -59,7 +59,7 @@ impl FPropertyTag {
     fn some_tag(&self) -> BinResult<&PropertyTag> {
         match self {
             Self::Some { property_tag, .. } => Some(property_tag),
-            _ => None,
+            Self::None => None,
         }
         .ok_or_else(|| binrw::Error::AssertFail {
             pos: 0,

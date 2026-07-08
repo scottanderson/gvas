@@ -75,7 +75,9 @@ mod test {
         let result = AutoDetectFile::read(&mut cursor)?;
 
         // Compare
-        assert_eq!(size, cursor.stream_position()? as usize);
+        let pos = cursor.stream_position()?;
+        let pos = usize::try_from(pos)?;
+        assert_eq!(size, pos);
         assert_matches!(result, AutoDetectFile::GVAS(USaveGame { .. }));
         Ok(())
     }

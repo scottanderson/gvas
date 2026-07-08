@@ -9,7 +9,7 @@ use binrw::binrw;
 #[bw(import(format: SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FMapProperty {
-    #[br(pre_assert(!t.flags().map(EPropertyTagFlags::has_binary_or_native_serialize).unwrap_or(false)))]
+    #[br(pre_assert(!t.flags().is_some_and(EPropertyTagFlags::has_binary_or_native_serialize)))]
     Known {
         allocation_flags: u32,
 
@@ -47,7 +47,7 @@ impl FMapProperty {
         };
         match key_type {
             PropertyTag::Complete { property_type, .. } => property_type,
-            _ => todo!("{key_type:?}"),
+            PropertyTag::Incomplete { .. } => todo!("{key_type:?}"),
         }
     }
 
@@ -58,7 +58,7 @@ impl FMapProperty {
         };
         match value_type {
             PropertyTag::Complete { property_type, .. } => property_type,
-            _ => todo!("{value_type:?}"),
+            PropertyTag::Incomplete { .. } => todo!("{value_type:?}"),
         }
     }
 }

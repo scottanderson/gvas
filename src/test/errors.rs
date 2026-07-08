@@ -17,7 +17,7 @@ fn test_unexpected_eof() {
         if matches!(
             error.as_ref(),
             binrw::Error::Io(error)
-            if format!("{error}") == r#"failed to fill whole buffer"#
+            if format!("{error}") == "failed to fill whole buffer"
         ),
     );
 }
@@ -34,7 +34,7 @@ fn test_invalid_header() {
         if matches!(
             error.as_ref(),
             binrw::Error::BadMagic { pos: 0, found }
-            if format!("{found:?}") == r#"[71, 86, 65, 90]"#,
+            if format!("{found:?}") == "[71, 86, 65, 90]",
         )
     );
 }

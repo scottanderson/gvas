@@ -229,9 +229,10 @@ impl FPropertyTypeName {
                         children: TArray::empty(),
                     }]),
                 };
-                match guid.is_valid() {
-                    true => two(NAME_STRUCT_PROPERTY, child1, zero(guid.to_string())),
-                    false => one(NAME_STRUCT_PROPERTY, child1),
+                if guid.is_valid() {
+                    two(NAME_STRUCT_PROPERTY, child1, zero(guid.to_string()))
+                } else {
+                    one(NAME_STRUCT_PROPERTY, child1)
                 }
             }
             Self::Text => zero(NAME_TEXT_PROPERTY),
@@ -299,7 +300,7 @@ impl BinRead for FPropertyTypeName {
         let raw = RawPropertyTypeName::read_options(reader, endian, args)?;
         Self::from_raw(raw).ok_or_else(|| binrw::Error::AssertFail {
             pos,
-            message: "".to_owned(),
+            message: String::new(),
         })
     }
 }

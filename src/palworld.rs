@@ -54,28 +54,33 @@ impl BinRead for PalworldSaveGame {
     fn read_options<R: Read + Seek>(
         reader: &mut R,
         endian: Endian,
-        _: Self::Args<'_>,
+        (): Self::Args<'_>,
     ) -> BinResult<Self> {
+        let pos = reader.stream_position()?;
         let header = PlZHeader::read_options(reader, endian, ())?;
+        let uncompressed_size = header
+            .uncompressed_size
+            .try_into()
+            .map_err(binrw_custom(pos))?;
 
         let compression = header.compression;
         let uncompressed = match compression {
             PalworldCompression::None => {
-                let mut data = vec![0u8; header.uncompressed_size as usize];
+                let mut data = vec![0u8; uncompressed_size];
                 reader.read_exact(&mut data)?;
                 data
             }
 
             PalworldCompression::Zlib => {
                 let mut reader = ZlibDecoder::new(reader);
-                let mut data = vec![0u8; header.uncompressed_size as usize];
+                let mut data = vec![0u8; uncompressed_size];
                 reader.read_exact(&mut data)?;
                 data
             }
 
             PalworldCompression::ZlibTwice => {
                 let mut reader = ZlibDecoder::new(ZlibDecoder::new(reader));
-                let mut data = Vec::with_capacity(header.uncompressed_size as usize);
+                let mut data = Vec::with_capacity(uncompressed_size);
                 let _len = reader.read_to_end(&mut data)?;
                 data
             }
@@ -105,9 +110,8 @@ impl BinWrite for PalworldSaveGame {
         let mut uncompressed = Cursor::new(Vec::new());
         self.content.write_options(&mut uncompressed, endian, ())?;
         let pos = writer.stream_position()?;
-        let err_handler = binrw_custom(pos);
         let uncompressed = uncompressed.into_inner();
-        let uncompressed_size = uncompressed.len().try_into().map_err(err_handler)?;
+        let uncompressed_size = uncompressed.len().try_into().map_err(binrw_custom(pos))?;
 
         // Buffer compressed data
         let level = Compression::default();
@@ -128,7 +132,7 @@ impl BinWrite for PalworldSaveGame {
                 tmp.finish()?.finish()?
             }
         };
-        let compressed_size = compressed.len() as u32;
+        let compressed_size = u32::try_from(compressed.len()).map_err(binrw_custom(pos))?;
 
         // Create a new header
         let header = PlZHeader {

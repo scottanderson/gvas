@@ -32,8 +32,7 @@ impl FCustomVersionContainer {
         self.custom_versions
             .iter()
             .find(|v| v.key == version)
-            .map(|v| v.value)
-            .unwrap_or(0)
+            .map_or(0, |v| v.value)
     }
 
     pub fn get_custom<V: CustomVersion>(&self) -> u32 {

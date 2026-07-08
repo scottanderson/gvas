@@ -85,7 +85,7 @@ impl FProperty {
                     ..
                 } => name,
                 PropertyTag::Complete { property_type, .. } => property_type.name(),
-                _ => todo!("{t:?}"),
+                PropertyTag::Incomplete { .. } => todo!("{t:?}"),
             },
         }
     }
@@ -103,36 +103,33 @@ impl FProperty {
             return original_tag.clone();
         }
 
-        match format.property_tag_complete_type_name {
-            false => {
-                let property_type = FString::from(self.property_type_name());
-                let extra = self.generate_incomplete_property_extra();
-                let maybe_property_guid = PropertyTagIncompleteGuid::from(property_guid);
-                PropertyTag::Incomplete {
-                    property_type,
-                    size,
-                    array_index,
-                    extra,
-                    maybe_property_guid,
-                }
+        if format.property_tag_complete_type_name {
+            let mut flags = EPropertyTagFlags::new();
+            flags.set_has_array_index(array_index != 0);
+            flags.set_has_property_guid(property_guid.is_valid());
+            flags.set_has_binary_or_native_serialize(has_binary_or_native_serialize);
+            flags.set_has_property_extensions(has_property_extensions);
+            if let Self::Bool(FBoolProperty(value)) = self {
+                flags.set_bool_true(*value);
             }
-            true => {
-                let mut flags = EPropertyTagFlags::new();
-                flags.set_has_array_index(array_index != 0);
-                flags.set_has_property_guid(property_guid.is_valid());
-                flags.set_has_binary_or_native_serialize(has_binary_or_native_serialize);
-                flags.set_has_property_extensions(has_property_extensions);
-                if let Self::Bool(FBoolProperty(value)) = self {
-                    flags.set_bool_true(*value);
-                }
-                let property_type = self.generate_complete_property_type();
-                PropertyTag::Complete {
-                    property_type,
-                    size,
-                    flags,
-                    array_index,
-                    property_guid,
-                }
+            let property_type = self.generate_complete_property_type();
+            PropertyTag::Complete {
+                property_type,
+                size,
+                flags,
+                array_index,
+                property_guid,
+            }
+        } else {
+            let property_type = FString::from(self.property_type_name());
+            let extra = self.generate_incomplete_property_extra();
+            let maybe_property_guid = PropertyTagIncompleteGuid::from(property_guid);
+            PropertyTag::Incomplete {
+                property_type,
+                size,
+                array_index,
+                extra,
+                maybe_property_guid,
             }
         }
     }
@@ -143,7 +140,7 @@ impl FProperty {
                 inner_type: p.element_property_type_name().into(),
             },
             Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
-                value: *value as u8,
+                value: u8::from(*value),
             },
             Self::Byte(b) => CollectionProperties::Byte {
                 enum_name: match b {
@@ -292,6 +289,7 @@ impl BinRead for FProperty {
     ) -> binrw::BinResult<Self> {
         let size = t.size();
         let start = reader.stream_position()?;
+        let err_convert = &binrw_custom(start);
 
         let property_type = t.property_type()?;
 
@@ -333,7 +331,8 @@ impl BinRead for FProperty {
             NAME_UINT64_PROPERTY => Self::UInt64(FUInt64Property::read_options(reader, endian, ())?),
             _ => {
                 println!("Warning: Unrecognized property type {property_type}");
-                let mut buf = vec![0u8; size as usize];
+                let size = usize::try_from(size).map_err(err_convert)?;
+                let mut buf = vec![0u8; size];
                 reader.read_exact(&mut buf)?;
                 let result = Self::Unknown(t.clone(), buf);
                 return Ok(result);
@@ -341,9 +340,10 @@ impl BinRead for FProperty {
         };
 
         // Check bytes read compared to size
-        let start = start as i64;
-        let size = size as i64;
-        let pos = reader.stream_position()? as i64;
+        let size = i64::from(size);
+        let start = i64::try_from(start).map_err(err_convert)?;
+        let pos = reader.stream_position()?;
+        let pos = i64::try_from(pos).map_err(err_convert)?;
         let bytes_read = pos - start;
         if size != 0 && bytes_read != size {
             let remaining = size - bytes_read;
@@ -351,7 +351,8 @@ impl BinRead for FProperty {
             println!(
                 "Warning: Reader position 0x{bytes_read:04X} does not match size 0x{size:04X} for {t:#?}: 0x{remaining:04X} remaining",
             );
-            let mut buf = vec![0u8; size as usize];
+            let size = usize::try_from(size).map_err(err_convert)?;
+            let mut buf = vec![0u8; size];
             reader.read_exact(&mut buf)?;
             let result = Self::Unknown(t.clone(), buf);
             return Ok(result);

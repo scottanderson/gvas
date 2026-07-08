@@ -33,14 +33,14 @@ pub struct SerializationFormat {
 impl FSaveGameHeader {
     #[inline]
     pub fn serialization_format(&self) -> SerializationFormat {
-        let package_file_version = self.package_file_version.version_ue4();
-        let package_file_version_ue5 = self.package_file_version.version_ue5();
         fn get_custom<T: CustomVersion>(header: &FSaveGameHeader) -> u32 {
             match &header.custom_versions {
                 Some(container) => container.get_custom::<T>(),
                 None => 0,
             }
         }
+        let package_file_version = self.package_file_version.version_ue4();
+        let package_file_version_ue5 = self.package_file_version.version_ue5();
         let release_version = get_custom::<EUE5ReleaseStreamObjectVersion>(self);
         let editor_version = get_custom::<EEditorObjectVersion>(self);
         SerializationFormat {
