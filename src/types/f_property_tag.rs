@@ -539,7 +539,7 @@ impl BinWrite for TaggedProperties {
             let len = property_buf.len() as u32;
 
             // Generate property tag
-            let property_type = property.generate_tag(
+            let property_tag = property.generate_tag(
                 format,
                 len,
                 *array_index,
@@ -550,7 +550,7 @@ impl BinWrite for TaggedProperties {
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;
-            property_type.write_options(writer, endian, (format,))?;
+            property_tag.write_options(writer, endian, (format,))?;
             property_buf.write_options(writer, endian, ())?;
         }
         // Write the sentinel value "None" to terminate the list

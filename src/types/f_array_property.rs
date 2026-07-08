@@ -163,14 +163,6 @@ pub enum FArrayProperty {
 
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
     Text(#[brw(args(format))] TArray<FTextProperty>),
-
-    #[br(pre_assert(false, "ArrayProperty<{}> not yet implemented", inner_type))]
-    Unknown(
-        #[br(calc = t.clone())]
-        #[bw(ignore)]
-        PropertyTag,
-        #[br(count = t.size())] Vec<u8>,
-    ),
 }
 
 impl FArrayProperty {
@@ -188,7 +180,6 @@ impl FArrayProperty {
             Self::Struct { .. } => NAME_STRUCT_PROPERTY,
             Self::TaggedStruct { .. } => NAME_STRUCT_PROPERTY,
             Self::Text(..) => NAME_TEXT_PROPERTY,
-            Self::Unknown(property_tag, _) => todo!("{property_tag:?}"),
         }
     }
 }

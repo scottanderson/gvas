@@ -246,7 +246,6 @@ impl FProperty {
                     },
                     FArrayProperty::TaggedStruct { .. } => unimplemented!(),
                     FArrayProperty::Text(_) => FPropertyTypeName::Text,
-                    _ => todo!("{array_property:?}"),
                 };
                 FPropertyTypeName::Array(Box::new(x))
             }
@@ -350,7 +349,7 @@ impl BinRead for FProperty {
             let remaining = size - bytes_read;
             reader.seek_relative(-bytes_read)?;
             println!(
-                "Warning: Reader position 0x{pos:04X} does not match size 0x{size:04X} for {t:#?}: 0x{remaining:04X} remaining",
+                "Warning: Reader position 0x{bytes_read:04X} does not match size 0x{size:04X} for {t:#?}: 0x{remaining:04X} remaining",
             );
             let mut buf = vec![0u8; size as usize];
             reader.read_exact(&mut buf)?;
