@@ -344,8 +344,14 @@ impl BinRead for FProperty {
         if size != 0 && bytes_read != size {
             let remaining = size - bytes_read;
             reader.seek_relative(-bytes_read)?;
-            println!(
-                "Warning: Reader position 0x{bytes_read:04X} does not match size 0x{size:04X} for {t:#?}: 0x{remaining:04X} remaining",
+            let kind = if remaining < 0 {
+                "overflow"
+            } else {
+                "underflow"
+            };
+            let offset = remaining.abs();
+            eprintln!(
+                "Warning: Reader position {kind}: Bytes read 0x{bytes_read:04X} does not match size 0x{size:04X} for {t:#?}: 0x{offset:04X}",
             );
             let size = usize::try_from(size).map_err(err_convert)?;
             let mut buf = vec![0u8; size];
