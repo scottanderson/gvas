@@ -255,7 +255,7 @@ impl PropertyTag {
         }
         .ok_or_else(|| binrw::Error::AssertFail {
             pos: 0,
-            message: format!("map_value_type({self:?})"),
+            message: format!("set_element_type({self:?})"),
         })
     }
 

@@ -5,7 +5,7 @@ use binrw::binrw;
 use crate::error::ParseGuidError;
 
 /// Enumerates known GUID formats.
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum EGuidFormats {
     /// 32 digits.
     ///
@@ -137,10 +137,6 @@ impl FGuid {
         f: &mut std::fmt::Formatter<'_>,
         format: EGuidFormats,
     ) -> std::fmt::Result {
-        // if !self.is_valid() {
-        //     write!(f, "None")?;
-        //     return Ok(());
-        // }
         match format {
             EGuidFormats::DigitsWithHyphens => write!(
                 f,
@@ -218,7 +214,7 @@ impl FGuid {
                     self.a, self.b, self.c, self.d
                 )
             }
-            _ => todo!(),
+            _ => todo!("{format:?}"),
         }
     }
 }
