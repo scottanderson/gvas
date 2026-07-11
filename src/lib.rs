@@ -1,4 +1,5 @@
 #![warn(clippy::expect_used, clippy::panic, clippy::unwrap_used)]
+#![warn(clippy::missing_const_for_fn)]
 #![warn(clippy::use_self)]
 // #![warn(missing_docs)]
 #![warn(unreachable_pub)]

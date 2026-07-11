@@ -380,7 +380,7 @@ impl FPropertyTypeName {
         }
     }
 
-    pub fn name(&self) -> &str {
+    pub const fn name(&self) -> &str {
         match self {
             Self::Array(_) => NAME_ARRAY_PROPERTY,
             Self::Bool => NAME_BOOL_PROPERTY,
@@ -411,7 +411,7 @@ impl FPropertyTypeName {
         }
     }
 
-    pub fn struct_guid(&self) -> Option<FGuid> {
+    pub const fn struct_guid(&self) -> Option<FGuid> {
         match self {
             Self::StructComplete { struct_guid, .. } => Some(*struct_guid),
             _ => None,

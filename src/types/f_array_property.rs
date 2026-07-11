@@ -17,7 +17,7 @@ use crate::{
 
 impl PropertyTag {
     #[inline]
-    fn array_struct_suggested_size(&self, property_count: u32) -> Option<u32> {
+    const fn array_struct_suggested_size(&self, property_count: u32) -> Option<u32> {
         if property_count > 0
             && let size = self.size()
             && size >= 4
@@ -136,7 +136,7 @@ pub enum FArrayProperty {
 }
 
 impl FArrayProperty {
-    pub(crate) fn element_property_type_name(&self) -> &str {
+    pub(crate) const fn element_property_type_name(&self) -> &str {
         match self {
             Self::Bools { .. } => NAME_BOOL_PROPERTY,
             Self::Bytes { .. } => NAME_BYTE_PROPERTY,

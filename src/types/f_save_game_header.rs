@@ -35,7 +35,7 @@ pub struct FSaveGameHeader {
 }
 
 impl FSaveGameHeader {
-    fn save_game_file_version(&self) -> u32 {
+    const fn save_game_file_version(&self) -> u32 {
         if let FPackageFileVersion::UE5 { .. } = self.package_file_version {
             SaveGameFileVersion::PackageFileSummaryVersionChange as u32
         } else if self.custom_versions.is_some() {

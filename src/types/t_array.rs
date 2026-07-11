@@ -7,7 +7,7 @@ use crate::error::binrw_custom;
 pub struct TArray<T>(pub Vec<T>);
 
 impl<T> TArray<T> {
-    pub fn empty() -> Self {
+    pub const fn empty() -> Self {
         Self(Vec::new())
     }
 }

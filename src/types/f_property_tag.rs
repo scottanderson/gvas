@@ -31,7 +31,7 @@ impl FPropertyTag {
         }
     }
 
-    pub fn as_ref(&self) -> Option<&PropertyTag> {
+    pub const fn as_ref(&self) -> Option<&PropertyTag> {
         match self {
             Self::Some { property_tag, .. } => Some(property_tag),
             Self::None => None,
@@ -129,7 +129,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_index(&self) -> u32 {
+    pub const fn array_index(&self) -> u32 {
         match self {
             Self::Incomplete { array_index, .. } | Self::Complete { array_index, .. } => {
                 *array_index
@@ -169,7 +169,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn flags(&self) -> Option<&EPropertyTagFlags> {
+    pub const fn flags(&self) -> Option<&EPropertyTagFlags> {
         match self {
             Self::Incomplete { .. } => None,
             Self::Complete { flags, .. } => Some(flags),
@@ -287,7 +287,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn size(&self) -> u32 {
+    pub const fn size(&self) -> u32 {
         match self {
             Self::Incomplete { size, .. } => *size,
             Self::Complete { size, .. } => *size,

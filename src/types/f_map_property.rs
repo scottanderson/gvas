@@ -47,14 +47,14 @@ pub enum FMapProperty {
 }
 
 impl FMapProperty {
-    pub fn key_type(&self) -> &FPropertyTypeName {
+    pub const fn key_type(&self) -> &FPropertyTypeName {
         match self {
             Self::Known { key_type, .. } => key_type,
             Self::Unknown { key_type, .. } => key_type,
         }
     }
 
-    pub fn value_type(&self) -> &FPropertyTypeName {
+    pub const fn value_type(&self) -> &FPropertyTypeName {
         match self {
             Self::Known { value_type, .. } => value_type,
             Self::Unknown { value_type, .. } => value_type,
