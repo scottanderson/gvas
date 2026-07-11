@@ -1,48 +1,69 @@
 # gvas
 
-The gvas crate is a Rust library that allows parsing of gvas save files.
+A Rust library for reading and writing Unreal Engine save game files.
 
-## Documentation
+This library provides Rust representations of the Unreal Engine types used to
+serialize and deserialize `USaveGame` objects. Version-dependent serialization
+behavior is detected automatically from header fields.
 
-Crate documentation is published to
-[docs.rs/gvas](https://docs.rs/gvas/).
+## Installation
 
-## Save files
+```shell
+cargo add gvas
+```
 
-A gvas save file is a binary file format used by the Unreal Engine 4/5 (UE4/UE5) game
-engine to store persistent data such as player progress, game settings, and
-other game-related information.
+Optional features can be enabled as needed:
+
+```shell
+cargo add gvas --features palworld,serde
+```
+
+| Feature    | Description                                                             |
+| ---------- | ----------------------------------------------------------------------- |
+| `serde`    | Implements Serde serialization and deserialization for supported types. |
+| `palworld` | Adds support for Palworld compressed save-game wrappers.                |
 
 ## Usage
 
-The crate can be added to a Rust project as a dependency by running the command
-`cargo add gvas`.
-
-## Serde Support
-
-This crate supports serde deserialization and serialization. To use serde with
-gvas, the serde feature must be enabled by running
-`cargo add gvas --features serde`.
-
-## Examples
-
-The example code below demonstrates how to use the gvas crate to read a gvas
-save file. The GvasFile struct's read() method is used to parse the data from
-the file and produce a GvasFile struct.
+A gvas save file is a binary file format used by the Unreal Engine 4+ game
+engine to store persistent data such as player progress, game settings, and
+other game-related information.
 
 ```rust
-use gvas::GvasFile;
+use binrw::BinRead;
+use gvas::types::USaveGame;
 use std::fs::File;
 
 let mut file = File::open("save.sav")?;
-let gvas_file = GvasFile::read(&mut file, GameVersion::Default);
+let save_game = USaveGame::read(&mut file)?;
 
-println!("{:#?}", gvas_file);
+println!("{:#?}", save_game);
 ```
 
-The [tests directory](https://github.com/localcc/gvas/tree/main/tests) contains
-several tests that demonstrate how to use the crate to read and write gvas
-files.
+### Auto-detecting file type
+
+If the `palworld` feature is enabled, `AutoDetectFile` can read either a plain
+GVAS save or a Palworld-wrapped one without knowing in advance which it is:
+
+```rust
+use binrw::BinRead;
+use gvas::detect::AutoDetectFile;
+use std::fs::File;
+
+let mut file = File::open("save.sav")?;
+match AutoDetectFile::read(&mut file)? {
+    AutoDetectFile::GVAS(save_game) => println!("{:#?}", save_game),
+    AutoDetectFile::Palworld(palworld_save) => println!("{:#?}", palworld_save.content),
+}
+```
+
+For more examples, see [docs.rs/gvas](https://docs.rs/gvas/) or [lib.rs](src/lib.rs).
+
+## Format compatibility
+
+Some older Unreal Engine save files do not contain enough type information to
+determine every nested property type. See the crate documentation for details
+about these limitations and how unknown properties are represented.
 
 ## Contributing
 
