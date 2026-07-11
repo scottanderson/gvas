@@ -56,9 +56,9 @@ pub enum FTextHistory {
 #[br(import(format: SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FTextHistoryNone {
-    #[br(pre_assert(!format.culture_invariant_stability))]
+    #[br(pre_assert(!format.culture_invariant_stability()))]
     Old(),
-    #[br(pre_assert(format.culture_invariant_stability))]
+    #[br(pre_assert(format.culture_invariant_stability()))]
     New(TOptional<FString>),
 }
 
@@ -85,8 +85,8 @@ pub enum FormatArgumentValue {
 #[derive(Debug, PartialEq)]
 #[rustfmt::skip]
 pub enum FormatArgumentValueInt {
-    #[br(pre_assert(!format.text_64bit_support))] Int32(i32),
-    #[br(pre_assert(format.text_64bit_support))] Int64(i64),
+    #[br(pre_assert(!format.text_64bit_support()))] Int32(i32),
+    #[br(pre_assert(format.text_64bit_support()))] Int64(i64),
 }
 
 #[binrw]
@@ -94,15 +94,15 @@ pub enum FormatArgumentValueInt {
 #[derive(Debug, PartialEq)]
 #[rustfmt::skip]
 pub enum FormatArgumentValueUInt {
-    #[br(pre_assert(!format.text_64bit_support))] UInt32(u32),
-    #[br(pre_assert(format.text_64bit_support))] UInt64(u64),
+    #[br(pre_assert(!format.text_64bit_support()))] UInt32(u32),
+    #[br(pre_assert(format.text_64bit_support()))] UInt64(u64),
 }
 
 #[binrw]
 #[brw(import(format: SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct NumberFormattingOptions {
-    #[brw(if(format.include_always_sign))]
+    #[brw(if(format.include_always_sign()))]
     always_sign: i32,
     use_grouping: i32,
     roudning_mode: RoundingMode,

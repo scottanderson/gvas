@@ -44,6 +44,7 @@ pub enum EEditorObjectVersion {
     SkeletalMeshMoveEditorSourceDataToPrivateAsset,
     NumberParsingOptionsNumberLimitsAndClamping,
     SkeletalMeshSourceDataSupport16bitOfMaterialNumber,
+    AutomaticVersionPlusOne,
 }
 
 impl CustomVersion for EEditorObjectVersion {

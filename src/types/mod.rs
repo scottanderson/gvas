@@ -112,11 +112,11 @@ macro_rules! ue_struct {
         #[br(import(format: SerializationFormat))]
         #[derive(Debug, PartialEq)]
         pub enum $name {
-            #[br(pre_assert(!format.large_world_coordinates))]
+            #[br(pre_assert(!format.large_world_coordinates()))]
             F {
                 $($field: f32,)+
             },
-            #[br(pre_assert( format.large_world_coordinates))]
+            #[br(pre_assert( format.large_world_coordinates()))]
             D {
                 $($field: f64,)+
             },

@@ -8,4 +8,5 @@ pub enum EUnrealEngineObjectUE4Version {
     FtextHistoryDateTimezone = 422,
     PropertyGuidInPropertyTag = 503,
     PropertyTagSetMapSupport = 509,
+    AutomaticVersionPlusOne,
 }

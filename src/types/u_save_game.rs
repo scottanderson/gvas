@@ -8,7 +8,7 @@ use crate::types::{FSaveGameHeader, TaggedProperties};
 pub struct USaveGame {
     pub header: FSaveGameHeader,
 
-    #[brw(if(header.serialization_format().property_tag_complete_type_name))]
+    #[brw(if(header.serialization_format().property_tag_complete_type_name()))]
     #[br(temp, assert(spacer == 0))]
     #[bw(calc(0))]
     spacer: u8,

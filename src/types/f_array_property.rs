@@ -105,8 +105,8 @@ pub enum FArrayProperty {
     #[br(pre_assert(inner_type == NAME_STR_PROPERTY))]
     Str(TArray<FStrProperty>),
 
-    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && format.property_tag_complete_type_name))]
-    #[bw(assert(format.property_tag_complete_type_name))]
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && format.property_tag_complete_type_name()))]
+    #[bw(assert(format.property_tag_complete_type_name()))]
     Struct {
         #[br(temp)]
         #[br(calc = t.array_struct_type_binrw()?)]
@@ -130,8 +130,8 @@ pub enum FArrayProperty {
         values: TArray<FStructProperty>,
     },
 
-    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name))]
-    #[bw(assert(!format.property_tag_complete_type_name))]
+    #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name()))]
+    #[bw(assert(!format.property_tag_complete_type_name()))]
     TaggedStruct {
         #[br(temp)]
         #[bw(try_calc(u32::try_from(values.len())))]

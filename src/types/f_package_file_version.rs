@@ -20,7 +20,7 @@ pub enum FPackageFileVersion {
 }
 
 impl FPackageFileVersion {
-    pub fn version_ue4(&self) -> u32 {
+    pub const fn version_ue4(&self) -> u32 {
         match self {
             Self::UE4 {
                 package_file_version,
@@ -32,7 +32,7 @@ impl FPackageFileVersion {
         }
     }
 
-    pub fn version_ue5(&self) -> u32 {
+    pub const fn version_ue5(&self) -> u32 {
         match self {
             Self::UE4 { .. } => 0,
             Self::UE5 {

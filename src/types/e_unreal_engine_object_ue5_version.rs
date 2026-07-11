@@ -59,4 +59,6 @@ pub enum EUnrealEngineObjectUE5Version {
 
     /// OS shadow serialization of subobjects
     OsSubObjectShadowSerialization,
+
+    AutomaticVersionPlusOne,
 }

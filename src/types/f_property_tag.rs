@@ -59,7 +59,7 @@ impl BinWrite for FPropertyTag {
 #[brw(import(format: SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PropertyTag {
-    #[br(pre_assert(!format.property_tag_complete_type_name))]
+    #[br(pre_assert(!format.property_tag_complete_type_name()))]
     Incomplete {
         property_type: FString,
         size: u32,
@@ -70,7 +70,7 @@ pub enum PropertyTag {
         maybe_property_guid: PropertyTagIncompleteGuid,
     },
 
-    #[br(pre_assert(format.property_tag_complete_type_name))]
+    #[br(pre_assert(format.property_tag_complete_type_name()))]
     #[bw(assert(flags.has_array_index() == (*array_index != 0)))]
     #[bw(assert(flags.has_property_guid() == property_guid.is_valid()))]
     Complete {
@@ -398,7 +398,7 @@ pub enum CollectionProperties {
         enum_name: FString,
     },
 
-    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && format.property_tag_set_map_support))]
+    #[br(pre_assert(matches!(property_type, NAME_MAP_PROPERTY) && format.property_tag_set_map_support()))]
     Map {
         inner_type: FString,
         value_type: FString,
@@ -409,7 +409,7 @@ pub enum CollectionProperties {
         inner_type: FString,
     },
 
-    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && format.property_tag_set_map_support))]
+    #[br(pre_assert(matches!(property_type, NAME_SET_PROPERTY) && format.property_tag_set_map_support()))]
     Set {
         inner_type: FString,
     },
@@ -434,7 +434,7 @@ impl BinRead for PropertyTagIncompleteGuid {
         endian: binrw::Endian,
         (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
-        let has_property_guid = if format.property_guid_in_property_tag {
+        let has_property_guid = if format.property_guid_in_property_tag() {
             match u8::read_options(reader, endian, ())? {
                 0 => false,
                 1 => true,
@@ -459,7 +459,7 @@ impl BinWrite for PropertyTagIncompleteGuid {
         endian: binrw::Endian,
         (format, property_type): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        if format.property_guid_in_property_tag {
+        if format.property_guid_in_property_tag() {
             match self.0 {
                 None => {
                     let has_property_guid = 0u8;
@@ -634,33 +634,29 @@ impl From<Vec<(FString, TaggedProperty)>> for TaggedProperties {
 #[cfg(test)]
 mod test {
 
-    use crate::error::Result;
+    use crate::{
+        error::Result,
+        types::{
+            EEditorObjectVersion, EUE5ReleaseStreamObjectVersion, EUnrealEngineObjectUE4Version,
+            EUnrealEngineObjectUE5Version,
+        },
+    };
 
     use super::*;
 
-    const FORMAT_INCOMPLETE: SerializationFormat = SerializationFormat {
-        ftext_history_date_timezone: false,
-        property_tag_set_map_support: false,
-        property_guid_in_property_tag: false,
-        property_tag_complete_type_name: false,
-        fsoftobjectpath_remove_asset_path_fnames: false,
-        text_64bit_support: false,
-        large_world_coordinates: false,
-        include_always_sign: false,
-        culture_invariant_stability: false,
-    };
+    const FORMAT_INCOMPLETE: SerializationFormat = SerializationFormat::from_enums(
+        EUnrealEngineObjectUE4Version::OldestLoadablePackage,
+        None,
+        EUE5ReleaseStreamObjectVersion::BeforeCustomVersionWasAdded,
+        EEditorObjectVersion::BeforeCustomVersionWasAdded,
+    );
 
-    const FORMAT_COMPLETE: SerializationFormat = SerializationFormat {
-        ftext_history_date_timezone: true,
-        property_tag_set_map_support: true,
-        property_guid_in_property_tag: true,
-        property_tag_complete_type_name: true,
-        fsoftobjectpath_remove_asset_path_fnames: true,
-        text_64bit_support: true,
-        large_world_coordinates: true,
-        include_always_sign: true,
-        culture_invariant_stability: true,
-    };
+    const FORMAT_COMPLETE: SerializationFormat = SerializationFormat::from_enums(
+        EUnrealEngineObjectUE4Version::AutomaticVersionPlusOne,
+        Some(EUnrealEngineObjectUE5Version::AutomaticVersionPlusOne),
+        EUE5ReleaseStreamObjectVersion::AutomaticVersionPlusOne,
+        EEditorObjectVersion::AutomaticVersionPlusOne,
+    );
 
     fn test_fpropertytag(
         tag: FPropertyTag,

@@ -32,6 +32,7 @@ pub enum EUE5ReleaseStreamObjectVersion {
     ConvolutionBloomIntensity,
     WorldPartitionHLODActorDescSerializeHLODSubActors,
     LargeWorldCoordinates,
+    AutomaticVersionPlusOne,
 }
 
 impl CustomVersion for EUE5ReleaseStreamObjectVersion {

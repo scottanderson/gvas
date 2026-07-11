@@ -103,7 +103,7 @@ impl FProperty {
             return Ok(original_tag.clone());
         }
 
-        if format.property_tag_complete_type_name {
+        if format.property_tag_complete_type_name() {
             let mut flags = EPropertyTagFlags::new();
             flags.set_has_array_index(array_index != 0);
             flags.set_has_property_guid(property_guid.is_valid());

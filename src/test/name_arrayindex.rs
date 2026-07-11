@@ -6,7 +6,8 @@ use crate::{
     error::Result,
     format::SerializationFormat,
     types::{
-        CollectionProperties, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
+        CollectionProperties, EEditorObjectVersion, EUE5ReleaseStreamObjectVersion,
+        EUnrealEngineObjectUE4Version, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
         PropertyTagIncompleteGuid,
     },
 };
@@ -20,17 +21,12 @@ fn name_property_with_array_index() -> Result<()> {
         0x65, 0x54, 0x6f, 0x77, 0x65, 0x72, 0x5f, 0x42, 0x32, 0x00,
     ];
 
-    let format = SerializationFormat {
-        ftext_history_date_timezone: false,
-        property_tag_set_map_support: false,
-        property_guid_in_property_tag: true,
-        property_tag_complete_type_name: false,
-        fsoftobjectpath_remove_asset_path_fnames: false,
-        text_64bit_support: false,
-        large_world_coordinates: false,
-        include_always_sign: false,
-        culture_invariant_stability: false,
-    };
+    let format = SerializationFormat::from_enums(
+        EUnrealEngineObjectUE4Version::PropertyGuidInPropertyTag,
+        None,
+        EUE5ReleaseStreamObjectVersion::BeforeCustomVersionWasAdded,
+        EEditorObjectVersion::BeforeCustomVersionWasAdded,
+    );
 
     // Convert the Vec<u8> to a NameProperty
     let mut cursor = Cursor::new(data);
