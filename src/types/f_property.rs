@@ -1,4 +1,4 @@
-use binrw::{BinRead, binwrite};
+use binrw::{BinRead, BinResult, binwrite};
 
 use crate::{
     error::binrw_custom,
@@ -98,9 +98,9 @@ impl FProperty {
         has_binary_or_native_serialize: bool,
         has_property_extensions: bool,
         property_guid: FGuid,
-    ) -> PropertyTag {
+    ) -> BinResult<PropertyTag> {
         if let Self::Unknown(original_tag, _) = self {
-            return original_tag.clone();
+            return Ok(original_tag.clone());
         }
 
         if format.property_tag_complete_type_name {
@@ -112,25 +112,25 @@ impl FProperty {
             if let Self::Bool(FBoolProperty(value)) = self {
                 flags.set_bool_true(*value);
             }
-            let property_type = self.generate_complete_property_type();
-            PropertyTag::Complete {
+            let property_type = self.generate_complete_property_type()?;
+            Ok(PropertyTag::Complete {
                 property_type,
                 size,
                 flags,
                 array_index,
                 property_guid,
-            }
+            })
         } else {
             let property_type = FString::from(self.property_type_name());
             let extra = self.generate_incomplete_property_extra();
             let maybe_property_guid = PropertyTagIncompleteGuid::from(property_guid);
-            PropertyTag::Incomplete {
+            Ok(PropertyTag::Incomplete {
                 property_type,
                 size,
                 array_index,
                 extra,
                 maybe_property_guid,
-            }
+            })
         }
     }
 
@@ -211,8 +211,8 @@ impl FProperty {
         }
     }
 
-    fn generate_complete_property_type(&self) -> FPropertyTypeName {
-        match self {
+    fn generate_complete_property_type(&self) -> BinResult<FPropertyTypeName> {
+        Ok(match self {
             Self::Array(array_property) => {
                 let x = match array_property {
                     FArrayProperty::Bool(_) => FPropertyTypeName::Bool,
@@ -252,8 +252,8 @@ impl FProperty {
             // Property::Int64(_) => todo!(),
             // Property::Int8(_) => todo!(),
             Self::Map(map_property) => FPropertyTypeName::Map {
-                key: Box::new(map_property.key_type().property_type_field()),
-                value: Box::new(map_property.value_type().property_type_field()),
+                key: Box::new(map_property.key_type().property_type_field()?),
+                value: Box::new(map_property.value_type().property_type_field()?),
             },
             // Property::MulticastInlineDelegate(_) => todo!(),
             // Property::MulticastSparseDelegate(_) => todo!(),
@@ -271,7 +271,7 @@ impl FProperty {
             // Property::UInt32(_) => todo!(),
             // Property::UInt64(_) => todo!(),
             _ => todo!("{self:?}"),
-        }
+        })
     }
 }
 

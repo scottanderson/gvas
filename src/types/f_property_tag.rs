@@ -271,15 +271,19 @@ impl PropertyTag {
         })
     }
 
-    pub fn property_type_field(&self) -> FPropertyTypeName {
+    pub fn property_type_field(&self) -> BinResult<FPropertyTypeName> {
         match self {
-            Self::Complete { property_type, .. } => property_type.clone(),
+            Self::Complete { property_type, .. } => Some(property_type.clone()),
             Self::Incomplete {
                 property_type,
                 extra,
                 ..
             } => FPropertyTypeName::from_incomplete(property_type, extra),
         }
+        .ok_or_else(|| binrw::Error::AssertFail {
+            pos: 0,
+            message: format!("property_type_field({self:?})"),
+        })
     }
 
     #[inline]
@@ -580,7 +584,7 @@ impl BinWrite for TaggedProperties {
                 *has_binary_or_native_serialize,
                 *has_property_extensions,
                 *property_guid,
-            );
+            )?;
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;

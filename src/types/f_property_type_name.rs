@@ -6,8 +6,9 @@ use crate::types::{
     NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
     NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
     NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-    NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY,
-    NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, TArray,
+    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
+    NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
+    NAME_UINT64_PROPERTY, TArray,
 };
 
 #[binrw]
@@ -76,25 +77,62 @@ pub enum FPropertyTypeName {
 }
 
 impl FPropertyTypeName {
-    pub fn from_incomplete(name: &FString, extra: &CollectionProperties) -> Self {
-        todo!("{name}, {extra:?}");
+    pub fn from_incomplete(name: &FString, extra: &CollectionProperties) -> Option<Self> {
+        let result = match extra {
+            CollectionProperties::Array { inner_type } => {
+                let inner_type = Self::from_name(inner_type.clone())?;
+                Self::Array(Box::new(inner_type))
+            }
+            CollectionProperties::Byte { enum_name } => Self::Byte(match enum_name.is_none() {
+                true => None,
+                false => Some(enum_name.clone()),
+            }),
+            CollectionProperties::Enum { enum_name } => Self::Enum {
+                enum_class: enum_name.clone(),
+                class_path: None,
+                inner_type: None,
+            },
+            CollectionProperties::Map {
+                inner_type,
+                value_type,
+            } => Self::Map {
+                key: Box::new(Self::from_name(inner_type.clone())?),
+                value: Box::new(Self::from_name(value_type.clone())?),
+            },
+            CollectionProperties::Option { inner_type } => {
+                Self::Unknown(RawPropertyTypeName::with_children(
+                    NAME_OPTION_PROPERTY,
+                    [RawPropertyTypeName::from_name(inner_type.clone())],
+                ))
+            }
+            CollectionProperties::Set { inner_type } => {
+                Self::Set(Box::new(Self::from_name(inner_type.clone())?))
+            }
+            CollectionProperties::Struct {
+                type_name,
+                struct_guid,
+            } => Self::Struct {
+                type_name: type_name.clone(),
+                class_name: FString(None),
+                struct_guid: *struct_guid,
+            },
+            CollectionProperties::Bool { .. } | CollectionProperties::None => {
+                Self::from_name(name.clone())?
+            }
+        };
+        Some(result)
     }
 
     pub fn from_name(name: impl Into<FString>) -> Option<Self> {
-        Self::from_raw(RawPropertyTypeName {
-            name: name.into(),
-            children: TArray::empty(),
-        })
+        Self::from_raw(RawPropertyTypeName::from_name(name))
     }
 
     pub fn with_children(
         name: impl Into<FString>,
         children: impl IntoIterator<Item = Self>,
     ) -> Option<Self> {
-        Self::from_raw(RawPropertyTypeName {
-            name: name.into(),
-            children: TArray(children.into_iter().map(Self::into_raw).collect()),
-        })
+        let children = children.into_iter().map(Self::into_raw);
+        Self::from_raw(RawPropertyTypeName::with_children(name, children))
     }
 
     fn from_raw(raw: RawPropertyTypeName) -> Option<Self> {
