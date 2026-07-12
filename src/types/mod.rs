@@ -109,7 +109,7 @@ pub const NAME_VECTOR2D: &str = "Vector2D";
 macro_rules! ue_struct {
     ($name:ident, LWC, $($field:ident),+) => {
         #[binrw]
-        #[br(import(format: SerializationFormat))]
+        #[br(import(format: &SerializationFormat))]
         #[derive(Debug, PartialEq)]
         pub enum $name {
             #[br(pre_assert(!format.large_world_coordinates()))]

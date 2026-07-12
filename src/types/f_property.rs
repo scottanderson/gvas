@@ -22,7 +22,7 @@ use crate::{
 };
 
 #[binwrite]
-#[bw(import(format: SerializationFormat))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FProperty {
     Array(#[bw(args(format))] FArrayProperty),
@@ -92,7 +92,7 @@ impl FProperty {
 
     pub(crate) fn generate_tag(
         &self,
-        format: SerializationFormat,
+        format: &SerializationFormat,
         size: u32,
         array_index: u32,
         has_binary_or_native_serialize: bool,
@@ -276,7 +276,7 @@ impl FProperty {
 }
 
 impl BinRead for FProperty {
-    type Args<'a> = (SerializationFormat, &'a PropertyTag);
+    type Args<'a> = (&'a SerializationFormat, &'a PropertyTag);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,

@@ -13,7 +13,7 @@ pub struct USaveGame {
     #[bw(calc(0))]
     spacer: u8,
 
-    #[brw(args(header.serialization_format()))]
+    #[brw(args(&header.serialization_format()))]
     pub properties: TaggedProperties,
 
     #[br(temp, assert(footer == 0))]

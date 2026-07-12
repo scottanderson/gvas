@@ -11,8 +11,8 @@ use crate::{
 };
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyTag, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
-#[bw(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FStructProperty {
     #[br(pre_assert(struct_type == NAME_DATE_TIME))]

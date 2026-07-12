@@ -17,7 +17,7 @@ use crate::types::{
     EUnrealEngineObjectUE4Version, EUnrealEngineObjectUE5Version, FSaveGameHeader,
 };
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 pub struct SerializationFormat {
     package_file_version: u32,     // EUnrealEngineObjectUE4Version,
     package_file_version_ue5: u32, // Option<EUnrealEngineObjectUE5Version>,

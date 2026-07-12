@@ -20,7 +20,7 @@ pub enum FPropertyTag {
 }
 
 impl BinRead for FPropertyTag {
-    type Args<'a> = (SerializationFormat,);
+    type Args<'a> = (&'a SerializationFormat,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
@@ -37,7 +37,7 @@ impl BinRead for FPropertyTag {
 }
 
 impl BinWrite for FPropertyTag {
-    type Args<'a> = (SerializationFormat,);
+    type Args<'a> = (&'a SerializationFormat,);
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
@@ -56,7 +56,7 @@ impl BinWrite for FPropertyTag {
 }
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum PropertyTag {
     #[br(pre_assert(!format.property_tag_complete_type_name()))]
@@ -376,7 +376,7 @@ impl PropertyTag {
 
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
-#[br(import(format: SerializationFormat, property_type: &str))]
+#[br(import(format: &SerializationFormat, property_type: &str))]
 pub enum CollectionProperties {
     #[br(pre_assert(matches!(property_type, NAME_ARRAY_PROPERTY)))]
     Array {
@@ -427,7 +427,7 @@ pub enum CollectionProperties {
 pub struct PropertyTagIncompleteGuid(pub Option<FGuid>);
 
 impl BinRead for PropertyTagIncompleteGuid {
-    type Args<'a> = (SerializationFormat, &'a str);
+    type Args<'a> = (&'a SerializationFormat, &'a str);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
@@ -451,7 +451,7 @@ impl BinRead for PropertyTagIncompleteGuid {
 }
 
 impl BinWrite for PropertyTagIncompleteGuid {
-    type Args<'a> = (SerializationFormat, &'a str);
+    type Args<'a> = (&'a SerializationFormat, &'a str);
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
@@ -527,7 +527,7 @@ impl TaggedProperty {
 pub struct TaggedProperties(pub Vec<(FString, TaggedProperty)>);
 
 impl BinRead for TaggedProperties {
-    type Args<'a> = (SerializationFormat,);
+    type Args<'a> = (&'a SerializationFormat,);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
@@ -552,7 +552,7 @@ impl BinRead for TaggedProperties {
 }
 
 impl BinWrite for TaggedProperties {
-    type Args<'a> = (SerializationFormat,);
+    type Args<'a> = (&'a SerializationFormat,);
 
     fn write_options<W: std::io::Write + std::io::Seek>(
         &self,
@@ -644,14 +644,14 @@ mod test {
 
     use super::*;
 
-    const FORMAT_INCOMPLETE: SerializationFormat = SerializationFormat::from_enums(
+    const FORMAT_INCOMPLETE: &SerializationFormat = &SerializationFormat::from_enums(
         EUnrealEngineObjectUE4Version::OldestLoadablePackage,
         None,
         EUE5ReleaseStreamObjectVersion::BeforeCustomVersionWasAdded,
         EEditorObjectVersion::BeforeCustomVersionWasAdded,
     );
 
-    const FORMAT_COMPLETE: SerializationFormat = SerializationFormat::from_enums(
+    const FORMAT_COMPLETE: &SerializationFormat = &SerializationFormat::from_enums(
         EUnrealEngineObjectUE4Version::AutomaticVersionPlusOne,
         Some(EUnrealEngineObjectUE5Version::AutomaticVersionPlusOne),
         EUE5ReleaseStreamObjectVersion::AutomaticVersionPlusOne,
@@ -661,7 +661,7 @@ mod test {
     fn test_fpropertytag(
         tag: FPropertyTag,
         expected: &[u8],
-        format: SerializationFormat,
+        format: &SerializationFormat,
     ) -> Result<()> {
         // Write
         let mut buf = Cursor::new(vec![]);

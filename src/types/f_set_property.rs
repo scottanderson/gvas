@@ -6,8 +6,8 @@ use crate::{
 };
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyTag))]
-#[bw(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct FSetProperty {
     allocation_flags: u32,

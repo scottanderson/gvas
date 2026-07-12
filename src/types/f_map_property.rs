@@ -5,8 +5,8 @@ use crate::{
 use binrw::binrw;
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyTag))]
-#[bw(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FMapProperty {
     #[br(pre_assert(!t.flags().is_some_and(EPropertyTagFlags::has_binary_or_native_serialize)))]
@@ -56,8 +56,8 @@ impl FMapProperty {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat, key_type: &PropertyTag, value_type: &PropertyTag))]
-#[bw(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat, key_type: &PropertyTag, value_type: &PropertyTag))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct MapEntry {
     #[br(args(format, key_type))]

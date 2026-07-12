@@ -21,7 +21,7 @@ fn name_property_with_array_index() -> Result<()> {
         0x65, 0x54, 0x6f, 0x77, 0x65, 0x72, 0x5f, 0x42, 0x32, 0x00,
     ];
 
-    let format = SerializationFormat::from_enums(
+    let format = &SerializationFormat::from_enums(
         EUnrealEngineObjectUE4Version::PropertyGuidInPropertyTag,
         None,
         EUE5ReleaseStreamObjectVersion::BeforeCustomVersionWasAdded,

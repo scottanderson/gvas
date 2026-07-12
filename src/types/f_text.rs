@@ -6,7 +6,7 @@ use crate::{
 };
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct FText {
     flags: u32,
@@ -16,7 +16,7 @@ pub struct FText {
 }
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FTextHistory {
     // #[brw(magic = -1i8)]
@@ -53,7 +53,7 @@ pub enum FTextHistory {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FTextHistoryNone {
     #[br(pre_assert(!format.culture_invariant_stability()))]
@@ -63,12 +63,12 @@ pub enum FTextHistoryNone {
 }
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct ArgumentFormatEntry(FString, #[brw(args(format))] FormatArgumentValue);
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[rustfmt::skip]
 pub enum FormatArgumentValue {
@@ -81,7 +81,7 @@ pub enum FormatArgumentValue {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[rustfmt::skip]
 pub enum FormatArgumentValueInt {
@@ -90,7 +90,7 @@ pub enum FormatArgumentValueInt {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[rustfmt::skip]
 pub enum FormatArgumentValueUInt {
@@ -99,7 +99,7 @@ pub enum FormatArgumentValueUInt {
 }
 
 #[binrw]
-#[brw(import(format: SerializationFormat))]
+#[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub struct NumberFormattingOptions {
     #[brw(if(format.include_always_sign()))]

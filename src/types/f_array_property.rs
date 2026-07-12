@@ -69,8 +69,8 @@ impl FPropertyTag {
 }
 
 #[binrw]
-#[br(import(format: SerializationFormat, t: &PropertyTag, inner_type: &str))]
-#[bw(import(format: SerializationFormat))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag, inner_type: &str))]
+#[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FArrayProperty {
     #[br(pre_assert(inner_type == NAME_BOOL_PROPERTY))]
