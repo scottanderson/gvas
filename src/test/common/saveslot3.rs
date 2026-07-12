@@ -2,16 +2,10 @@ use std::collections::HashMap;
 
 use crate::types::{
     CollectionProperties, FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion,
-    FFloatProperty, FGuid, FIntProperty,
-    FMapProperty::Known,
-    FNameProperty, FObjectProperty,
-    FPackageFileVersion::UE4,
-    FProperty, FSaveGameHeader, FStrProperty, FString,
-    FStructProperty::{Custom, DateTime},
-    MapEntry,
-    PropertyTag::Incomplete,
-    PropertyTagIncompleteGuid, SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty,
-    USaveGame,
+    FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty, FObjectProperty,
+    FPackageFileVersion, FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty,
+    MapEntry, PropertyTag, PropertyTagIncompleteGuid, SaveGameFileVersion, TArray,
+    TaggedProperties, TaggedProperty, USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -35,9 +29,7 @@ pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
             save_game_file_version: SaveGameFileVersion::AddedCustomVersions as u32,
-            package_file_version: UE4 {
-                package_file_version: 522,
-            },
+            package_file_version: FPackageFileVersion::UE4 { file_version: 522 },
             engine_version: FEngineVersion {
                 major: 4,
                 minor: 27,
@@ -275,7 +267,7 @@ pub(crate) fn expected() -> USaveGame {
                     array_index: 0,
                     has_binary_or_native_serialize: false,
                     has_property_extensions: false,
-                    property: FProperty::from(DateTime(FDateTime {
+                    property: FProperty::from(FStructProperty::DateTime(FDateTime {
                         ticks: 638160761644140000,
                     })),
                     property_guid: FGuid::default(),
@@ -309,16 +301,16 @@ pub(crate) fn expected() -> USaveGame {
                     array_index: 0,
                     has_binary_or_native_serialize: false,
                     has_property_extensions: false,
-                    property: FProperty::from(Known {
+                    property: FProperty::from(FMapProperty::Known {
                         allocation_flags: 0,
-                        key_type: Incomplete {
+                        key_type: PropertyTag::Incomplete {
                             property_type: FString::from("NameProperty"),
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
                             maybe_property_guid: PropertyTagIncompleteGuid::default(),
                         },
-                        value_type: Incomplete {
+                        value_type: PropertyTag::Incomplete {
                             property_type: FString::from("StructProperty"),
                             size: 0,
                             array_index: 0,
@@ -330,7 +322,7 @@ pub(crate) fn expected() -> USaveGame {
                                 key: FProperty::from(FNameProperty(FString::from(
                                     "unlock.welcomescreen.seen",
                                 ))),
-                                value: FProperty::from(Custom(
+                                value: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -364,7 +356,7 @@ pub(crate) fn expected() -> USaveGame {
                                 key: FProperty::from(FNameProperty(FString::from(
                                     "game.tutorial.finished",
                                 ))),
-                                value: FProperty::from(Custom(
+                                value: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -398,7 +390,7 @@ pub(crate) fn expected() -> USaveGame {
                                 key: FProperty::from(FNameProperty(FString::from(
                                     "game.tutorial.skipped",
                                 ))),
-                                value: FProperty::from(Custom(
+                                value: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -432,7 +424,7 @@ pub(crate) fn expected() -> USaveGame {
                                 key: FProperty::from(FNameProperty(FString::from(
                                     "dialogs.messages.seen.Rumiko.0.50",
                                 ))),
-                                value: FProperty::from(Custom(
+                                value: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -464,7 +456,7 @@ pub(crate) fn expected() -> USaveGame {
                             },
                             MapEntry {
                                 key: FProperty::from(FNameProperty(FString::from("codex.Rumiko"))),
-                                value: FProperty::from(Custom(
+                                value: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -505,16 +497,16 @@ pub(crate) fn expected() -> USaveGame {
                     array_index: 0,
                     has_binary_or_native_serialize: false,
                     has_property_extensions: false,
-                    property: FProperty::from(Known {
+                    property: FProperty::from(FMapProperty::Known {
                         allocation_flags: 0,
-                        key_type: Incomplete {
+                        key_type: PropertyTag::Incomplete {
                             property_type: FString::from("StructProperty"),
                             size: 0,
                             array_index: 0,
                             extra: CollectionProperties::None,
                             maybe_property_guid: PropertyTagIncompleteGuid::default(),
                         },
-                        value_type: Incomplete {
+                        value_type: PropertyTag::Incomplete {
                             property_type: FString::from("FloatProperty"),
                             size: 0,
                             array_index: 0,
@@ -523,7 +515,7 @@ pub(crate) fn expected() -> USaveGame {
                         },
                         properties: TArray::from([
                             MapEntry {
-                                key: FProperty::from(Custom(
+                                key: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -547,7 +539,7 @@ pub(crate) fn expected() -> USaveGame {
                                                 has_binary_or_native_serialize: false,
                                                 has_property_extensions: false,
                                                 property: FProperty::Unknown(
-                                                    Incomplete {
+                                                    PropertyTag::Incomplete {
                                                         property_type: FString::from(
                                                             "FieldPathProperty",
                                                         ),
@@ -587,7 +579,7 @@ pub(crate) fn expected() -> USaveGame {
                                 value: FProperty::from(FFloatProperty(0.0)),
                             },
                             MapEntry {
-                                key: FProperty::from(Custom(
+                                key: FProperty::from(FStructProperty::Custom(
                                     FString::from(""),
                                     FString(None),
                                     FGuid::default(),
@@ -611,7 +603,7 @@ pub(crate) fn expected() -> USaveGame {
                                                 has_binary_or_native_serialize: false,
                                                 has_property_extensions: false,
                                                 property: FProperty::Unknown(
-                                                    Incomplete {
+                                                    PropertyTag::Incomplete {
                                                         property_type: FString::from(
                                                             "FieldPathProperty",
                                                         ),

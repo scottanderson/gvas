@@ -1,10 +1,8 @@
 use crate::types::{
     FBoolProperty, FCustomVersion, FCustomVersionContainer, FDelegateProperty, FEngineVersion,
-    FFloatProperty, FGuid, FIntProperty, FMulticastInlineDelegateProperty,
-    FPackageFileVersion::UE5,
-    FProperty, FSaveGameHeader, FStrProperty, FString,
-    FStructProperty::{Custom, Vector2D},
-    FVector2D, SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty, USaveGame,
+    FFloatProperty, FGuid, FIntProperty, FMulticastInlineDelegateProperty, FPackageFileVersion,
+    FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty, FVector2D,
+    SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty, USaveGame,
 };
 
 const DELEGATE_PREFIX: &str = "/Game/DefaultMap.DefaultMap:PersistentLevel.";
@@ -13,9 +11,9 @@ pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
             save_game_file_version: SaveGameFileVersion::PackageFileSummaryVersionChange as u32,
-            package_file_version: UE5 {
-                package_file_version: 522,
-                package_file_version_ue5: 1009,
+            package_file_version: FPackageFileVersion::UE5 {
+                file_version_ue4: 522,
+                file_version_ue5: 1009,
             },
             engine_version: FEngineVersion {
                 major: 5,
@@ -883,7 +881,7 @@ pub(crate) fn expected() -> USaveGame {
                     array_index: 0,
                     has_binary_or_native_serialize: false,
                     has_property_extensions: false,
-                    property: FProperty::from(Custom(
+                    property: FProperty::from(FStructProperty::Custom(
                         FString::from("GameAudioSettings"),
                         FString(None),
                         FGuid::default(),
@@ -929,7 +927,7 @@ pub(crate) fn expected() -> USaveGame {
                     array_index: 0,
                     has_binary_or_native_serialize: false,
                     has_property_extensions: false,
-                    property: FProperty::from(Custom(
+                    property: FProperty::from(FStructProperty::Custom(
                         FString::from("GameSettings"),
                         FString(None),
                         FGuid::default(),
@@ -1020,10 +1018,12 @@ pub(crate) fn expected() -> USaveGame {
                                     array_index: 0,
                                     has_binary_or_native_serialize: false,
                                     has_property_extensions: false,
-                                    property: FProperty::from(Vector2D(FVector2D {
-                                        x: 30.574748247861862,
-                                        y: 60.42525175213814,
-                                    })),
+                                    property: FProperty::from(FStructProperty::Vector2D(
+                                        FVector2D {
+                                            x: 30.574748247861862,
+                                            y: 60.42525175213814,
+                                        },
+                                    )),
                                     property_guid: FGuid::default(),
                                 },
                             ),

@@ -12,9 +12,7 @@ pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
             save_game_file_version: SaveGameFileVersion::AddedCustomVersions as u32,
-            package_file_version: FPackageFileVersion::UE4 {
-                package_file_version: 522,
-            },
+            package_file_version: FPackageFileVersion::UE4 { file_version: 522 },
             engine_version: FEngineVersion {
                 major: 4,
                 minor: 27,
