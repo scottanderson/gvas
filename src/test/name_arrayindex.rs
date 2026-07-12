@@ -45,7 +45,7 @@ fn name_property_with_array_index() -> Result<()> {
         } if property_type == NAME_NAME_PROPERTY
     );
     assert_eq!(
-        FProperty::Name(FNameProperty("QU91_InvestigateTower_B2".into())),
+        FProperty::from(FNameProperty("QU91_InvestigateTower_B2".into())),
         prop
     );
 

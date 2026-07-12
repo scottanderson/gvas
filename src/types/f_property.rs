@@ -294,37 +294,37 @@ impl BinRead for FProperty {
             NAME_ARRAY_PROPERTY  => {
                 let inner_type = t.array_inner_type()?;
                 let array_property = FArrayProperty::read_options(reader, endian, (format, t, inner_type))?;
-                Self::Array(array_property)
+                Self::from(array_property)
             },
-            NAME_BOOL_PROPERTY   => Self::Bool  (  FBoolProperty::read_options(reader, endian, (t,))?),
-            NAME_BYTE_PROPERTY   => Self::Byte  (  FByteProperty::read_options(reader, endian, (t,))?),
-            NAME_DELEGATE_PROPERTY => Self::Delegate(FDelegateProperty::read_options(reader, endian, ())?),
-            NAME_DOUBLE_PROPERTY => Self::Double(FDoubleProperty::read_options(reader, endian, ())?),
-            NAME_ENUM_PROPERTY   => Self::Enum  (  FEnumProperty::read_options(reader, endian, (t,))?),
-            NAME_FLOAT_PROPERTY  => Self::Float ( FFloatProperty::read_options(reader, endian, ())?),
-            NAME_INT16_PROPERTY  => Self::Int16 ( FInt16Property::read_options(reader, endian, ())?),
-            NAME_INT64_PROPERTY  => Self::Int64 ( FInt64Property::read_options(reader, endian, ())?),
-            NAME_INT8_PROPERTY   => Self::Int8  (  FInt8Property::read_options(reader, endian, ())?),
-            NAME_INT_PROPERTY    => Self::Int   (   FIntProperty::read_options(reader, endian, ())?),
-            NAME_MAP_PROPERTY    => Self::Map   (   FMapProperty::read_options(reader, endian, (format, t))?),
-            NAME_MULTICAST_INLINE_DELGATE_PROPERTY => Self::MulticastInlineDelegate(FMulticastInlineDelegateProperty::read_options(reader, endian, ())?),
-            NAME_MULTICAST_SPARSE_DELGATE_PROPERTY => Self::MulticastSparseDelegate(FMulticastSparseDelegateProperty::read_options(reader, endian, ())?),
-            NAME_NAME_PROPERTY   => Self::Name  (  FNameProperty::read_options(reader, endian, ())?),
-            NAME_OBJECT_PROPERTY => Self::Object(FObjectProperty::read_options(reader, endian, ())?),
+            NAME_BOOL_PROPERTY   => Self::from(  FBoolProperty::read_options(reader, endian, (t,))?),
+            NAME_BYTE_PROPERTY   => Self::from(  FByteProperty::read_options(reader, endian, (t,))?),
+            NAME_DELEGATE_PROPERTY => Self::from(FDelegateProperty::read_options(reader, endian, ())?),
+            NAME_DOUBLE_PROPERTY => Self::from(FDoubleProperty::read_options(reader, endian, ())?),
+            NAME_ENUM_PROPERTY   => Self::from(  FEnumProperty::read_options(reader, endian, (t,))?),
+            NAME_FLOAT_PROPERTY  => Self::from( FFloatProperty::read_options(reader, endian, ())?),
+            NAME_INT16_PROPERTY  => Self::from( FInt16Property::read_options(reader, endian, ())?),
+            NAME_INT64_PROPERTY  => Self::from( FInt64Property::read_options(reader, endian, ())?),
+            NAME_INT8_PROPERTY   => Self::from(  FInt8Property::read_options(reader, endian, ())?),
+            NAME_INT_PROPERTY    => Self::from(   FIntProperty::read_options(reader, endian, ())?),
+            NAME_MAP_PROPERTY    => Self::from(   FMapProperty::read_options(reader, endian, (format, t))?),
+            NAME_MULTICAST_INLINE_DELGATE_PROPERTY => Self::from(FMulticastInlineDelegateProperty::read_options(reader, endian, ())?),
+            NAME_MULTICAST_SPARSE_DELGATE_PROPERTY => Self::from(FMulticastSparseDelegateProperty::read_options(reader, endian, ())?),
+            NAME_NAME_PROPERTY   => Self::from(  FNameProperty::read_options(reader, endian, ())?),
+            NAME_OBJECT_PROPERTY => Self::from(FObjectProperty::read_options(reader, endian, ())?),
             // NAME_OPTIONAL_PROPERTY => Property::Optional(OptionalProperty::read_options(reader, endian, ())?),
-            NAME_SET_PROPERTY    => Self::Set   (   FSetProperty::read_options(reader, endian, (format, t))?),
-            NAME_SOFT_OBJECT_PROPERTY => Self::SoftObject(FSoftObjectProperty::read_options(reader, endian, (format,))?),
+            NAME_SET_PROPERTY    => Self::from(   FSetProperty::read_options(reader, endian, (format, t))?),
+            NAME_SOFT_OBJECT_PROPERTY => Self::from(FSoftObjectProperty::read_options(reader, endian, (format,))?),
             NAME_STRUCT_PROPERTY => {
                 let type_name = t.struct_type_name().unwrap_or_default();
                 let class_name = t.struct_class_name();
                 let guid = t.struct_guid().map_err(binrw_custom(start))?;
-                                    Self::Struct(FStructProperty::read_options(reader, endian, (format, t, type_name, class_name, guid))?)
+                                    Self::from(FStructProperty::read_options(reader, endian, (format, t, type_name, class_name, guid))?)
             },
-            NAME_STR_PROPERTY    => Self::Str   (   FStrProperty::read_options(reader, endian, ())?),
-            NAME_TEXT_PROPERTY   => Self::Text  (  FTextProperty::read_options(reader, endian, (format,))?),
-            NAME_UINT16_PROPERTY => Self::UInt16(FUInt16Property::read_options(reader, endian, ())?),
-            NAME_UINT32_PROPERTY => Self::UInt32(FUInt32Property::read_options(reader, endian, ())?),
-            NAME_UINT64_PROPERTY => Self::UInt64(FUInt64Property::read_options(reader, endian, ())?),
+            NAME_STR_PROPERTY    => Self::from(   FStrProperty::read_options(reader, endian, ())?),
+            NAME_TEXT_PROPERTY   => Self::from(  FTextProperty::read_options(reader, endian, (format,))?),
+            NAME_UINT16_PROPERTY => Self::from(FUInt16Property::read_options(reader, endian, ())?),
+            NAME_UINT32_PROPERTY => Self::from(FUInt32Property::read_options(reader, endian, ())?),
+            NAME_UINT64_PROPERTY => Self::from(FUInt64Property::read_options(reader, endian, ())?),
             _ => {
                 println!("Warning: Unrecognized property type {property_type}");
                 let size = usize::try_from(size).map_err(err_convert)?;
@@ -363,6 +363,41 @@ impl BinRead for FProperty {
         Ok(result)
     }
 }
+
+macro_rules! from {
+    ($variant:ident, $inner_type:ident) => {
+        impl From<$inner_type> for FProperty {
+            fn from(value: $inner_type) -> Self {
+                Self::$variant(value)
+            }
+        }
+    };
+}
+
+from!(Array, FArrayProperty);
+from!(Bool, FBoolProperty);
+from!(Byte, FByteProperty);
+from!(Delegate, FDelegateProperty);
+from!(Double, FDoubleProperty);
+from!(Enum, FEnumProperty);
+from!(Float, FFloatProperty);
+from!(Int, FIntProperty);
+from!(Int16, FInt16Property);
+from!(Int64, FInt64Property);
+from!(Int8, FInt8Property);
+from!(Map, FMapProperty);
+from!(MulticastInlineDelegate, FMulticastInlineDelegateProperty);
+from!(MulticastSparseDelegate, FMulticastSparseDelegateProperty);
+from!(Name, FNameProperty);
+from!(Object, FObjectProperty);
+from!(Set, FSetProperty);
+from!(SoftObject, FSoftObjectProperty);
+from!(Str, FStrProperty);
+from!(Struct, FStructProperty);
+from!(Text, FTextProperty);
+from!(UInt16, FUInt16Property);
+from!(UInt32, FUInt32Property);
+from!(UInt64, FUInt64Property);
 
 #[cfg(test)]
 mod test {
