@@ -10,8 +10,7 @@ pub(crate) fn hints() -> HashMap<String, String> {
 
 pub(crate) const PROFILE_0_JSON: &str = r#"{
   "header": {
-    "type": "Version2",
-    "package_file_version": 522,
+    "file_version": 522,
     "engine_version": {
       "major": 4,
       "minor": 27,

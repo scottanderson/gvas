@@ -1,7 +1,6 @@
 pub const REGRESSION_01_JSON: &str = r#"{
   "header": {
-    "type": "Version2",
-    "package_file_version": 517,
+    "file_version": 517,
     "engine_version": {
       "major": 4,
       "minor": 23,

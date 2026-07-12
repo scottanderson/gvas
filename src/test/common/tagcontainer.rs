@@ -1,7 +1,6 @@
 pub const TAGCONTAINER_JSON: &str = r#"{
   "header": {
-    "type": "Version2",
-    "package_file_version": 522,
+    "file_version": 522,
     "engine_version": {
       "major": 4,
       "minor": 27,

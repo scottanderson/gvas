@@ -2,7 +2,7 @@ use crate::types::{
     FBoolProperty, FCustomVersion, FCustomVersionContainer, FDelegateProperty, FEngineVersion,
     FFloatProperty, FGuid, FIntProperty, FMulticastInlineDelegateProperty, FPackageFileVersion,
     FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty, FVector2D,
-    SaveGameFileVersion, TArray, TaggedProperties, TaggedProperty, USaveGame,
+    TArray, TaggedProperties, TaggedProperty, USaveGame,
 };
 
 const DELEGATE_PREFIX: &str = "/Game/DefaultMap.DefaultMap:PersistentLevel.";
@@ -10,7 +10,6 @@ const DELEGATE_PREFIX: &str = "/Game/DefaultMap.DefaultMap:PersistentLevel.";
 pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
-            save_game_file_version: SaveGameFileVersion::PackageFileSummaryVersionChange as u32,
             package_file_version: FPackageFileVersion::UE5 {
                 file_version_ue4: 522,
                 file_version_ue5: 1009,
@@ -1048,9 +1047,8 @@ pub(crate) fn expected() -> USaveGame {
 
 pub const VECTOR2D_JSON: &str = r#"{
   "header": {
-    "type": "Version3",
-    "package_file_version": 522,
-    "package_file_version_ue5": 1009,
+    "file_version_ue4": 522,
+    "file_version_ue5": 1009,
     "engine_version": {
       "major": 5,
       "minor": 3,

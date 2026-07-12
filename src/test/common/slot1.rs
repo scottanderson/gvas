@@ -3,15 +3,14 @@ use crate::types::{
     FDateTime, FDoubleProperty, FEngineVersion, FFloatProperty, FGuid, FInt8Property,
     FInt16Property, FInt64Property, FIntProperty, FPackageFileVersion, FProperty, FPropertyTag,
     FSaveGameHeader, FStrProperty, FString, FStructProperty, FUInt16Property, FUInt32Property,
-    FUInt64Property, PropertyTag, PropertyTagIncompleteGuid, SaveGameFileVersion, TArray,
-    TaggedProperties, TaggedProperty, USaveGame,
+    FUInt64Property, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties,
+    TaggedProperty, USaveGame,
 };
 
 #[allow(clippy::approx_constant)]
 pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
-            save_game_file_version: SaveGameFileVersion::AddedCustomVersions as u32,
             package_file_version: FPackageFileVersion::UE4 { file_version: 522 },
             engine_version: FEngineVersion {
                 major: 4,
@@ -493,8 +492,7 @@ pub(crate) fn expected() -> USaveGame {
 
 pub const SLOT1_JSON: &str = r#"{
   "header": {
-    "type": "Version2",
-    "package_file_version": 522,
+    "file_version": 522,
     "engine_version": {
       "major": 4,
       "minor": 27,

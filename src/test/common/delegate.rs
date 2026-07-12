@@ -1,8 +1,7 @@
 use crate::types::{
     FCustomVersion, FCustomVersionContainer, FDelegateProperty, FEngineVersion, FGuid,
     FMulticastInlineDelegateProperty, FMulticastSparseDelegateProperty, FPackageFileVersion,
-    FProperty, FSaveGameHeader, FString, SaveGameFileVersion, TArray, TaggedProperties,
-    TaggedProperty, USaveGame,
+    FProperty, FSaveGameHeader, FString, TArray, TaggedProperties, TaggedProperty, USaveGame,
 };
 
 const DELEGATE_STR: &str =
@@ -11,7 +10,6 @@ const DELEGATE_STR: &str =
 pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
-            save_game_file_version: SaveGameFileVersion::AddedCustomVersions as u32,
             package_file_version: FPackageFileVersion::UE4 { file_version: 517 },
             engine_version: FEngineVersion {
                 major: 4,

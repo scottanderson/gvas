@@ -17,6 +17,8 @@ pub enum SaveGameFileVersion {
 #[brw(little, magic = b"GVAS")]
 #[derive(Debug, PartialEq)]
 pub struct FSaveGameHeader {
+    #[br(temp)]
+    #[bw(calc = self.save_game_file_version())]
     pub save_game_file_version: u32, //SaveGameFileVersion,
 
     #[br(args(save_game_file_version))]
@@ -24,11 +26,22 @@ pub struct FSaveGameHeader {
 
     pub engine_version: FEngineVersion,
 
-    #[br(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
-    #[bw(if(*save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
+    #[brw(if(save_game_file_version >= SaveGameFileVersion::AddedCustomVersions as u32))]
     pub custom_versions: Option<FCustomVersionContainer>,
 
     pub save_game_class_name: FString,
+}
+
+impl FSaveGameHeader {
+    fn save_game_file_version(&self) -> u32 {
+        if let FPackageFileVersion::UE5 { .. } = self.package_file_version {
+            SaveGameFileVersion::PackageFileSummaryVersionChange as u32
+        } else if self.custom_versions.is_some() {
+            SaveGameFileVersion::AddedCustomVersions as u32
+        } else {
+            SaveGameFileVersion::InitialVersion as u32
+        }
+    }
 }
 
 #[cfg(test)]

@@ -4,8 +4,8 @@ use crate::types::{
     CollectionProperties, FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion,
     FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty, FObjectProperty,
     FPackageFileVersion, FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty,
-    MapEntry, PropertyTag, PropertyTagIncompleteGuid, SaveGameFileVersion, TArray,
-    TaggedProperties, TaggedProperty, USaveGame,
+    MapEntry, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties, TaggedProperty,
+    USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -28,7 +28,6 @@ pub(crate) fn hints() -> HashMap<String, String> {
 pub(crate) fn expected() -> USaveGame {
     USaveGame {
         header: FSaveGameHeader {
-            save_game_file_version: SaveGameFileVersion::AddedCustomVersions as u32,
             package_file_version: FPackageFileVersion::UE4 { file_version: 522 },
             engine_version: FEngineVersion {
                 major: 4,
@@ -665,8 +664,7 @@ pub(crate) fn expected() -> USaveGame {
 
 pub(crate) const SAVESLOT_03_JSON: &str = r#"{
   "header": {
-    "type": "Version2",
-    "package_file_version": 522,
+    "file_version": 522,
     "engine_version": {
       "major": 4,
       "minor": 27,
