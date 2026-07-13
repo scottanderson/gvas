@@ -71,6 +71,7 @@ pub const NAME_BYTE_PROPERTY: &str = "ByteProperty";
 pub const NAME_DELEGATE_PROPERTY: &str = "DelegateProperty";
 pub const NAME_DOUBLE_PROPERTY: &str = "DoubleProperty";
 pub const NAME_ENUM_PROPERTY: &str = "EnumProperty";
+pub const NAME_FIELD_PATH_PROPERTY: &str = "FieldPathProperty";
 pub const NAME_FLOAT_PROPERTY: &str = "FloatProperty";
 pub const NAME_INT16_PROPERTY: &str = "Int16Property";
 pub const NAME_INT64_PROPERTY: &str = "Int64Property";
@@ -146,6 +147,7 @@ ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32,
 ue_struct!(FDelegateProperty, object: FString, function_name: FString);
 ue_struct!(FDoubleProperty, f64);
 ue_struct!(FFloatProperty, f32);
+ue_struct!(FFieldPathProperty, path: TArray<FString>, resolved_owner: FString);
 ue_struct!(FInt16Property, i16);
 ue_struct!(FInt64Property, i64);
 ue_struct!(FInt8Property, i8);

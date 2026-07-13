@@ -2,10 +2,10 @@ use std::collections::HashMap;
 
 use crate::types::{
     CollectionProperties, FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion,
-    FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty, FObjectProperty,
-    FPackageFileVersion, FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty,
-    MapEntry, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties, TaggedProperty,
-    USaveGame,
+    FFieldPathProperty, FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty,
+    FObjectProperty, FPackageFileVersion, FProperty, FSaveGameHeader, FStrProperty, FString,
+    FStructProperty, MapEntry, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties,
+    TaggedProperty, USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -537,27 +537,14 @@ pub(crate) fn expected() -> USaveGame {
                                                 array_index: 0,
                                                 has_binary_or_native_serialize: false,
                                                 has_property_extensions: false,
-                                                property: FProperty::Unknown(
-                                                    PropertyTag::Incomplete {
-                                                        property_type: FString::from(
-                                                            "FieldPathProperty",
-                                                        ),
-                                                        size: 64,
-                                                        array_index: 0,
-                                                        extra: CollectionProperties::None,
-                                                        maybe_property_guid:
-                                                            PropertyTagIncompleteGuid::default(),
-                                                    },
-                                                    vec![
-                                                        1, 0, 0, 0, 20, 0, 0, 0, 67, 117, 114, 114,
-                                                        101, 110, 99, 121, 95, 66, 108, 117, 101,
-                                                        112, 114, 105, 110, 116, 115, 0, 32, 0, 0,
-                                                        0, 47, 83, 99, 114, 105, 112, 116, 47, 67,
-                                                        68, 46, 67, 68, 80, 108, 97, 121, 101, 114,
-                                                        65, 116, 116, 114, 105, 98, 117, 116, 101,
-                                                        83, 101, 116, 0,
-                                                    ],
-                                                ),
+                                                property: FProperty::from(FFieldPathProperty {
+                                                    path: TArray::from([FString::from(
+                                                        "Currency_Blueprints",
+                                                    )]),
+                                                    resolved_owner: FString::from(
+                                                        "/Script/CD.CDPlayerAttributeSet",
+                                                    ),
+                                                }),
                                                 property_guid: FGuid::default(),
                                             },
                                         ),
@@ -601,27 +588,14 @@ pub(crate) fn expected() -> USaveGame {
                                                 array_index: 0,
                                                 has_binary_or_native_serialize: false,
                                                 has_property_extensions: false,
-                                                property: FProperty::Unknown(
-                                                    PropertyTag::Incomplete {
-                                                        property_type: FString::from(
-                                                            "FieldPathProperty",
-                                                        ),
-                                                        size: 62,
-                                                        array_index: 0,
-                                                        extra: CollectionProperties::None,
-                                                        maybe_property_guid:
-                                                            PropertyTagIncompleteGuid::default(),
-                                                    },
-                                                    vec![
-                                                        1, 0, 0, 0, 18, 0, 0, 0, 67, 117, 114, 114,
-                                                        101, 110, 99, 121, 95, 69, 108, 101, 99,
-                                                        116, 114, 117, 109, 0, 32, 0, 0, 0, 47, 83,
-                                                        99, 114, 105, 112, 116, 47, 67, 68, 46, 67,
-                                                        68, 80, 108, 97, 121, 101, 114, 65, 116,
-                                                        116, 114, 105, 98, 117, 116, 101, 83, 101,
-                                                        116, 0,
-                                                    ],
-                                                ),
+                                                property: FProperty::from(FFieldPathProperty {
+                                                    path: TArray::from([FString::from(
+                                                        "Currency_Electrum",
+                                                    )]),
+                                                    resolved_owner: FString::from(
+                                                        "/Script/CD.CDPlayerAttributeSet",
+                                                    ),
+                                                }),
                                                 property_guid: FGuid::default(),
                                             },
                                         ),

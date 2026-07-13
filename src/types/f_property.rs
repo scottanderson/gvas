@@ -5,19 +5,19 @@ use crate::{
     format::SerializationFormat,
     types::{
         CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FByteProperty,
-        FDelegateProperty, FDoubleProperty, FEnumProperty, FFloatProperty, FGuid, FInt8Property,
-        FInt16Property, FInt64Property, FIntProperty, FMapProperty,
+        FDelegateProperty, FDoubleProperty, FEnumProperty, FFieldPathProperty, FFloatProperty,
+        FGuid, FInt8Property, FInt16Property, FInt64Property, FIntProperty, FMapProperty,
         FMulticastInlineDelegateProperty, FMulticastSparseDelegateProperty, FNameProperty,
         FObjectProperty, FPropertyTypeName, FSetProperty, FSoftObjectProperty, FStrProperty,
         FString, FStructProperty, FTextProperty, FUInt16Property, FUInt32Property, FUInt64Property,
         NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY,
-        NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY,
-        NAME_INT8_PROPERTY, NAME_INT16_PROPERTY, NAME_INT64_PROPERTY, NAME_MAP_PROPERTY,
-        NAME_MULTICAST_INLINE_DELGATE_PROPERTY, NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
-        NAME_NAME_PROPERTY, NAME_NONE, NAME_OBJECT_PROPERTY, NAME_SET_PROPERTY,
-        NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyTag,
-        PropertyTagIncompleteGuid,
+        NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY, NAME_FIELD_PATH_PROPERTY, NAME_FLOAT_PROPERTY,
+        NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY, NAME_INT64_PROPERTY,
+        NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
+        NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_NONE,
+        NAME_OBJECT_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
+        NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
+        NAME_UINT64_PROPERTY, PropertyTag, PropertyTagIncompleteGuid,
     },
 };
 
@@ -31,6 +31,7 @@ pub enum FProperty {
     Delegate(FDelegateProperty),
     Double(FDoubleProperty),
     Enum(FEnumProperty),
+    FieldPath(FFieldPathProperty),
     Float(FFloatProperty),
     Int(FIntProperty),
     Int16(FInt16Property),
@@ -61,6 +62,7 @@ impl FProperty {
             Self::Delegate(..) => NAME_DELEGATE_PROPERTY,
             Self::Double(..) => NAME_DOUBLE_PROPERTY,
             Self::Enum(..) => NAME_ENUM_PROPERTY,
+            Self::FieldPath(..) => NAME_FIELD_PATH_PROPERTY,
             Self::Float(..) => NAME_FLOAT_PROPERTY,
             Self::Int(..) => NAME_INT_PROPERTY,
             Self::Int16(..) => NAME_INT16_PROPERTY,
@@ -192,6 +194,7 @@ impl FProperty {
             },
             Self::Delegate(..)
             | Self::Double(..)
+            | Self::FieldPath(..)
             | Self::Float(..)
             | Self::Int(..)
             | Self::Int16(..)
@@ -301,6 +304,7 @@ impl BinRead for FProperty {
             NAME_DELEGATE_PROPERTY => Self::from(FDelegateProperty::read_options(reader, endian, ())?),
             NAME_DOUBLE_PROPERTY => Self::from(FDoubleProperty::read_options(reader, endian, ())?),
             NAME_ENUM_PROPERTY   => Self::from(  FEnumProperty::read_options(reader, endian, (t,))?),
+            NAME_FIELD_PATH_PROPERTY => Self::from(FFieldPathProperty::read_options(reader, endian, ())?),
             NAME_FLOAT_PROPERTY  => Self::from( FFloatProperty::read_options(reader, endian, ())?),
             NAME_INT16_PROPERTY  => Self::from( FInt16Property::read_options(reader, endian, ())?),
             NAME_INT64_PROPERTY  => Self::from( FInt64Property::read_options(reader, endian, ())?),
@@ -382,6 +386,7 @@ from!(Byte, FByteProperty);
 from!(Delegate, FDelegateProperty);
 from!(Double, FDoubleProperty);
 from!(Enum, FEnumProperty);
+from!(FieldPath, FFieldPathProperty);
 from!(Float, FFloatProperty);
 from!(Int, FIntProperty);
 from!(Int16, FInt16Property);
