@@ -1,8 +1,8 @@
 use crate::types::{
     FBoolProperty, FCustomVersion, FCustomVersionContainer, FDelegateProperty, FEngineVersion,
     FFloatProperty, FGuid, FIntProperty, FMulticastInlineDelegateProperty, FPackageFileVersion,
-    FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty, FVector2D,
-    TArray, TaggedProperties, TaggedProperty, USaveGame,
+    FProperty, FSaveGameHeader, FStrProperty, FString, FStructProperty, FVector2D, TArray,
+    TaggedProperties, TaggedProperty, USaveGame,
 };
 
 const DELEGATE_PREFIX: &str = "/Game/DefaultMap.DefaultMap:PersistentLevel.";
