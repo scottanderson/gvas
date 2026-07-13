@@ -1,6 +1,7 @@
-use binrw::{BinResult, binrw};
+use binrw::binrw;
 
 use crate::{
+    error::PropertyTagError,
     format::SerializationFormat,
     types::{
         CollectionProperties, FFloatProperty, FGuid, FIntProperty, FNameProperty, FObjectProperty,
@@ -14,7 +15,7 @@ use crate::{
 
 impl FPropertyTag {
     #[inline]
-    fn array_struct_type_name(&self) -> BinResult<&str> {
+    fn array_struct_type_name(&self) -> Result<&str, PropertyTagError> {
         match self {
             Self::Some {
                 property_tag:
@@ -30,14 +31,13 @@ impl FPropertyTag {
             } => Some(type_name.as_ref()),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("array_struct_type_name({self:?})"),
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("array_struct_type_name".into(), format!("{self:?}"))
         })
     }
 
     #[inline]
-    fn array_struct_guid(&self) -> BinResult<FGuid> {
+    fn array_struct_guid(&self) -> Result<FGuid, PropertyTagError> {
         match self {
             Self::Some {
                 property_tag:
@@ -49,22 +49,18 @@ impl FPropertyTag {
             } => Some(*struct_guid),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("array_struct_guid({self:?})"),
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("array_struct_guid".into(), format!("{self:?}"))
         })
     }
 
     #[inline]
-    fn some_tag(&self) -> BinResult<&PropertyTag> {
+    fn some_tag(&self) -> Result<&PropertyTag, PropertyTagError> {
         match self {
             Self::Some { property_tag, .. } => Some(property_tag),
             Self::None => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("some_tag({self:?})"),
-        })
+        .ok_or_else(|| PropertyTagError::Unsupported("some_tag".into(), format!("{self:?}")))
     }
 }
 
@@ -81,7 +77,7 @@ pub enum FArrayProperty {
 
     #[br(pre_assert(inner_type == NAME_ENUM_PROPERTY))]
     Enum(
-        #[br(calc = t.enum_type()?)]
+        #[br(try_calc = t.enum_type())]
         #[bw(ignore)]
         FPropertyTypeName,
         TArray<FString>,
@@ -109,7 +105,7 @@ pub enum FArrayProperty {
     #[bw(assert(format.property_tag_complete_type_name()))]
     Struct {
         #[br(temp)]
-        #[br(calc = t.array_struct_type_binrw()?)]
+        #[br(try_calc = t.array_struct_type())]
         #[bw(ignore)]
         meta: (&str, &str, FGuid),
 
@@ -141,17 +137,17 @@ pub enum FArrayProperty {
         struct_tag: FPropertyTag,
 
         #[br(temp)]
-        #[br(calc = struct_tag.some_tag()?)]
+        #[br(try_calc = struct_tag.some_tag())]
         #[bw(ignore)]
         struct_t: &PropertyTag,
 
         #[br(temp)]
-        #[br(calc = struct_tag.array_struct_type_name()?)]
+        #[br(try_calc = struct_tag.array_struct_type_name())]
         #[bw(ignore)]
         type_name: &str,
 
         #[br(temp)]
-        #[br(calc = struct_tag.array_struct_guid()?)]
+        #[br(try_calc = struct_tag.array_struct_guid())]
         #[bw(ignore)]
         struct_guid: FGuid,
 

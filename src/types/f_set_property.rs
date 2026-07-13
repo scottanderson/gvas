@@ -11,7 +11,7 @@ use crate::{
 #[derive(Debug, PartialEq)]
 pub struct FSetProperty {
     allocation_flags: u32,
-    #[br(calc = t.set_element_tag()?)]
+    #[br(try_calc = t.set_element_tag())]
     #[bw(ignore)]
     element_type: PropertyTag,
     #[br(args(format, &element_type))]
@@ -22,7 +22,7 @@ pub struct FSetProperty {
 impl FSetProperty {
     pub(crate) fn element_property_type_name(&self) -> &str {
         self.element_type
-            .property_type()
+            .property_type_str()
             .unwrap_or_else(|_| todo!("{:?}", self.element_type))
     }
 }

@@ -1,7 +1,7 @@
-use binrw::{BinRead, BinResult, binwrite};
+use binrw::{BinRead, binwrite};
 
 use crate::{
-    error::binrw_custom,
+    error::{PropertyTagError, binrw_custom},
     format::SerializationFormat,
     types::{
         CollectionProperties, EPropertyTagFlags, FArrayProperty, FBoolProperty, FByteProperty,
@@ -98,7 +98,7 @@ impl FProperty {
         has_binary_or_native_serialize: bool,
         has_property_extensions: bool,
         property_guid: FGuid,
-    ) -> BinResult<PropertyTag> {
+    ) -> Result<PropertyTag, PropertyTagError> {
         if let Self::Unknown(original_tag, _) = self {
             return Ok(original_tag.clone());
         }
@@ -211,7 +211,7 @@ impl FProperty {
         }
     }
 
-    fn generate_complete_property_type(&self) -> BinResult<FPropertyTypeName> {
+    fn generate_complete_property_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         Ok(match self {
             Self::Array(array_property) => {
                 let x = match array_property {
@@ -252,8 +252,8 @@ impl FProperty {
             // Property::Int64(_) => todo!(),
             // Property::Int8(_) => todo!(),
             Self::Map(map_property) => FPropertyTypeName::Map {
-                key: Box::new(map_property.key_type().property_type_field()?),
-                value: Box::new(map_property.value_type().property_type_field()?),
+                key: Box::new(map_property.key_type().property_type_name()?),
+                value: Box::new(map_property.value_type().property_type_name()?),
             },
             // Property::MulticastInlineDelegate(_) => todo!(),
             // Property::MulticastSparseDelegate(_) => todo!(),
@@ -287,12 +287,12 @@ impl BinRead for FProperty {
         let start = reader.stream_position()?;
         let err_convert = &binrw_custom(start);
 
-        let property_type = t.property_type()?;
+        let property_type = t.property_type_str().map_err(err_convert)?;
 
         #[rustfmt::skip] // Disable wrapping on this block
         let result = match property_type {
             NAME_ARRAY_PROPERTY  => {
-                let inner_type = t.array_inner_type()?;
+                let inner_type = t.array_inner_type().map_err(err_convert)?;
                 let array_property = FArrayProperty::read_options(reader, endian, (format, t, inner_type))?;
                 Self::from(array_property)
             },
@@ -327,6 +327,7 @@ impl BinRead for FProperty {
             NAME_UINT64_PROPERTY => Self::from(FUInt64Property::read_options(reader, endian, ())?),
             _ => {
                 println!("Warning: Unrecognized property type {property_type}");
+                let err_convert = &binrw_custom(start);
                 let size = usize::try_from(size).map_err(err_convert)?;
                 let mut buf = vec![0u8; size];
                 reader.read_exact(&mut buf)?;
@@ -337,6 +338,7 @@ impl BinRead for FProperty {
 
         // Check bytes read compared to size
         let size = i64::from(size);
+        let err_convert = &binrw_custom(start);
         let start = i64::try_from(start).map_err(err_convert)?;
         let pos = reader.stream_position()?;
         let pos = i64::try_from(pos).map_err(err_convert)?;

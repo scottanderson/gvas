@@ -1,8 +1,8 @@
 use std::io::Cursor;
 
-use binrw::{BinRead, BinResult, BinWrite, binrw};
+use binrw::{BinRead, BinWrite, binrw};
 
-use crate::error::{ParseGuidError, binrw_custom};
+use crate::error::{ParseGuidError, PropertyTagError, binrw_custom};
 use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
@@ -108,29 +108,6 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn type_name(&self) -> BinResult<FPropertyTypeName> {
-        match self {
-            Self::Complete { property_type, .. } => Ok(property_type.clone()),
-            Self::Incomplete { property_type, .. } => {
-                let property_type =
-                    property_type
-                        .as_deref()
-                        .ok_or_else(|| binrw::Error::AssertFail {
-                            pos: 0,
-                            message: format!("type_name({self:?})"),
-                        })?;
-
-                FPropertyTypeName::from_name(property_type).ok_or_else(|| {
-                    binrw::Error::AssertFail {
-                        pos: 0,
-                        message: format!("unsupported legacy property type name: {property_type}"),
-                    }
-                })
-            }
-        }
-    }
-
-    #[inline]
     pub fn array_index(&self) -> u32 {
         match self {
             Self::Incomplete { array_index, .. } | Self::Complete { array_index, .. } => {
@@ -140,7 +117,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn enum_type(&self) -> BinResult<FPropertyTypeName> {
+    pub fn enum_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         let result: FPropertyTypeName = match self {
             Self::Incomplete {
                 property_type,
@@ -154,7 +131,10 @@ impl PropertyTag {
                     CollectionProperties::None if property_type == NAME_ENUM_PROPERTY => {
                         FString(None)
                     }
-                    _ => todo!("{self:?}"),
+                    _ => Err(PropertyTagError::Unsupported(
+                        "enum_type".into(),
+                        format!("{self:?}"),
+                    ))?,
                 },
                 class_path: None,
                 inner_type: None,
@@ -200,7 +180,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_key_type(&self) -> BinResult<Self> {
+    pub fn map_key_type(&self) -> Result<Self, PropertyTagError> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -213,14 +193,11 @@ impl PropertyTag {
             } => Some(Self::synthetic_complete(*key.clone(), size)),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("map_key_type({self:?})"),
-        })
+        .ok_or_else(|| PropertyTagError::Unsupported("map_key_type".into(), format!("{self:?}")))
     }
 
     #[inline]
-    pub fn map_value_type(&self) -> BinResult<Self> {
+    pub fn map_value_type(&self) -> Result<Self, PropertyTagError> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -233,14 +210,11 @@ impl PropertyTag {
             } => Some(Self::synthetic_complete(*value.clone(), size)),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("map_value_type({self:?})"),
-        })
+        .ok_or_else(|| PropertyTagError::Unsupported("map_value_type".into(), format!("{self:?}")))
     }
 
     #[inline]
-    pub fn set_element_tag(&self) -> BinResult<Self> {
+    pub fn set_element_tag(&self) -> Result<Self, PropertyTagError> {
         let size = 0;
         match self {
             Self::Incomplete {
@@ -253,25 +227,21 @@ impl PropertyTag {
             } => Some(Self::synthetic_complete(*e.clone(), size)),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("set_element_type({self:?})"),
-        })
+        .ok_or_else(|| PropertyTagError::Unsupported("set_element_tag".into(), format!("{self:?}")))
     }
 
     #[inline]
-    pub fn property_type(&self) -> BinResult<&str> {
+    pub fn property_type_str(&self) -> Result<&str, PropertyTagError> {
         match self {
             Self::Incomplete { property_type, .. } => property_type.as_deref(),
             Self::Complete { property_type, .. } => Some(property_type.name()),
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("property_type({self:?})"),
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("property_type_str".into(), format!("{self:?}"))
         })
     }
 
-    pub fn property_type_field(&self) -> BinResult<FPropertyTypeName> {
+    pub fn property_type_name(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         match self {
             Self::Complete { property_type, .. } => Some(property_type.clone()),
             Self::Incomplete {
@@ -280,9 +250,8 @@ impl PropertyTag {
                 ..
             } => FPropertyTypeName::from_incomplete(property_type, extra),
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("property_type_field({self:?})"),
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("property_type_name".into(), format!("{self:?}"))
         })
     }
 
@@ -295,7 +264,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn array_inner_type(&self) -> BinResult<&str> {
+    pub fn array_inner_type(&self) -> Result<&str, PropertyTagError> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Array { inner_type, .. },
@@ -307,44 +276,31 @@ impl PropertyTag {
             } => Some(inner_type.name()),
             _ => None,
         }
-        .ok_or_else(|| binrw::Error::AssertFail {
-            pos: 0,
-            message: format!("array_inner_type({self:?})"),
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("array_inner_type".into(), format!("{self:?}"))
         })
     }
 
     #[inline]
-    pub fn array_complete_type(&self) -> Option<&FPropertyTypeName> {
-        match self {
+    pub fn array_struct_type(&self) -> Result<(&str, &str, FGuid), PropertyTagError> {
+        match &self {
             Self::Complete {
                 property_type: FPropertyTypeName::Array(inner_type),
                 ..
             } => Some(inner_type.as_ref()),
             _ => None,
         }
-    }
-
-    #[inline]
-    pub fn array_struct_type(&self) -> Option<(&str, &str, FGuid)> {
-        let Some(FPropertyTypeName::Struct {
-            type_name: FString(Some(type_name)),
-            class_name: FString(Some(class_name)),
-            struct_guid: guid,
-        }) = self.array_complete_type()
-        else {
-            todo!("array_struct_type={self:?}");
-            // return None;
-        };
-        Some((type_name, class_name, *guid))
-    }
-
-    #[inline]
-    pub fn array_struct_type_binrw(&self) -> BinResult<(&str, &str, FGuid)> {
-        self.array_struct_type()
-            .ok_or_else(|| binrw::Error::AssertFail {
-                pos: 0,
-                message: format!("map_key_type({self:?})"),
-            })
+        .and_then(|t| match t {
+            FPropertyTypeName::Struct {
+                type_name: FString(Some(type_name)),
+                class_name: FString(Some(class_name)),
+                struct_guid: guid,
+            } => Some((type_name.as_str(), class_name.as_str(), *guid)),
+            _ => None,
+        })
+        .ok_or_else(|| {
+            PropertyTagError::Unsupported("array_struct_type".into(), format!("{self:?}"))
+        })
     }
 
     #[inline]
@@ -577,14 +533,16 @@ impl BinWrite for TaggedProperties {
             let len = u32::try_from(len).map_err(binrw_custom(pos))?;
 
             // Generate property tag
-            let property_tag = property.generate_tag(
-                format,
-                len,
-                *array_index,
-                *has_binary_or_native_serialize,
-                *has_property_extensions,
-                *property_guid,
-            )?;
+            let property_tag = property
+                .generate_tag(
+                    format,
+                    len,
+                    *array_index,
+                    *has_binary_or_native_serialize,
+                    *has_property_extensions,
+                    *property_guid,
+                )
+                .map_err(binrw_custom(pos))?;
 
             // Write tagged property to writer
             name.write_options(writer, endian, ())?;

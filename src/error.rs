@@ -36,6 +36,13 @@ pub enum ParseGuidError {
     ParseIntError(#[from] ParseIntError),
 }
 
+/// An error ocurred while decribing a PropertyTag.
+#[derive(Debug, Error)]
+pub enum PropertyTagError {
+    #[error("Unsupported method PropertyTag::{0} for {1}")]
+    Unsupported(Box<str>, String),
+}
+
 pub(crate) fn binrw_custom<T>(pos: u64) -> impl Fn(T) -> binrw::Error
 where
     T: binrw::error::CustomError + 'static,
