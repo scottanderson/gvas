@@ -25,7 +25,7 @@ use crate::{
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "value"))]
+#[cfg_attr(feature = "serde", serde(tag = "type"))]
 pub enum FProperty {
     #[cfg_attr(feature = "serde", serde(rename = "ArrayProperty"))]
     Array(#[bw(args(format))] FArrayProperty),
