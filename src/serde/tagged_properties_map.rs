@@ -7,10 +7,12 @@ use ::serde::{
 
 use crate::types::{FGuid, FProperty, FString, TaggedProperty};
 
+#[inline]
 fn is_false(value: &bool) -> bool {
     !value
 }
 
+#[inline]
 fn is_default_ref<T>(value: &&T) -> bool
 where
     T: Default + PartialEq,
@@ -108,27 +110,6 @@ impl TaggedPropertyValue {
     }
 }
 
-/// Accepts either:
-///
-/// ```json
-/// { "type": "IntProperty", "value": 10 }
-/// ```
-///
-/// or:
-///
-/// ```json
-/// [
-///   { "type": "IntProperty", "value": 10 },
-///   { "type": "IntProperty", "value": 20 }
-/// ]
-/// ```
-#[derive(Deserialize)]
-#[serde(untagged)]
-enum PropertyValues {
-    One(TaggedPropertyValue),
-    Many(Vec<TaggedPropertyValue>),
-}
-
 struct PropertySequence<'a>(&'a [TaggedProperty]);
 
 impl Serialize for PropertySequence<'_> {
@@ -147,7 +128,7 @@ impl Serialize for PropertySequence<'_> {
     }
 }
 
-pub fn serialize<S>(properties: &[TaggedProperty], serializer: S) -> Result<S::Ok, S::Error>
+pub(crate) fn serialize<S>(properties: &[TaggedProperty], serializer: S) -> Result<S::Ok, S::Error>
 where
     S: Serializer,
 {
@@ -202,7 +183,7 @@ where
     map.end()
 }
 
-pub fn deserialize<'de, D>(deserializer: D) -> Result<Vec<TaggedProperty>, D::Error>
+pub(crate) fn deserialize<'de, D>(deserializer: D) -> Result<Vec<TaggedProperty>, D::Error>
 where
     D: Deserializer<'de>,
 {
@@ -229,6 +210,15 @@ where
                     )));
                 }
 
+                /// Accepts a TaggedPropertyValue or an array of the same
+                #[allow(clippy::large_enum_variant, reason = "small variant is uncommon")]
+                #[derive(Deserialize)]
+                #[serde(untagged)]
+                enum PropertyValues {
+                    One(TaggedPropertyValue),
+                    Many(Vec<TaggedPropertyValue>),
+                }
+
                 let values = map.next_value::<PropertyValues>()?;
 
                 match values {
@@ -244,16 +234,13 @@ where
                             )));
                         }
 
-                        let property_name = FString::from(name);
-
                         result.reserve(values.len());
 
                         for (index, value) in values.into_iter().enumerate() {
+                            let property_name = FString::from(name.as_str());
                             let array_index = u32::try_from(index).map_err(de::Error::custom)?;
 
-                            result.push(
-                                value.into_tagged_property(property_name.clone(), array_index)?,
-                            );
+                            result.push(value.into_tagged_property(property_name, array_index)?);
                         }
                     }
                 }
