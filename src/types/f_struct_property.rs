@@ -10,6 +10,19 @@ use crate::{
     },
 };
 
+#[inline]
+fn is_default<T>(value: &T) -> bool
+where
+    T: Default + PartialEq,
+{
+    *value == T::default()
+}
+
+#[inline]
+fn is_null(value: &FString) -> bool {
+    value.0.is_none()
+}
+
 #[binrw]
 #[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: &SerializationFormat))]
@@ -42,9 +55,11 @@ pub enum FStructProperty {
         struct_type: FString,
         #[br(calc = class_name.into())]
         #[bw(ignore)]
+        #[cfg_attr(feature = "serde", serde(skip_serializing_if = "is_null"))]
         class_name: FString,
         #[br(calc = guid)]
         #[bw(ignore)]
+        #[cfg_attr(feature = "serde", serde(skip_serializing_if = "is_default"))]
         struct_guid: FGuid,
         #[brw(args(format))]
         properties: TaggedProperties,
