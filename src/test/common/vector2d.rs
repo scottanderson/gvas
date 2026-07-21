@@ -327,720 +327,686 @@ pub(crate) fn expected() -> USaveGame {
             ),
         },
         properties: TaggedProperties::from([
-            (
-                FString::from("SettingsChanged"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_WaterGauge_C_2147482315",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plow_C_2147482312",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plow_Row_Single_C_2147482309",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plow_Row_3_C_2147482305",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plow_5Row_C_2147482301",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plow_Row_5_C_2147482297",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plant_C_2147482293",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plant_Row_C_2147482286",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plant_Row3_C_2147482280",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Plant_Row5_C_2147482274",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Cultivate_C_2147482268",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Cultivate_Row_C_2147482265",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Cultivate_Row3_C_2147482261",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Cultivate_Row5_C_2147482257",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_PlasticRow_C_2147482253",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Purchase_C_2147482249",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Purchase_1x10_C_2147482242",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Purchase_3Row_C_2147482235",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Purchase_5Row_C_2147482228",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Purchase_10x10_C_2147482221",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Modify_C_2147482214",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Row_C_2147482198",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Row3_C_2147482181",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Harvest_C_2147482164",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Harvest_Row_C_2147482161",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Harvest_Row_3_C_2147482157",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Harvest_Row_5_C_2147482153",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Harvest_Row_C_2147482149",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_AutomatedActionControl_C_2147482145",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_RemovePlaceable_C_2147482142",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_SeedSilo_C_2147482139",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_TractorBarn_C_2147482132",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Sell_C_2147482125",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_FuelStorageTank_C_2147482118",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_ChickenRun_C_2147482115",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_MovePlaceable_C_2147482112",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Beehive_C_2147482109",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_SetPHTool_Row_C_2147482106",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_BiodieselRefinery_C_2147482089",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_OilPress_C_2147482086",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_FlourMill_C_2147482083",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_LargeChickenCoop_C_2147482080",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_CropSign_C_2147482077",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Mulch_C_2147482070",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Mulch_Row_C_2147482054",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Mulch_Row3_C_2147482037",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Warehouse_C_2147482020",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_HarvestSilo_C_2147482013",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_Stockpile_C_2147482008",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_ActionTool_CompostStation_C_2147482001",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged_Event"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!("{}BP_Renders_C_1", DELEGATE_PREFIX)),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_PlayerPawn_C_2147482331",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("UpdatedSavedSettings"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478921",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478905",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478890",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478875",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478860",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478303",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478288",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478273",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478258",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478243",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478228",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478141",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478126",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478111",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147478096",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477750",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477735",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477720",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477705",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477690",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477675",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477660",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477645",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477189",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(format!(
-                                "{}BP_AutomatedTool_C_2147477162",
-                                DELEGATE_PREFIX
-                            )),
-                            function_name: FString::from("SettingsChanged"),
-                        },
-                    ]))),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("AudioSettings"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FStructProperty::Custom(
-                        FString::from("GameAudioSettings"),
-                        FString(None),
-                        FGuid::default(),
-                        TaggedProperties::from([
-                            (
-                                FString::from("MasterLevel"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FFloatProperty(0.20348908)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("MusicLevel"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FFloatProperty(0.1511635)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("SFXLevel"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FFloatProperty(0.5436054)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                        ]),
-                    )),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("GameSettings"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FStructProperty::Custom(
-                        FString::from("GameSettings"),
-                        FString(None),
-                        FGuid::default(),
-                        TaggedProperties::from([
-                            (
-                                FString::from("CurrentSaveSlot"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FStrProperty(FString::from("SAVE2"))),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("LoadTutorial"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(false)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("DisplayNewOrders"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(false)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("EscapeExitsTool"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(false)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("UseDarkMode"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(true)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("AnimateDayCycle"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(false)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("EnableTractorCollision"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(false)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("ShowInventory"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FBoolProperty(true)),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                            (
-                                FString::from("CameraAngle"),
-                                TaggedProperty {
-                                    array_index: 0,
-                                    has_binary_or_native_serialize: false,
-                                    has_property_extensions: false,
-                                    property: FProperty::from(FStructProperty::Vector2D(
-                                        FVector2D {
-                                            x: 30.574748247861862,
-                                            y: 60.42525175213814,
-                                        },
-                                    )),
-                                    property_guid: FGuid::default(),
-                                },
-                            ),
-                        ]),
-                    )),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("HighScore"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FIntProperty(2649)),
-                    property_guid: FGuid::default(),
-                },
-            ),
+            TaggedProperty {
+                property_name: FString::from("SettingsChanged"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_WaterGauge_C_2147482315",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plow_C_2147482312",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plow_Row_Single_C_2147482309",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plow_Row_3_C_2147482305",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plow_5Row_C_2147482301",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plow_Row_5_C_2147482297",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plant_C_2147482293",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plant_Row_C_2147482286",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plant_Row3_C_2147482280",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Plant_Row5_C_2147482274",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Cultivate_C_2147482268",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Cultivate_Row_C_2147482265",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Cultivate_Row3_C_2147482261",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Cultivate_Row5_C_2147482257",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_PlasticRow_C_2147482253",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Purchase_C_2147482249",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Purchase_1x10_C_2147482242",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Purchase_3Row_C_2147482235",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Purchase_5Row_C_2147482228",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Purchase_10x10_C_2147482221",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Modify_C_2147482214",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Row_C_2147482198",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Row3_C_2147482181",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Harvest_C_2147482164",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Harvest_Row_C_2147482161",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Harvest_Row_3_C_2147482157",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Harvest_Row_5_C_2147482153",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Harvest_Row_C_2147482149",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_AutomatedActionControl_C_2147482145",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_RemovePlaceable_C_2147482142",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_SeedSilo_C_2147482139",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_TractorBarn_C_2147482132",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Sell_C_2147482125",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_FuelStorageTank_C_2147482118",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_ChickenRun_C_2147482115",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_MovePlaceable_C_2147482112",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Beehive_C_2147482109",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_SetPHTool_Row_C_2147482106",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_BiodieselRefinery_C_2147482089",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_OilPress_C_2147482086",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_FlourMill_C_2147482083",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_LargeChickenCoop_C_2147482080",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_CropSign_C_2147482077",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Mulch_C_2147482070",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Mulch_Row_C_2147482054",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Mulch_Row3_C_2147482037",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Warehouse_C_2147482020",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_HarvestSilo_C_2147482013",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_Stockpile_C_2147482008",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_ActionTool_CompostStation_C_2147482001",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged_Event"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!("{}BP_Renders_C_1", DELEGATE_PREFIX)),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_PlayerPawn_C_2147482331",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("UpdatedSavedSettings"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478921",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478905",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478890",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478875",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478860",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478303",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478288",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478273",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478258",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478243",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478228",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478141",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478126",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478111",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147478096",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477750",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477735",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477720",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477705",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477690",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477675",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477660",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477645",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477189",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(format!(
+                            "{}BP_AutomatedTool_C_2147477162",
+                            DELEGATE_PREFIX
+                        )),
+                        function_name: FString::from("SettingsChanged"),
+                    },
+                ]))),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("AudioSettings"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FStructProperty::Custom(
+                    FString::from("GameAudioSettings"),
+                    FString(None),
+                    FGuid::default(),
+                    TaggedProperties::from([
+                        TaggedProperty {
+                            property_name: FString::from("MasterLevel"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FFloatProperty(0.20348908)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("MusicLevel"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FFloatProperty(0.1511635)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("SFXLevel"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FFloatProperty(0.5436054)),
+                            property_guid: FGuid::default(),
+                        },
+                    ]),
+                )),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("GameSettings"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FStructProperty::Custom(
+                    FString::from("GameSettings"),
+                    FString(None),
+                    FGuid::default(),
+                    TaggedProperties::from([
+                        TaggedProperty {
+                            property_name: FString::from("CurrentSaveSlot"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FStrProperty(FString::from("SAVE2"))),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("LoadTutorial"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(false)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("DisplayNewOrders"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(false)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("EscapeExitsTool"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(false)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("UseDarkMode"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(true)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("AnimateDayCycle"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(false)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("EnableTractorCollision"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(false)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("ShowInventory"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FBoolProperty(true)),
+                            property_guid: FGuid::default(),
+                        },
+                        TaggedProperty {
+                            property_name: FString::from("CameraAngle"),
+                            array_index: 0,
+                            has_binary_or_native_serialize: false,
+                            has_property_extensions: false,
+                            property: FProperty::from(FStructProperty::Vector2D(FVector2D {
+                                x: 30.574748247861862,
+                                y: 60.42525175213814,
+                            })),
+                            property_guid: FGuid::default(),
+                        },
+                    ]),
+                )),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("HighScore"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FIntProperty(2649)),
+                property_guid: FGuid::default(),
+            },
         ]),
     }
 }

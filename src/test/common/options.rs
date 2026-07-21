@@ -223,26 +223,22 @@ pub(crate) fn expected() -> USaveGame {
             save_game_class_name: FString::from("/Game/UI/BP_SaveOptions.BP_SaveOptions_C"),
         },
         properties: TaggedProperties::from([
-            (
-                FString::from("Slider1"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FFloatProperty(0.16610672)),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("Slider2"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FFloatProperty(0.28251615)),
-                    property_guid: FGuid::default(),
-                },
-            ),
+            TaggedProperty {
+                property_name: FString::from("Slider1"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FFloatProperty(0.16610672)),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("Slider2"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FFloatProperty(0.28251615)),
+                property_guid: FGuid::default(),
+            },
         ]),
     }
 }

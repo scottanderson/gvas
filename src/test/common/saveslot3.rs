@@ -260,378 +260,324 @@ pub(crate) fn expected() -> USaveGame {
             save_game_class_name: FString::from("/Script/CD.CDSave_GameState"),
         },
         properties: TaggedProperties::from([
-            (
-                FString::from("LastSaveTime"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FStructProperty::DateTime(FDateTime {
-                        ticks: 638160761644140000,
-                    })),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("PlayerClass"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FObjectProperty(FString::from(
-                        "/Game/Character/Player/Blueprints/BP_Soldier.BP_Soldier_C",
-                    ))),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("Version"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FIntProperty(3)),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("GameplayDatabase"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FMapProperty::Known {
-                        allocation_flags: 0,
-                        key_type: PropertyTag::Incomplete {
-                            property_type: FString::from("NameProperty"),
-                            size: 0,
-                            array_index: 0,
-                            extra: CollectionProperties::None,
-                            maybe_property_guid: PropertyTagIncompleteGuid::default(),
+            TaggedProperty {
+                property_name: FString::from("LastSaveTime"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FStructProperty::DateTime(FDateTime {
+                    ticks: 638160761644140000,
+                })),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("PlayerClass"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FObjectProperty(FString::from(
+                    "/Game/Character/Player/Blueprints/BP_Soldier.BP_Soldier_C",
+                ))),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("Version"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FIntProperty(3)),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("GameplayDatabase"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FMapProperty::Known {
+                    allocation_flags: 0,
+                    key_type: PropertyTag::Incomplete {
+                        property_type: FString::from("NameProperty"),
+                        size: 0,
+                        array_index: 0,
+                        extra: CollectionProperties::None,
+                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                    },
+                    value_type: PropertyTag::Incomplete {
+                        property_type: FString::from("StructProperty"),
+                        size: 0,
+                        array_index: 0,
+                        extra: CollectionProperties::None,
+                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                    },
+                    properties: TArray::from([
+                        MapEntry {
+                            key: FProperty::from(FNameProperty(FString::from(
+                                "unlock.welcomescreen.seen",
+                            ))),
+                            value: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AsFloat"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFloatProperty(0.0)),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AsString"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString(None))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
                         },
-                        value_type: PropertyTag::Incomplete {
-                            property_type: FString::from("StructProperty"),
-                            size: 0,
-                            array_index: 0,
-                            extra: CollectionProperties::None,
-                            maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                        MapEntry {
+                            key: FProperty::from(FNameProperty(FString::from(
+                                "game.tutorial.finished",
+                            ))),
+                            value: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AsFloat"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFloatProperty(1.0)),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AsString"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString(None))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
                         },
-                        properties: TArray::from([
-                            MapEntry {
-                                key: FProperty::from(FNameProperty(FString::from(
-                                    "unlock.welcomescreen.seen",
-                                ))),
-                                value: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AsFloat"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFloatProperty(0.0)),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AsString"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(FString(
-                                                    None,
-                                                ))),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                            },
-                            MapEntry {
-                                key: FProperty::from(FNameProperty(FString::from(
-                                    "game.tutorial.finished",
-                                ))),
-                                value: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AsFloat"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFloatProperty(1.0)),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AsString"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(FString(
-                                                    None,
-                                                ))),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                            },
-                            MapEntry {
-                                key: FProperty::from(FNameProperty(FString::from(
-                                    "game.tutorial.skipped",
-                                ))),
-                                value: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AsFloat"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFloatProperty(1.0)),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AsString"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(FString(
-                                                    None,
-                                                ))),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                            },
-                            MapEntry {
-                                key: FProperty::from(FNameProperty(FString::from(
-                                    "dialogs.messages.seen.Rumiko.0.50",
-                                ))),
-                                value: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AsFloat"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFloatProperty(1.0)),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AsString"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(FString(
-                                                    None,
-                                                ))),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                            },
-                            MapEntry {
-                                key: FProperty::from(FNameProperty(FString::from("codex.Rumiko"))),
-                                value: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AsFloat"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFloatProperty(1.0)),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AsString"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(FString(
-                                                    None,
-                                                ))),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                            },
-                        ]),
-                    }),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("PlayerAttributes"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FMapProperty::Known {
-                        allocation_flags: 0,
-                        key_type: PropertyTag::Incomplete {
-                            property_type: FString::from("StructProperty"),
-                            size: 0,
-                            array_index: 0,
-                            extra: CollectionProperties::None,
-                            maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                        MapEntry {
+                            key: FProperty::from(FNameProperty(FString::from(
+                                "game.tutorial.skipped",
+                            ))),
+                            value: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AsFloat"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFloatProperty(1.0)),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AsString"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString(None))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
                         },
-                        value_type: PropertyTag::Incomplete {
-                            property_type: FString::from("FloatProperty"),
-                            size: 0,
-                            array_index: 0,
-                            extra: CollectionProperties::None,
-                            maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                        MapEntry {
+                            key: FProperty::from(FNameProperty(FString::from(
+                                "dialogs.messages.seen.Rumiko.0.50",
+                            ))),
+                            value: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AsFloat"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFloatProperty(1.0)),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AsString"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString(None))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
                         },
-                        properties: TArray::from([
-                            MapEntry {
-                                key: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AttributeName"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(
-                                                    FString::from("Currency_Blueprints"),
-                                                )),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("Attribute"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFieldPathProperty {
-                                                    path: TArray::from([FString::from(
-                                                        "Currency_Blueprints",
-                                                    )]),
-                                                    resolved_owner: FString::from(
-                                                        "/Script/CD.CDPlayerAttributeSet",
-                                                    ),
-                                                }),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AttributeOwner"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FObjectProperty(
-                                                    FString::from("None"),
-                                                )),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                                value: FProperty::from(FFloatProperty(0.0)),
-                            },
-                            MapEntry {
-                                key: FProperty::from(FStructProperty::Custom(
-                                    FString::from(""),
-                                    FString(None),
-                                    FGuid::default(),
-                                    TaggedProperties::from([
-                                        (
-                                            FString::from("AttributeName"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FStrProperty(
-                                                    FString::from("Currency_Electrum"),
-                                                )),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("Attribute"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FFieldPathProperty {
-                                                    path: TArray::from([FString::from(
-                                                        "Currency_Electrum",
-                                                    )]),
-                                                    resolved_owner: FString::from(
-                                                        "/Script/CD.CDPlayerAttributeSet",
-                                                    ),
-                                                }),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                        (
-                                            FString::from("AttributeOwner"),
-                                            TaggedProperty {
-                                                array_index: 0,
-                                                has_binary_or_native_serialize: false,
-                                                has_property_extensions: false,
-                                                property: FProperty::from(FObjectProperty(
-                                                    FString::from("None"),
-                                                )),
-                                                property_guid: FGuid::default(),
-                                            },
-                                        ),
-                                    ]),
-                                )),
-                                value: FProperty::from(FFloatProperty(0.0)),
-                            },
-                        ]),
-                    }),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("SecondaryWeaponClass"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FObjectProperty(FString::from(
-                        "/Game/Weapons/RocketLauncher/Blueprints/BP_RocketLauncher.BP_RocketLauncher_C",
-                    ))),
-                    property_guid: FGuid::default(),
-                },
-            ),
+                        MapEntry {
+                            key: FProperty::from(FNameProperty(FString::from("codex.Rumiko"))),
+                            value: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AsFloat"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFloatProperty(1.0)),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AsString"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString(None))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
+                        },
+                    ]),
+                }),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("PlayerAttributes"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FMapProperty::Known {
+                    allocation_flags: 0,
+                    key_type: PropertyTag::Incomplete {
+                        property_type: FString::from("StructProperty"),
+                        size: 0,
+                        array_index: 0,
+                        extra: CollectionProperties::None,
+                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                    },
+                    value_type: PropertyTag::Incomplete {
+                        property_type: FString::from("FloatProperty"),
+                        size: 0,
+                        array_index: 0,
+                        extra: CollectionProperties::None,
+                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
+                    },
+                    properties: TArray::from([
+                        MapEntry {
+                            key: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AttributeName"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString::from(
+                                            "Currency_Blueprints",
+                                        ))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("Attribute"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFieldPathProperty {
+                                            path: TArray::from([FString::from(
+                                                "Currency_Blueprints",
+                                            )]),
+                                            resolved_owner: FString::from(
+                                                "/Script/CD.CDPlayerAttributeSet",
+                                            ),
+                                        }),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AttributeOwner"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FObjectProperty(FString::from(
+                                            "None",
+                                        ))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
+                            value: FProperty::from(FFloatProperty(0.0)),
+                        },
+                        MapEntry {
+                            key: FProperty::from(FStructProperty::Custom(
+                                FString::from(""),
+                                FString(None),
+                                FGuid::default(),
+                                TaggedProperties::from([
+                                    TaggedProperty {
+                                        property_name: FString::from("AttributeName"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FStrProperty(FString::from(
+                                            "Currency_Electrum",
+                                        ))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("Attribute"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FFieldPathProperty {
+                                            path: TArray::from([FString::from(
+                                                "Currency_Electrum",
+                                            )]),
+                                            resolved_owner: FString::from(
+                                                "/Script/CD.CDPlayerAttributeSet",
+                                            ),
+                                        }),
+                                        property_guid: FGuid::default(),
+                                    },
+                                    TaggedProperty {
+                                        property_name: FString::from("AttributeOwner"),
+                                        array_index: 0,
+                                        has_binary_or_native_serialize: false,
+                                        has_property_extensions: false,
+                                        property: FProperty::from(FObjectProperty(FString::from(
+                                            "None",
+                                        ))),
+                                        property_guid: FGuid::default(),
+                                    },
+                                ]),
+                            )),
+                            value: FProperty::from(FFloatProperty(0.0)),
+                        },
+                    ]),
+                }),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("SecondaryWeaponClass"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FObjectProperty(FString::from(
+                    "/Game/Weapons/RocketLauncher/Blueprints/BP_RocketLauncher.BP_RocketLauncher_C",
+                ))),
+                property_guid: FGuid::default(),
+            },
         ]),
     }
 }

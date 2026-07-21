@@ -453,6 +453,7 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
 
 #[derive(Debug, PartialEq)]
 pub struct TaggedProperty {
+    pub property_name: FString,
     pub array_index: u32,
     pub has_binary_or_native_serialize: bool,
     pub has_property_extensions: bool,
@@ -461,7 +462,7 @@ pub struct TaggedProperty {
 }
 
 impl TaggedProperty {
-    fn new(property_tag: PropertyTag, property: FProperty) -> Self {
+    fn new(property_name: FString, property_tag: PropertyTag, property: FProperty) -> Self {
         let array_index = property_tag.array_index();
         let property_guid = property_tag.guid();
         let flags = property_tag.flags();
@@ -470,6 +471,7 @@ impl TaggedProperty {
             flags.is_some_and(EPropertyTagFlags::has_property_extensions),
         );
         Self {
+            property_name,
             array_index,
             has_binary_or_native_serialize,
             has_property_extensions,
@@ -480,7 +482,7 @@ impl TaggedProperty {
 }
 
 #[derive(PartialEq)]
-pub struct TaggedProperties(pub Vec<(FString, TaggedProperty)>);
+pub struct TaggedProperties(pub Vec<TaggedProperty>);
 
 impl BinRead for TaggedProperties {
     type Args<'a> = (&'a SerializationFormat,);
@@ -498,8 +500,8 @@ impl BinRead for TaggedProperties {
                     let property =
                         FProperty::read_options(reader, endian, (format, &property_tag))?;
                     // println!("Read {property:?}");
-                    let property = TaggedProperty::new(property_tag, property);
-                    properties.push((name, property));
+                    let property = TaggedProperty::new(name, property_tag, property);
+                    properties.push(property);
                 }
             }
         }
@@ -516,8 +518,9 @@ impl BinWrite for TaggedProperties {
         endian: binrw::Endian,
         (format,): Self::Args<'_>,
     ) -> binrw::BinResult<()> {
-        for (name, tagged_property) in self.iter() {
+        for tagged_property in self.iter() {
             let TaggedProperty {
+                property_name,
                 array_index,
                 has_binary_or_native_serialize,
                 has_property_extensions,
@@ -545,7 +548,7 @@ impl BinWrite for TaggedProperties {
                 .map_err(binrw_custom(pos))?;
 
             // Write tagged property to writer
-            name.write_options(writer, endian, ())?;
+            property_name.write_options(writer, endian, ())?;
             property_tag.write_options(writer, endian, (format,))?;
             property_buf.write_options(writer, endian, ())?;
         }
@@ -564,7 +567,7 @@ impl std::fmt::Debug for TaggedProperties {
 }
 
 impl std::ops::Deref for TaggedProperties {
-    type Target = Vec<(FString, TaggedProperty)>;
+    type Target = Vec<TaggedProperty>;
 
     fn deref(&self) -> &Self::Target {
         &self.0
@@ -577,14 +580,14 @@ impl std::ops::DerefMut for TaggedProperties {
     }
 }
 
-impl<const N: usize> From<[(FString, TaggedProperty); N]> for TaggedProperties {
-    fn from(value: [(FString, TaggedProperty); N]) -> Self {
+impl<const N: usize> From<[TaggedProperty; N]> for TaggedProperties {
+    fn from(value: [TaggedProperty; N]) -> Self {
         Self(Vec::from(value))
     }
 }
 
-impl From<Vec<(FString, TaggedProperty)>> for TaggedProperties {
-    fn from(value: Vec<(FString, TaggedProperty)>) -> Self {
+impl From<Vec<TaggedProperty>> for TaggedProperties {
+    fn from(value: Vec<TaggedProperty>) -> Self {
         Self(value)
     }
 }

@@ -205,53 +205,47 @@ pub(crate) fn expected() -> USaveGame {
             save_game_class_name: FString::from("/Script/SaveFileTest.TestSaveGame"),
         },
         properties: TaggedProperties::from([
-            (
-                FString::from("DynamicDelegate"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FDelegateProperty {
+            TaggedProperty {
+                property_name: FString::from("DynamicDelegate"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FDelegateProperty {
+                    object: FString::from(DELEGATE_STR),
+                    function_name: FString::from("FirstBinding"),
+                }),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("MulticastDelegate"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
+                    FDelegateProperty {
                         object: FString::from(DELEGATE_STR),
                         function_name: FString::from("FirstBinding"),
-                    }),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("MulticastDelegate"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
-                        FDelegateProperty {
-                            object: FString::from(DELEGATE_STR),
-                            function_name: FString::from("FirstBinding"),
-                        },
-                        FDelegateProperty {
-                            object: FString::from(DELEGATE_STR),
-                            function_name: FString::from("SecondBinding"),
-                        },
-                    ]))),
-                    property_guid: FGuid::default(),
-                },
-            ),
-            (
-                FString::from("MulticastSparseDelegate"),
-                TaggedProperty {
-                    array_index: 0,
-                    has_binary_or_native_serialize: false,
-                    has_property_extensions: false,
-                    property: FProperty::from(FMulticastSparseDelegateProperty(TArray::from([
-                        FDelegateProperty {
-                            object: FString::from(DELEGATE_STR),
-                            function_name: FString::from("FirstBinding"),
-                        },
-                    ]))),
-                    property_guid: FGuid::default(),
-                },
-            ),
+                    },
+                    FDelegateProperty {
+                        object: FString::from(DELEGATE_STR),
+                        function_name: FString::from("SecondBinding"),
+                    },
+                ]))),
+                property_guid: FGuid::default(),
+            },
+            TaggedProperty {
+                property_name: FString::from("MulticastSparseDelegate"),
+                array_index: 0,
+                has_binary_or_native_serialize: false,
+                has_property_extensions: false,
+                property: FProperty::from(FMulticastSparseDelegateProperty(TArray::from([
+                    FDelegateProperty {
+                        object: FString::from(DELEGATE_STR),
+                        function_name: FString::from("FirstBinding"),
+                    },
+                ]))),
+                property_guid: FGuid::default(),
+            },
         ]),
     }
 }
