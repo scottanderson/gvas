@@ -877,11 +877,11 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FStructProperty::Custom(
-                    FString::from("GameAudioSettings"),
-                    FString(None),
-                    FGuid::default(),
-                    TaggedProperties::from([
+                property: FProperty::from(FStructProperty::Custom {
+                    struct_type: FString::from("GameAudioSettings"),
+                    class_name: FString(None),
+                    struct_guid: FGuid::default(),
+                    properties: TaggedProperties::from([
                         TaggedProperty {
                             property_name: FString::from("MasterLevel"),
                             array_index: 0,
@@ -907,7 +907,7 @@ pub(crate) fn expected() -> USaveGame {
                             property_guid: FGuid::default(),
                         },
                     ]),
-                )),
+                }),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -915,11 +915,11 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FStructProperty::Custom(
-                    FString::from("GameSettings"),
-                    FString(None),
-                    FGuid::default(),
-                    TaggedProperties::from([
+                property: FProperty::from(FStructProperty::Custom {
+                    struct_type: FString::from("GameSettings"),
+                    class_name: FString(None),
+                    struct_guid: FGuid::default(),
+                    properties: TaggedProperties::from([
                         TaggedProperty {
                             property_name: FString::from("CurrentSaveSlot"),
                             array_index: 0,
@@ -996,7 +996,7 @@ pub(crate) fn expected() -> USaveGame {
                             property_guid: FGuid::default(),
                         },
                     ]),
-                )),
+                }),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {

@@ -347,11 +347,11 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FStructProperty::Custom(
-                    FString::from("CustomStruct"),
-                    FString(None),
-                    FGuid::default(),
-                    TaggedProperties::from([TaggedProperty {
+                property: FProperty::from(FStructProperty::Custom {
+                    struct_type: FString::from("CustomStruct"),
+                    class_name: FString(None),
+                    struct_guid: FGuid::default(),
+                    properties: TaggedProperties::from([TaggedProperty {
                         property_name: FString::from("test_field"),
                         array_index: 0,
                         has_binary_or_native_serialize: false,
@@ -359,7 +359,7 @@ pub(crate) fn expected() -> USaveGame {
                         property: FProperty::from(FUInt64Property(12345)),
                         property_guid: FGuid::default(),
                     }]),
-                )),
+                }),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -392,11 +392,11 @@ pub(crate) fn expected() -> USaveGame {
                         },
                     },
                     values: vec![
-                        FStructProperty::Custom(
-                            FString::from("CustomStruct"),
-                            FString(None),
-                            FGuid::default(),
-                            TaggedProperties::from([TaggedProperty {
+                        FStructProperty::Custom {
+                            struct_type: FString::from("CustomStruct"),
+                            class_name: FString(None),
+                            struct_guid: FGuid::default(),
+                            properties: TaggedProperties::from([TaggedProperty {
                                 property_name: FString::from("test_field"),
                                 array_index: 0,
                                 has_binary_or_native_serialize: false,
@@ -404,12 +404,12 @@ pub(crate) fn expected() -> USaveGame {
                                 property: FProperty::from(FUInt64Property(10)),
                                 property_guid: FGuid::default(),
                             }]),
-                        ),
-                        FStructProperty::Custom(
-                            FString::from("CustomStruct"),
-                            FString(None),
-                            FGuid::default(),
-                            TaggedProperties::from([TaggedProperty {
+                        },
+                        FStructProperty::Custom {
+                            struct_type: FString::from("CustomStruct"),
+                            class_name: FString(None),
+                            struct_guid: FGuid::default(),
+                            properties: TaggedProperties::from([TaggedProperty {
                                 property_name: FString::from("test_field"),
                                 array_index: 0,
                                 has_binary_or_native_serialize: false,
@@ -417,7 +417,7 @@ pub(crate) fn expected() -> USaveGame {
                                 property: FProperty::from(FUInt64Property(10)),
                                 property_guid: FGuid::default(),
                             }]),
-                        ),
+                        },
                     ],
                 }),
                 property_guid: FGuid::default(),

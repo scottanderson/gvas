@@ -64,6 +64,20 @@ impl FPropertyTag {
     }
 }
 
+impl PropertyTag {
+    #[inline]
+    fn array_struct_suggested_size(&self, property_count: u32) -> Option<u32> {
+        if property_count > 0
+            && let size = self.size()
+            && size >= 4
+        {
+            Some((size - 4) / property_count)
+        } else {
+            None
+        }
+    }
+}
+
 #[binrw]
 #[br(import(format: &SerializationFormat, t: &PropertyTag, inner_type: &str))]
 #[bw(import(format: &SerializationFormat))]
@@ -111,17 +125,21 @@ pub enum FArrayProperty {
 
         #[br(calc = meta.0.into())]
         #[bw(ignore)]
-        type_name: FString,
+        type_name: Box<str>,
 
         #[br(calc = meta.1.into())]
         #[bw(ignore)]
-        class_name: FString,
+        class_name: Box<str>,
 
         #[br(calc = meta.2)]
         #[bw(ignore)]
         struct_guid: FGuid,
 
-        #[br(args(format, t, meta.0, Some(meta.1), meta.2,))]
+        #[br(temp, restore_position)]
+        #[bw(ignore)]
+        property_count: u32,
+
+        #[br(args(format, t.array_struct_suggested_size(property_count), &type_name, Some(&class_name), struct_guid,))]
         #[bw(args(format))]
         values: TArray<FStructProperty>,
     },
@@ -151,8 +169,22 @@ pub enum FArrayProperty {
         #[bw(ignore)]
         struct_guid: FGuid,
 
+        #[br(temp, restore_position)]
+        #[bw(ignore)]
+        property_count: u32,
+
+        #[br(temp, calc = {
+            if property_count > 0 && let size = t.size() && size >= 4 {
+                Some((size - 4) / property_count)
+            } else {
+                None
+            }
+        })]
+        #[bw(ignore)]
+        size: Option<u32>,
+
         #[br(count = count)]
-        #[br(args { inner: (format, struct_t, type_name, None, struct_guid, ) })]
+        #[br(args { inner: (format, t.array_struct_suggested_size(property_count), type_name, None, struct_guid, ) })]
         #[bw(args(format))]
         values: Vec<FStructProperty>,
     },

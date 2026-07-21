@@ -314,11 +314,11 @@ pub(crate) fn expected() -> USaveGame {
                             key: FProperty::from(FNameProperty(FString::from(
                                 "unlock.welcomescreen.seen",
                             ))),
-                            value: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            value: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AsFloat"),
                                         array_index: 0,
@@ -336,17 +336,17 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                         },
                         MapEntry {
                             key: FProperty::from(FNameProperty(FString::from(
                                 "game.tutorial.finished",
                             ))),
-                            value: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            value: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AsFloat"),
                                         array_index: 0,
@@ -364,17 +364,17 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                         },
                         MapEntry {
                             key: FProperty::from(FNameProperty(FString::from(
                                 "game.tutorial.skipped",
                             ))),
-                            value: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            value: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AsFloat"),
                                         array_index: 0,
@@ -392,17 +392,17 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                         },
                         MapEntry {
                             key: FProperty::from(FNameProperty(FString::from(
                                 "dialogs.messages.seen.Rumiko.0.50",
                             ))),
-                            value: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            value: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AsFloat"),
                                         array_index: 0,
@@ -420,15 +420,15 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                         },
                         MapEntry {
                             key: FProperty::from(FNameProperty(FString::from("codex.Rumiko"))),
-                            value: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            value: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AsFloat"),
                                         array_index: 0,
@@ -446,7 +446,7 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                         },
                     ]),
                 }),
@@ -475,11 +475,11 @@ pub(crate) fn expected() -> USaveGame {
                     },
                     properties: TArray::from([
                         MapEntry {
-                            key: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            key: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AttributeName"),
                                         array_index: 0,
@@ -516,15 +516,15 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                             value: FProperty::from(FFloatProperty(0.0)),
                         },
                         MapEntry {
-                            key: FProperty::from(FStructProperty::Custom(
-                                FString::from(""),
-                                FString(None),
-                                FGuid::default(),
-                                TaggedProperties::from([
+                            key: FProperty::from(FStructProperty::Custom {
+                                struct_type: FString::from(""),
+                                class_name: FString(None),
+                                struct_guid: FGuid::default(),
+                                properties: TaggedProperties::from([
                                     TaggedProperty {
                                         property_name: FString::from("AttributeName"),
                                         array_index: 0,
@@ -561,7 +561,7 @@ pub(crate) fn expected() -> USaveGame {
                                         property_guid: FGuid::default(),
                                     },
                                 ]),
-                            )),
+                            }),
                             value: FProperty::from(FFloatProperty(0.0)),
                         },
                     ]),

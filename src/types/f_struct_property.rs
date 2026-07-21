@@ -6,12 +6,12 @@ use crate::{
         FDateTime, FGameplayTagContainer, FGuid, FIntPoint, FLinearColor, FQuat, FRotator, FString,
         FTimespan, FVector, FVector2D, NAME_DATE_TIME, NAME_GAMEPLAY_TAG_CONTAINER, NAME_GUID,
         NAME_INT_POINT, NAME_LINEAR_COLOR, NAME_QUAT, NAME_ROTATOR, NAME_TIMESPAN, NAME_VECTOR,
-        NAME_VECTOR2D, PATH__SCRIPT__CORE_U_OBJECT, PropertyTag, TaggedProperties,
+        NAME_VECTOR2D, PATH__SCRIPT__CORE_U_OBJECT, TaggedProperties,
     },
 };
 
 #[binrw]
-#[br(import(format: &SerializationFormat, t: &PropertyTag, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
+#[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FStructProperty {
@@ -35,30 +35,32 @@ pub enum FStructProperty {
     Vector(#[br(args(format))] FVector),
     #[br(pre_assert(struct_type == NAME_VECTOR2D))]
     Vector2D(FVector2D),
-    Custom(
+    Custom {
         #[br(calc = struct_type.into())]
         #[bw(ignore)]
-        FString,
+        struct_type: FString,
         #[br(calc = class_name.into())]
         #[bw(ignore)]
-        FString,
+        class_name: FString,
         #[br(calc = guid)]
         #[bw(ignore)]
-        FGuid,
-        #[brw(args(format))] TaggedProperties,
-    ),
-    Unknown(
+        struct_guid: FGuid,
+        #[brw(args(format))]
+        properties: TaggedProperties,
+    },
+    Unknown {
         #[br(calc = struct_type.into())]
         #[bw(ignore)]
-        FString,
+        struct_type: FString,
         #[br(calc = class_name.into())]
         #[bw(ignore)]
-        FString,
+        class_name: FString,
         #[br(calc = guid)]
         #[bw(ignore)]
-        FGuid,
-        #[br(count = t.size())] Vec<u8>,
-    ),
+        struct_guid: FGuid,
+        #[br(count = size.unwrap_or(0))]
+        data: Vec<u8>,
+    },
 }
 
 impl FStructProperty {
@@ -75,7 +77,7 @@ impl FStructProperty {
             Self::Timespan(..) => Some(NAME_TIMESPAN),
             Self::Vector(..) => Some(NAME_VECTOR),
             Self::Vector2D(..) => Some(NAME_VECTOR2D),
-            Self::Unknown(struct_type, _c, _g, _) | Self::Custom(struct_type, _c, _g, _) => {
+            Self::Unknown { struct_type, .. } | Self::Custom { struct_type, .. } => {
                 struct_type.as_deref()
             }
         })
@@ -94,8 +96,8 @@ impl FStructProperty {
             | Self::Timespan(..)
             | Self::Vector(..)
             | Self::Vector2D(..) => FString::from(PATH__SCRIPT__CORE_U_OBJECT),
-            Self::Unknown(_t, struct_class, _g, _) | Self::Custom(_t, struct_class, _g, _) => {
-                struct_class.clone()
+            Self::Unknown { class_name, .. } | Self::Custom { class_name, .. } => {
+                class_name.clone()
             }
         }
     }
@@ -103,7 +105,7 @@ impl FStructProperty {
     #[inline]
     pub fn struct_guid(&self) -> FGuid {
         match self {
-            Self::Unknown(_t, _c, guid, _) | Self::Custom(_t, _c, guid, _) => *guid,
+            Self::Unknown { struct_guid, .. } | Self::Custom { struct_guid, .. } => *struct_guid,
             _ => FGuid::default(),
         }
     }
