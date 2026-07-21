@@ -186,14 +186,16 @@ impl PropertyTag {
             Self::Incomplete {
                 extra: CollectionProperties::Map { inner_type, .. },
                 ..
-            } => Some(Self::synthetic_incomplete(inner_type.clone(), size)),
+            } => Ok(Self::synthetic_incomplete(inner_type.clone(), size)),
             Self::Complete {
                 property_type: FPropertyTypeName::Map { key, .. },
                 ..
-            } => Some(Self::synthetic_complete(*key.clone(), size)),
-            _ => None,
+            } => Ok(Self::synthetic_complete(*key.clone(), size)),
+            _ => Err(PropertyTagError::Unsupported(
+                "map_key_type".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| PropertyTagError::Unsupported("map_key_type".into(), format!("{self:?}")))
     }
 
     #[inline]
@@ -203,14 +205,16 @@ impl PropertyTag {
             Self::Incomplete {
                 extra: CollectionProperties::Map { value_type, .. },
                 ..
-            } => Some(Self::synthetic_incomplete(value_type.clone(), size)),
+            } => Ok(Self::synthetic_incomplete(value_type.clone(), size)),
             Self::Complete {
                 property_type: FPropertyTypeName::Map { value, .. },
                 ..
-            } => Some(Self::synthetic_complete(*value.clone(), size)),
-            _ => None,
+            } => Ok(Self::synthetic_complete(*value.clone(), size)),
+            _ => Err(PropertyTagError::Unsupported(
+                "map_value_type".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| PropertyTagError::Unsupported("map_value_type".into(), format!("{self:?}")))
     }
 
     #[inline]
@@ -220,14 +224,16 @@ impl PropertyTag {
             Self::Incomplete {
                 extra: CollectionProperties::Set { inner_type },
                 ..
-            } => Some(Self::synthetic_incomplete(inner_type.clone(), size)),
+            } => Ok(Self::synthetic_incomplete(inner_type.clone(), size)),
             Self::Complete {
                 property_type: FPropertyTypeName::Set(e),
                 ..
-            } => Some(Self::synthetic_complete(*e.clone(), size)),
-            _ => None,
+            } => Ok(Self::synthetic_complete(*e.clone(), size)),
+            _ => Err(PropertyTagError::Unsupported(
+                "set_element_tag".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| PropertyTagError::Unsupported("set_element_tag".into(), format!("{self:?}")))
     }
 
     #[inline]
@@ -241,6 +247,7 @@ impl PropertyTag {
         })
     }
 
+    #[inline]
     pub fn property_type_name(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         match self {
             Self::Complete { property_type, .. } => Some(property_type.clone()),
@@ -290,7 +297,7 @@ impl PropertyTag {
             } => Some(inner_type.as_ref()),
             _ => None,
         }
-        .and_then(|t| match t {
+        .and_then(|inner_type| match inner_type {
             FPropertyTypeName::Struct {
                 type_name: FString(Some(type_name)),
                 class_name: FString(Some(class_name)),

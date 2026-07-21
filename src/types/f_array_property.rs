@@ -28,12 +28,12 @@ impl FPropertyTag {
                         ..
                     },
                 ..
-            } => Some(type_name.as_ref()),
-            _ => None,
+            } => Ok(type_name.as_ref()),
+            _ => Err(PropertyTagError::Unsupported(
+                "array_struct_type_name".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| {
-            PropertyTagError::Unsupported("array_struct_type_name".into(), format!("{self:?}"))
-        })
     }
 
     #[inline]
@@ -46,21 +46,23 @@ impl FPropertyTag {
                         ..
                     },
                 ..
-            } => Some(*struct_guid),
-            _ => None,
+            } => Ok(*struct_guid),
+            _ => Err(PropertyTagError::Unsupported(
+                "array_struct_guid".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| {
-            PropertyTagError::Unsupported("array_struct_guid".into(), format!("{self:?}"))
-        })
     }
 
     #[inline]
-    fn some_tag(&self) -> Result<&PropertyTag, PropertyTagError> {
+    fn as_some(&self) -> Result<&PropertyTag, PropertyTagError> {
         match self {
-            Self::Some { property_tag, .. } => Some(property_tag),
-            Self::None => None,
+            Self::Some { property_tag, .. } => Ok(property_tag),
+            Self::None => Err(PropertyTagError::Unsupported(
+                "as_some".into(),
+                format!("{self:?}"),
+            )),
         }
-        .ok_or_else(|| PropertyTagError::Unsupported("some_tag".into(), format!("{self:?}")))
     }
 }
 
@@ -155,7 +157,7 @@ pub enum FArrayProperty {
         struct_tag: FPropertyTag,
 
         #[br(temp)]
-        #[br(try_calc = struct_tag.some_tag())]
+        #[br(try_calc = struct_tag.as_some())]
         #[bw(ignore)]
         struct_t: &PropertyTag,
 
