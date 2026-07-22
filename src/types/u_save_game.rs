@@ -88,14 +88,14 @@ mod test {
             // Convert to JSON
             let json = serde_json::to_string_pretty(&result)?;
 
+            // Convert from JSON
+            let result2 = serde_json::from_str(&json)?;
+            assert!(result == result2);
+
             // Compare to expected JSON
             if let Some(expected_json) = expected_json {
                 pretty_assertions::assert_eq!(expected_json, json);
             }
-
-            // Convert from JSON
-            let result2 = serde_json::from_str(&json)?;
-            assert!(result == result2);
         }
         #[cfg(not(feature = "serde"))]
         {

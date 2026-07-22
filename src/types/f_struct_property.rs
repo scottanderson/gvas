@@ -10,6 +10,7 @@ use crate::{
     },
 };
 
+#[cfg(feature = "serde")]
 #[inline]
 fn is_default<T>(value: &T) -> bool
 where

@@ -463,6 +463,7 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
 }
 
 #[cfg(feature = "serde")]
+#[inline]
 pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
     value == &T::default()
 }

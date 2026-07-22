@@ -4,14 +4,22 @@ use crate::{
 };
 use binrw::binrw;
 
+#[cfg(feature = "serde")]
+#[inline]
+pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
+    value == &T::default()
+}
+
 #[binrw]
 #[br(import(format: &SerializationFormat, t: &PropertyTag))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(untagged))]
 pub enum FMapProperty {
     #[br(pre_assert(!t.flags().is_some_and(EPropertyTagFlags::has_binary_or_native_serialize)))]
     Known {
+        #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
         allocation_flags: u32,
 
         #[br(try_calc = t.map_key_type())]
@@ -24,6 +32,7 @@ pub enum FMapProperty {
 
         #[br(args(format, &key_type, &value_type))]
         #[bw(args(format))]
+        #[cfg_attr(feature = "serde", serde(rename = "value"))]
         properties: TArray<MapEntry>,
     },
     Unknown {
