@@ -25,3 +25,9 @@ impl PropertyTag {
 #[br(import(t: &PropertyTag))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FBoolProperty(#[br(try_calc = t.bool_value())] pub bool);
+
+impl From<bool> for FBoolProperty {
+    fn from(value: bool) -> Self {
+        Self(value)
+    }
+}

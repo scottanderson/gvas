@@ -267,7 +267,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FInt8Property(-123)),
+                property: FProperty::from(FInt8Property::from(-123)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -275,7 +275,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FUInt16Property(65530)),
+                property: FProperty::from(FUInt16Property::from(65530)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -283,7 +283,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FInt16Property(-32764)),
+                property: FProperty::from(FInt16Property::from(-32764)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -291,7 +291,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FUInt32Property(4294967294)),
+                property: FProperty::from(FUInt32Property::from(4294967294)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -299,7 +299,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FIntProperty(-2147483647)),
+                property: FProperty::from(FIntProperty::from(-2147483647)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -307,7 +307,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FUInt64Property(18446744073709551614)),
+                property: FProperty::from(FUInt64Property::from(18446744073709551614)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -315,7 +315,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FInt64Property(-9223372036854775807)),
+                property: FProperty::from(FInt64Property::from(-9223372036854775807)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -323,7 +323,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FFloatProperty(3.14159)),
+                property: FProperty::from(FFloatProperty::from(3.14159)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -331,7 +331,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FDoubleProperty(3.14159265358979)),
+                property: FProperty::from(FDoubleProperty::from(3.14159265358979)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -339,7 +339,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FStrProperty(FString::from("Hello world"))),
+                property: FProperty::from(FStrProperty::from(FString::from("Hello world"))),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -356,7 +356,7 @@ pub(crate) fn expected() -> USaveGame {
                         array_index: 0,
                         has_binary_or_native_serialize: false,
                         has_property_extensions: false,
-                        property: FProperty::from(FUInt64Property(12345)),
+                        property: FProperty::from(FUInt64Property::from(12345)),
                         property_guid: FGuid::default(),
                     }]),
                 }),
@@ -401,7 +401,7 @@ pub(crate) fn expected() -> USaveGame {
                                 array_index: 0,
                                 has_binary_or_native_serialize: false,
                                 has_property_extensions: false,
-                                property: FProperty::from(FUInt64Property(10)),
+                                property: FProperty::from(FUInt64Property::from(10)),
                                 property_guid: FGuid::default(),
                             }]),
                         },
@@ -414,7 +414,7 @@ pub(crate) fn expected() -> USaveGame {
                                 array_index: 0,
                                 has_binary_or_native_serialize: false,
                                 has_property_extensions: false,
-                                property: FProperty::from(FUInt64Property(10)),
+                                property: FProperty::from(FUInt64Property::from(10)),
                                 property_guid: FGuid::default(),
                             }]),
                         },
@@ -429,11 +429,11 @@ pub(crate) fn expected() -> USaveGame {
                 has_property_extensions: false,
                 property: FProperty::from(FArrayProperty::Ints {
                     ints: TArray::from([
-                        FIntProperty(12),
-                        FIntProperty(12),
-                        FIntProperty(12),
-                        FIntProperty(12),
-                        FIntProperty(12),
+                        FIntProperty::from(12),
+                        FIntProperty::from(12),
+                        FIntProperty::from(12),
+                        FIntProperty::from(12),
+                        FIntProperty::from(12),
                     ]),
                 }),
                 property_guid: FGuid::default(),
@@ -445,9 +445,9 @@ pub(crate) fn expected() -> USaveGame {
                 has_property_extensions: false,
                 property: FProperty::from(FArrayProperty::Strs {
                     strings: TArray::from([
-                        FStrProperty(FString::from("Hello world from array")),
-                        FStrProperty(FString::from("Hello world from array")),
-                        FStrProperty(FString::from("Hello world from array")),
+                        FStrProperty::from(FString::from("Hello world from array")),
+                        FStrProperty::from(FString::from("Hello world from array")),
+                        FStrProperty::from(FString::from("Hello world from array")),
                     ]),
                 }),
                 property_guid: FGuid::default(),
@@ -530,7 +530,6 @@ pub const SLOT1_JSON: &str = r#"{
   "properties": {
     "u8_test": {
       "type": "ByteProperty",
-      "name": "None",
       "Byte": 129
     },
     "i8_test": {
@@ -575,22 +574,19 @@ pub const SLOT1_JSON: &str = r#"{
     },
     "struct_property": {
       "type": "StructProperty",
-      "type_name": "CustomStruct",
-      "CustomStruct": {
-        "test_field": [
-          {
+      "Custom": {
+        "struct_type": "CustomStruct",
+        "properties": {
+          "test_field": {
             "type": "UInt64Property",
             "value": 12345
           }
-        ]
+        }
       }
     },
     "date_time_property": {
       "type": "StructProperty",
-      "type_name": "DateTime",
-      "DateTime": {
-        "ticks": 637864237380020000
-      }
+      "DateTime": "2022-04-24 19:02:18.002 UTC"
     },
     "array_of_structs": {
       "type": "ArrayProperty",
@@ -598,23 +594,25 @@ pub const SLOT1_JSON: &str = r#"{
       "type_name": "CustomStruct",
       "structs": [
         {
-          "CustomStruct": {
-            "test_field": [
-              {
+          "Custom": {
+            "struct_type": "CustomStruct",
+            "properties": {
+              "test_field": {
                 "type": "UInt64Property",
                 "value": 10
               }
-            ]
+            }
           }
         },
         {
-          "CustomStruct": {
-            "test_field": [
-              {
+          "Custom": {
+            "struct_type": "CustomStruct",
+            "properties": {
+              "test_field": {
                 "type": "UInt64Property",
                 "value": 10
               }
-            ]
+            }
           }
         }
       ]

@@ -30,53 +30,63 @@ pub enum FProperty {
     #[cfg_attr(feature = "serde", serde(rename = "ArrayProperty"))]
     Array(#[bw(args(format))] FArrayProperty),
     #[cfg_attr(feature = "serde", serde(rename = "BoolProperty"))]
-    Bool(#[bw(ignore)] FBoolProperty),
+    Bool {
+        #[bw(ignore)]
+        value: FBoolProperty,
+    },
     #[cfg_attr(feature = "serde", serde(rename = "ByteProperty"))]
     Byte(FByteProperty),
     #[cfg_attr(feature = "serde", serde(rename = "DelegateProperty"))]
-    Delegate(FDelegateProperty),
+    Delegate { value: FDelegateProperty },
     #[cfg_attr(feature = "serde", serde(rename = "DoubleProperty"))]
-    Double(FDoubleProperty),
+    Double { value: FDoubleProperty },
     #[cfg_attr(feature = "serde", serde(rename = "EnumProperty"))]
-    Enum(FEnumProperty),
+    Enum { value: FEnumProperty },
     #[cfg_attr(feature = "serde", serde(rename = "FieldPathProperty"))]
-    FieldPath(FFieldPathProperty),
+    FieldPath { value: FFieldPathProperty },
     #[cfg_attr(feature = "serde", serde(rename = "FloatProperty"))]
-    Float(FFloatProperty),
+    Float { value: FFloatProperty },
     #[cfg_attr(feature = "serde", serde(rename = "IntProperty"))]
-    Int(FIntProperty),
+    Int { value: FIntProperty },
     #[cfg_attr(feature = "serde", serde(rename = "Int16Property"))]
-    Int16(FInt16Property),
+    Int16 { value: FInt16Property },
     #[cfg_attr(feature = "serde", serde(rename = "Int64Property"))]
-    Int64(FInt64Property),
+    Int64 { value: FInt64Property },
     #[cfg_attr(feature = "serde", serde(rename = "Int8Property"))]
-    Int8(FInt8Property),
+    Int8 { value: FInt8Property },
     #[cfg_attr(feature = "serde", serde(rename = "MapProperty"))]
     Map(#[bw(args(format))] FMapProperty),
     #[cfg_attr(feature = "serde", serde(rename = "MulticastInlineDelegateProperty"))]
-    MulticastInlineDelegate(FMulticastInlineDelegateProperty),
+    MulticastInlineDelegate {
+        value: FMulticastInlineDelegateProperty,
+    },
     #[cfg_attr(feature = "serde", serde(rename = "MultiCastSparseDelegateProperty"))]
-    MulticastSparseDelegate(FMulticastSparseDelegateProperty),
+    MulticastSparseDelegate {
+        value: FMulticastSparseDelegateProperty,
+    },
     #[cfg_attr(feature = "serde", serde(rename = "NameProperty"))]
-    Name(FNameProperty),
+    Name { value: FNameProperty },
     #[cfg_attr(feature = "serde", serde(rename = "ObjectProperty"))]
-    Object(FObjectProperty),
+    Object { value: FObjectProperty },
     #[cfg_attr(feature = "serde", serde(rename = "SetProperty"))]
     Set(#[bw(args(format))] FSetProperty),
     #[cfg_attr(feature = "serde", serde(rename = "SoftObjectProperty"))]
     SoftObject(FSoftObjectProperty),
     #[cfg_attr(feature = "serde", serde(rename = "StrProperty"))]
-    Str(FStrProperty),
+    Str { value: FStrProperty },
     #[cfg_attr(feature = "serde", serde(rename = "StructProperty"))]
     Struct(#[bw(args(format))] FStructProperty),
     #[cfg_attr(feature = "serde", serde(rename = "TextProperty"))]
-    Text(#[bw(args(format))] FTextProperty),
+    Text {
+        #[bw(args(format))]
+        value: FTextProperty,
+    },
     #[cfg_attr(feature = "serde", serde(rename = "UInt16Property"))]
-    UInt16(FUInt16Property),
+    UInt16 { value: FUInt16Property },
     #[cfg_attr(feature = "serde", serde(rename = "UInt32Property"))]
-    UInt32(FUInt32Property),
+    UInt32 { value: FUInt32Property },
     #[cfg_attr(feature = "serde", serde(rename = "UInt64Property"))]
-    UInt64(FUInt64Property),
+    UInt64 { value: FUInt64Property },
     Unknown {
         #[bw(ignore)]
         tag: PropertyTag,
@@ -88,30 +98,30 @@ impl FProperty {
     fn property_type_name(&self) -> &str {
         match &self {
             Self::Array(..) => NAME_ARRAY_PROPERTY,
-            Self::Bool(..) => NAME_BOOL_PROPERTY,
-            Self::Byte(..) => NAME_BYTE_PROPERTY,
-            Self::Delegate(..) => NAME_DELEGATE_PROPERTY,
-            Self::Double(..) => NAME_DOUBLE_PROPERTY,
-            Self::Enum(..) => NAME_ENUM_PROPERTY,
-            Self::FieldPath(..) => NAME_FIELD_PATH_PROPERTY,
-            Self::Float(..) => NAME_FLOAT_PROPERTY,
-            Self::Int(..) => NAME_INT_PROPERTY,
-            Self::Int16(..) => NAME_INT16_PROPERTY,
-            Self::Int64(..) => NAME_INT64_PROPERTY,
-            Self::Int8(..) => NAME_INT8_PROPERTY,
+            Self::Bool { .. } => NAME_BOOL_PROPERTY,
+            Self::Byte { .. } => NAME_BYTE_PROPERTY,
+            Self::Delegate { .. } => NAME_DELEGATE_PROPERTY,
+            Self::Double { .. } => NAME_DOUBLE_PROPERTY,
+            Self::Enum { .. } => NAME_ENUM_PROPERTY,
+            Self::FieldPath { .. } => NAME_FIELD_PATH_PROPERTY,
+            Self::Float { .. } => NAME_FLOAT_PROPERTY,
+            Self::Int { .. } => NAME_INT_PROPERTY,
+            Self::Int16 { .. } => NAME_INT16_PROPERTY,
+            Self::Int64 { .. } => NAME_INT64_PROPERTY,
+            Self::Int8 { .. } => NAME_INT8_PROPERTY,
             Self::Map(..) => NAME_MAP_PROPERTY,
-            Self::MulticastInlineDelegate(..) => NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
-            Self::MulticastSparseDelegate(..) => NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
-            Self::Name(..) => NAME_NAME_PROPERTY,
-            Self::Object(..) => NAME_OBJECT_PROPERTY,
+            Self::MulticastInlineDelegate { .. } => NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
+            Self::MulticastSparseDelegate { .. } => NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
+            Self::Name { .. } => NAME_NAME_PROPERTY,
+            Self::Object { .. } => NAME_OBJECT_PROPERTY,
             Self::Set(..) => NAME_SET_PROPERTY,
-            Self::SoftObject(..) => NAME_SOFT_OBJECT_PROPERTY,
-            Self::Str(..) => NAME_STR_PROPERTY,
+            Self::SoftObject { .. } => NAME_SOFT_OBJECT_PROPERTY,
+            Self::Str { .. } => NAME_STR_PROPERTY,
             Self::Struct(..) => NAME_STRUCT_PROPERTY,
-            Self::Text(..) => NAME_TEXT_PROPERTY,
-            Self::UInt16(..) => NAME_UINT16_PROPERTY,
-            Self::UInt32(..) => NAME_UINT32_PROPERTY,
-            Self::UInt64(..) => NAME_UINT64_PROPERTY,
+            Self::Text { .. } => NAME_TEXT_PROPERTY,
+            Self::UInt16 { .. } => NAME_UINT16_PROPERTY,
+            Self::UInt32 { .. } => NAME_UINT32_PROPERTY,
+            Self::UInt64 { .. } => NAME_UINT64_PROPERTY,
             Self::Unknown { tag, .. } => match tag {
                 PropertyTag::Incomplete {
                     property_type: FString(Some(name)),
@@ -142,7 +152,10 @@ impl FProperty {
             flags.set_has_property_guid(property_guid.is_valid());
             flags.set_has_binary_or_native_serialize(has_binary_or_native_serialize);
             flags.set_has_property_extensions(has_property_extensions);
-            if let Self::Bool(FBoolProperty(value)) = self {
+            if let Self::Bool {
+                value: FBoolProperty(value),
+            } = self
+            {
                 flags.set_bool_true(*value);
             }
             let property_type = self.generate_complete_property_type()?;
@@ -172,14 +185,18 @@ impl FProperty {
             Self::Array(p) => CollectionProperties::Array {
                 inner_type: p.element_property_type_name().into(),
             },
-            Self::Bool(FBoolProperty(value)) => CollectionProperties::Bool {
+            Self::Bool {
+                value: FBoolProperty(value),
+            } => CollectionProperties::Bool {
                 value: u8::from(*value),
             },
             Self::Byte(FByteProperty::Byte(_)) => CollectionProperties::Byte {
                 enum_name: NAME_NONE.into(),
             },
             Self::Byte(FByteProperty::Enum(FEnumProperty(enum_type, _)))
-            | Self::Enum(FEnumProperty(enum_type, _)) => CollectionProperties::Enum {
+            | Self::Enum {
+                value: FEnumProperty(enum_type, _),
+            } => CollectionProperties::Enum {
                 enum_name: enum_type.enum_class_name().clone(),
             },
             Self::Map(map_property) => {
@@ -223,24 +240,24 @@ impl FProperty {
                 type_name: p.struct_type(),
                 struct_guid: p.struct_guid(),
             },
-            Self::Delegate(..)
-            | Self::Double(..)
-            | Self::FieldPath(..)
-            | Self::Float(..)
-            | Self::Int(..)
-            | Self::Int16(..)
-            | Self::Int64(..)
-            | Self::Int8(..)
-            | Self::MulticastInlineDelegate(..)
-            | Self::MulticastSparseDelegate(..)
-            | Self::Name(..)
-            | Self::Object(..)
-            | Self::SoftObject(..)
-            | Self::Str(..)
-            | Self::Text(..)
-            | Self::UInt16(..)
-            | Self::UInt32(..)
-            | Self::UInt64(..) => CollectionProperties::None,
+            Self::Delegate { .. }
+            | Self::Double { .. }
+            | Self::FieldPath { .. }
+            | Self::Float { .. }
+            | Self::Int { .. }
+            | Self::Int16 { .. }
+            | Self::Int64 { .. }
+            | Self::Int8 { .. }
+            | Self::MulticastInlineDelegate { .. }
+            | Self::MulticastSparseDelegate { .. }
+            | Self::Name { .. }
+            | Self::Object { .. }
+            | Self::SoftObject { .. }
+            | Self::Str { .. }
+            | Self::Text { .. }
+            | Self::UInt16 { .. }
+            | Self::UInt32 { .. }
+            | Self::UInt64 { .. } => CollectionProperties::None,
             Self::Unknown { .. } => unimplemented!(),
         }
     }
@@ -276,34 +293,36 @@ impl FProperty {
                 };
                 FPropertyTypeName::Array(Box::new(x))
             }
-            Self::Bool(_) => FPropertyTypeName::Bool,
-            Self::Delegate(_) => FPropertyTypeName::Delegate,
-            Self::Double(_) => FPropertyTypeName::Double,
-            Self::Enum(FEnumProperty(type_name, _)) => type_name.clone(),
-            Self::Float(_) => FPropertyTypeName::Float,
-            Self::Int(_) => FPropertyTypeName::Int,
-            Self::Int16(_) => FPropertyTypeName::Int16,
-            Self::Int64(_) => FPropertyTypeName::Int64,
-            Self::Int8(_) => FPropertyTypeName::Int8,
+            Self::Bool { .. } => FPropertyTypeName::Bool,
+            Self::Delegate { .. } => FPropertyTypeName::Delegate,
+            Self::Double { .. } => FPropertyTypeName::Double,
+            Self::Enum {
+                value: FEnumProperty(type_name, _),
+            } => type_name.clone(),
+            Self::Float { .. } => FPropertyTypeName::Float,
+            Self::Int { .. } => FPropertyTypeName::Int,
+            Self::Int16 { .. } => FPropertyTypeName::Int16,
+            Self::Int64 { .. } => FPropertyTypeName::Int64,
+            Self::Int8 { .. } => FPropertyTypeName::Int8,
             Self::Map(map_property) => FPropertyTypeName::Map {
                 key: Box::new(map_property.key_type().property_type_name()?),
                 value: Box::new(map_property.value_type().property_type_name()?),
             },
-            Self::MulticastInlineDelegate(_) => FPropertyTypeName::MulticastInlineDelegate,
-            Self::MulticastSparseDelegate(_) => FPropertyTypeName::MulticastSparseDelegate,
-            Self::Name(_) => FPropertyTypeName::Name,
-            Self::Object(_) => FPropertyTypeName::Object,
-            Self::SoftObject(_) => FPropertyTypeName::SoftObject,
-            Self::Str(_) => FPropertyTypeName::Str,
+            Self::MulticastInlineDelegate { .. } => FPropertyTypeName::MulticastInlineDelegate,
+            Self::MulticastSparseDelegate { .. } => FPropertyTypeName::MulticastSparseDelegate,
+            Self::Name { .. } => FPropertyTypeName::Name,
+            Self::Object { .. } => FPropertyTypeName::Object,
+            Self::SoftObject { .. } => FPropertyTypeName::SoftObject,
+            Self::Str { .. } => FPropertyTypeName::Str,
             Self::Struct(struct_property) => FPropertyTypeName::Struct {
                 type_name: struct_property.struct_type(),
                 class_name: struct_property.struct_class(),
                 struct_guid: struct_property.struct_guid(),
             },
-            Self::Text(_) => FPropertyTypeName::Text,
-            Self::UInt16(_) => FPropertyTypeName::UInt16,
-            Self::UInt32(_) => FPropertyTypeName::UInt32,
-            Self::UInt64(_) => FPropertyTypeName::UInt64,
+            Self::Text { .. } => FPropertyTypeName::Text,
+            Self::UInt16 { .. } => FPropertyTypeName::UInt16,
+            Self::UInt32 { .. } => FPropertyTypeName::UInt32,
+            Self::UInt64 { .. } => FPropertyTypeName::UInt64,
             _ => todo!("{self:?}"),
         })
     }
@@ -405,7 +424,14 @@ impl BinRead for FProperty {
 }
 
 macro_rules! from {
-    ($variant:ident, $inner_type:ident) => {
+    ($variant:ident, $field:ident : $inner_type:ty) => {
+        impl From<$inner_type> for FProperty {
+            fn from($field: $inner_type) -> Self {
+                Self::$variant { $field }
+            }
+        }
+    };
+    ($variant:ident, $inner_type:ty) => {
         impl From<$inner_type> for FProperty {
             fn from(value: $inner_type) -> Self {
                 Self::$variant(value)
@@ -415,30 +441,30 @@ macro_rules! from {
 }
 
 from!(Array, FArrayProperty);
-from!(Bool, FBoolProperty);
+from!(Bool, value: FBoolProperty);
 from!(Byte, FByteProperty);
-from!(Delegate, FDelegateProperty);
-from!(Double, FDoubleProperty);
-from!(Enum, FEnumProperty);
-from!(FieldPath, FFieldPathProperty);
-from!(Float, FFloatProperty);
-from!(Int, FIntProperty);
-from!(Int16, FInt16Property);
-from!(Int64, FInt64Property);
-from!(Int8, FInt8Property);
+from!(Delegate, value: FDelegateProperty);
+from!(Double, value: FDoubleProperty);
+from!(Enum, value: FEnumProperty);
+from!(FieldPath, value: FFieldPathProperty);
+from!(Float, value: FFloatProperty);
+from!(Int, value: FIntProperty);
+from!(Int16, value: FInt16Property);
+from!(Int64, value: FInt64Property);
+from!(Int8, value: FInt8Property);
 from!(Map, FMapProperty);
-from!(MulticastInlineDelegate, FMulticastInlineDelegateProperty);
-from!(MulticastSparseDelegate, FMulticastSparseDelegateProperty);
-from!(Name, FNameProperty);
-from!(Object, FObjectProperty);
+from!(MulticastInlineDelegate, value: FMulticastInlineDelegateProperty);
+from!(MulticastSparseDelegate, value: FMulticastSparseDelegateProperty);
+from!(Name, value: FNameProperty);
+from!(Object, value: FObjectProperty);
 from!(Set, FSetProperty);
 from!(SoftObject, FSoftObjectProperty);
-from!(Str, FStrProperty);
+from!(Str, value: FStrProperty);
 from!(Struct, FStructProperty);
-from!(Text, FTextProperty);
-from!(UInt16, FUInt16Property);
-from!(UInt32, FUInt32Property);
-from!(UInt64, FUInt64Property);
+from!(Text, value: FTextProperty);
+from!(UInt16, value: FUInt16Property);
+from!(UInt32, value: FUInt32Property);
+from!(UInt64, value: FUInt64Property);
 
 #[cfg(test)]
 mod test {

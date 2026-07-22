@@ -7,8 +7,8 @@ use crate::{
     format::SerializationFormat,
     types::{
         CollectionProperties, EEditorObjectVersion, EUE5ReleaseStreamObjectVersion,
-        EUnrealEngineObjectUE4Version, FNameProperty, FProperty, NAME_NAME_PROPERTY, PropertyTag,
-        PropertyTagIncompleteGuid,
+        EUnrealEngineObjectUE4Version, FNameProperty, FProperty, FString, NAME_NAME_PROPERTY,
+        PropertyTag, PropertyTagIncompleteGuid,
     },
 };
 
@@ -45,8 +45,10 @@ fn name_property_with_array_index() -> Result<()> {
         } if property_type == NAME_NAME_PROPERTY
     );
     assert_eq!(
-        FProperty::from(FNameProperty("QU91_InvestigateTower_B2".into())),
-        prop
+        prop,
+        FProperty::from(FNameProperty::from(FString::from(
+            "QU91_InvestigateTower_B2"
+        )))
     );
 
     // Convert the NameProperty back to a Vec<u8>

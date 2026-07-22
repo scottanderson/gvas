@@ -124,6 +124,36 @@ macro_rules! ue_struct {
             },
         }
     };
+    ($name:ident, $ty:ty) => {
+        #[binrw]
+        #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        pub struct $name(
+            $ty
+        );
+
+        impl From<$ty> for $name {
+            #[inline]
+            fn from(value: $ty) -> Self {
+                Self(value)
+            }
+        }
+    };
+    ($name:ident, $field_name:ident : $ty:ty) => {
+        #[binrw]
+        #[derive(Debug, PartialEq)]
+        #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        pub struct $name {
+            $field_name: $ty
+        }
+
+        impl From<$ty> for $name {
+            #[inline]
+            fn from($field_name: $ty) -> Self {
+                Self { $field_name }
+            }
+        }
+    };
     ($name:ident, $($ty:ty),+) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
@@ -164,8 +194,8 @@ ue_struct!(FInt16Property, i16);
 ue_struct!(FInt64Property, i64);
 ue_struct!(FInt8Property, i8);
 ue_struct!(FIntProperty, i32);
-ue_struct!(FMulticastInlineDelegateProperty, TArray<FDelegateProperty>);
-ue_struct!(FMulticastSparseDelegateProperty, TArray<FDelegateProperty>);
+ue_struct!(FMulticastInlineDelegateProperty, delegates: TArray<FDelegateProperty>);
+ue_struct!(FMulticastSparseDelegateProperty, delegates: TArray<FDelegateProperty>);
 ue_struct!(FNameProperty, FString);
 ue_struct!(FObjectProperty, FString);
 ue_struct!(FStrProperty, FString);

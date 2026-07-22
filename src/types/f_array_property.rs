@@ -174,9 +174,11 @@ pub enum FArrayProperty {
     #[bw(assert(!format.property_tag_complete_type_name()))]
     TaggedStructs {
         #[br(temp)]
-        #[bw(try_calc(u32::try_from(values.len())))]
+        #[bw(try_calc = u32::try_from(values.len()))]
         count: u32,
 
+        // TODO: #[br(temp)]
+        // TODO: #[bw(try_calc = ...)]
         #[brw(args(format))]
         struct_tag: FPropertyTag,
 

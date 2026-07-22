@@ -228,7 +228,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FFloatProperty(0.16610672)),
+                property: FProperty::from(FFloatProperty::from(0.16610672)),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {
@@ -236,7 +236,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FFloatProperty(0.28251615)),
+                property: FProperty::from(FFloatProperty::from(0.28251615)),
                 property_guid: FGuid::default(),
             },
         ]),

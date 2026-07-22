@@ -332,7 +332,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
+                property: FProperty::from(FMulticastInlineDelegateProperty::from(TArray::from([
                     FDelegateProperty {
                         object: FString::from(format!(
                             "{}BP_ActionTool_WaterGauge_C_2147482315",
@@ -887,7 +887,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FFloatProperty(0.20348908)),
+                            property: FProperty::from(FFloatProperty::from(0.20348908)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -895,7 +895,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FFloatProperty(0.1511635)),
+                            property: FProperty::from(FFloatProperty::from(0.1511635)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -903,7 +903,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FFloatProperty(0.5436054)),
+                            property: FProperty::from(FFloatProperty::from(0.5436054)),
                             property_guid: FGuid::default(),
                         },
                     ]),
@@ -925,7 +925,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FStrProperty(FString::from("SAVE2"))),
+                            property: FProperty::from(FStrProperty::from(FString::from("SAVE2"))),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -933,7 +933,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(false)),
+                            property: FProperty::from(FBoolProperty::from(false)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -941,7 +941,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(false)),
+                            property: FProperty::from(FBoolProperty::from(false)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -949,7 +949,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(false)),
+                            property: FProperty::from(FBoolProperty::from(false)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -957,7 +957,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(true)),
+                            property: FProperty::from(FBoolProperty::from(true)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -965,7 +965,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(false)),
+                            property: FProperty::from(FBoolProperty::from(false)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -973,7 +973,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(false)),
+                            property: FProperty::from(FBoolProperty::from(false)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -981,7 +981,7 @@ pub(crate) fn expected() -> USaveGame {
                             array_index: 0,
                             has_binary_or_native_serialize: false,
                             has_property_extensions: false,
-                            property: FProperty::from(FBoolProperty(true)),
+                            property: FProperty::from(FBoolProperty::from(true)),
                             property_guid: FGuid::default(),
                         },
                         TaggedProperty {
@@ -1004,7 +1004,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FIntProperty(2649)),
+                property: FProperty::from(FIntProperty::from(2649)),
                 property_guid: FGuid::default(),
             },
         ]),
@@ -1418,90 +1418,69 @@ pub const VECTOR2D_JSON: &str = r#"{
     },
     "AudioSettings": {
       "type": "StructProperty",
-      "type_name": "GameAudioSettings",
-      "CustomStruct": {
-        "MasterLevel": [
-          {
+      "Custom": {
+        "struct_type": "GameAudioSettings",
+        "properties": {
+          "MasterLevel": {
             "type": "FloatProperty",
             "value": 0.20348908
-          }
-        ],
-        "MusicLevel": [
-          {
+          },
+          "MusicLevel": {
             "type": "FloatProperty",
             "value": 0.1511635
-          }
-        ],
-        "SFXLevel": [
-          {
+          },
+          "SFXLevel": {
             "type": "FloatProperty",
             "value": 0.5436054
           }
-        ]
+        }
       }
     },
     "GameSettings": {
       "type": "StructProperty",
-      "type_name": "GameSettings",
-      "CustomStruct": {
-        "CurrentSaveSlot": [
-          {
+      "Custom": {
+        "struct_type": "GameSettings",
+        "properties": {
+          "CurrentSaveSlot": {
             "type": "StrProperty",
             "value": "SAVE2"
-          }
-        ],
-        "LoadTutorial": [
-          {
+          },
+          "LoadTutorial": {
             "type": "BoolProperty",
             "value": false
-          }
-        ],
-        "DisplayNewOrders": [
-          {
+          },
+          "DisplayNewOrders": {
             "type": "BoolProperty",
             "value": false
-          }
-        ],
-        "EscapeExitsTool": [
-          {
+          },
+          "EscapeExitsTool": {
             "type": "BoolProperty",
             "value": false
-          }
-        ],
-        "UseDarkMode": [
-          {
+          },
+          "UseDarkMode": {
             "type": "BoolProperty",
             "value": true
-          }
-        ],
-        "AnimateDayCycle": [
-          {
+          },
+          "AnimateDayCycle": {
             "type": "BoolProperty",
             "value": false
-          }
-        ],
-        "EnableTractorCollision": [
-          {
+          },
+          "EnableTractorCollision": {
             "type": "BoolProperty",
             "value": false
-          }
-        ],
-        "ShowInventory": [
-          {
+          },
+          "ShowInventory": {
             "type": "BoolProperty",
             "value": true
-          }
-        ],
-        "CameraAngle": [
-          {
+          },
+          "CameraAngle": {
             "type": "StructProperty",
-            "type_name": "Vector2D",
             "Vector2D": {
               "x": 30.574748247861862,
               "y": 60.42525175213814
             }
           }
-        ]
+        }
       }
     },
     "HighScore": {

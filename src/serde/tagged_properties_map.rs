@@ -210,15 +210,6 @@ where
                     )));
                 }
 
-                /// Accepts a TaggedPropertyValue or an array of the same
-                #[allow(clippy::large_enum_variant, reason = "small variant is uncommon")]
-                #[derive(Deserialize)]
-                #[serde(untagged)]
-                enum PropertyValues {
-                    One(TaggedPropertyValue),
-                    Many(Vec<TaggedPropertyValue>),
-                }
-
                 let values = map.next_value::<PropertyValues>()?;
 
                 match values {
@@ -251,4 +242,48 @@ where
     }
 
     deserializer.deserialize_map(TaggedPropertiesVisitor)
+}
+
+/// Accepts a TaggedPropertyValue or an array of them
+#[allow(clippy::large_enum_variant, reason = "small variant is uncommon")]
+enum PropertyValues {
+    One(TaggedPropertyValue),
+    Many(Vec<TaggedPropertyValue>),
+}
+
+impl<'de> Deserialize<'de> for PropertyValues {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        struct PropertyValuesVisitor;
+
+        impl<'de> de::Visitor<'de> for PropertyValuesVisitor {
+            type Value = PropertyValues;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                formatter.write_str("a tagged property value or an array of tagged property values")
+            }
+
+            fn visit_map<A>(self, map: A) -> Result<Self::Value, A::Error>
+            where
+                A: de::MapAccess<'de>,
+            {
+                TaggedPropertyValue::deserialize(de::value::MapAccessDeserializer::new(map))
+                    .map(PropertyValues::One)
+            }
+
+            fn visit_seq<A>(self, sequence: A) -> Result<Self::Value, A::Error>
+            where
+                A: de::SeqAccess<'de>,
+            {
+                Vec::<TaggedPropertyValue>::deserialize(de::value::SeqAccessDeserializer::new(
+                    sequence,
+                ))
+                .map(PropertyValues::Many)
+            }
+        }
+
+        deserializer.deserialize_any(PropertyValuesVisitor)
+    }
 }

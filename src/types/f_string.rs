@@ -6,6 +6,16 @@ use crate::error::binrw_custom;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FString(pub Option<String>);
 
+impl FString {
+    pub const fn null() -> Self {
+        Self(None)
+    }
+
+    pub const fn is_null(&self) -> bool {
+        self.0.is_none()
+    }
+}
+
 impl std::fmt::Debug for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.0 {

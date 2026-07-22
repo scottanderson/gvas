@@ -221,7 +221,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FMulticastInlineDelegateProperty(TArray::from([
+                property: FProperty::from(FMulticastInlineDelegateProperty::from(TArray::from([
                     FDelegateProperty {
                         object: FString::from(DELEGATE_STR),
                         function_name: FString::from("FirstBinding"),
@@ -238,7 +238,7 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FMulticastSparseDelegateProperty(TArray::from([
+                property: FProperty::from(FMulticastSparseDelegateProperty::from(TArray::from([
                     FDelegateProperty {
                         object: FString::from(DELEGATE_STR),
                         function_name: FString::from("FirstBinding"),
