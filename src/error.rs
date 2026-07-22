@@ -13,6 +13,9 @@ pub type Result<T> = ::core::result::Result<T, Error>;
 /// A wrapper for the various error types this crate can emit.
 #[derive(Debug, Error)]
 pub enum Error {
+    /// An error ocurred while parsing a DateTime.
+    #[error(transparent)]
+    FDateTimeError(#[from] FDateTimeError),
     /// An error ocurred while parsing a Guid.
     #[error(transparent)]
     ParseGuidError(#[from] ParseGuidError),
@@ -29,6 +32,15 @@ pub enum Error {
     #[cfg(all(test, feature = "serde"))]
     #[error(transparent)]
     SerdeJsonError(#[from] serde_json::Error),
+}
+
+/// An error ocurred while parsing a DateTime.
+#[derive(Debug, thiserror::Error)]
+pub enum FDateTimeError {
+    #[error(transparent)]
+    ChronoParseError(#[from] chrono::ParseError),
+    #[error("Time is out of range")]
+    OutOfRange,
 }
 
 /// An error ocurred while parsing a Guid.

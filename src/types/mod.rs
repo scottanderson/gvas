@@ -128,9 +128,7 @@ macro_rules! ue_struct {
         #[binrw]
         #[derive(Debug, PartialEq)]
         #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-        pub struct $name(
-            $ty
-        );
+        pub struct $name($ty);
 
         impl From<$ty> for $name {
             #[inline]
