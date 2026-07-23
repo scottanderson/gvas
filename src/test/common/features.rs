@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-pub fn hints() -> HashMap<String, String> {
+pub(crate) fn hints() -> HashMap<String, String> {
     HashMap::from([
         (
             "SeasonSave.StructProperty.Seasons.MapProperty.Key.StructProperty".to_string(),

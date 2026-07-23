@@ -1,4 +1,4 @@
-pub const TAGCONTAINER_JSON: &str = r#"{
+pub(crate) const TAGCONTAINER_JSON: &str = r#"{
   "header": {
     "file_version": 522,
     "engine_version": {

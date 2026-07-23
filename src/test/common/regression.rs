@@ -1,4 +1,4 @@
-pub const REGRESSION_01_JSON: &str = r#"{
+pub(crate) const REGRESSION_01_JSON: &str = r#"{
   "header": {
     "file_version": 517,
     "engine_version": {

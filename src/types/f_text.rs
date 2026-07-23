@@ -10,10 +10,10 @@ use crate::{
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FText {
-    flags: u32,
+    pub flags: u32,
     // #[br(dbg)]
     #[brw(args(format))]
-    history: FTextHistory,
+    pub history: FTextHistory,
 }
 
 #[binrw]
@@ -111,13 +111,13 @@ pub enum FormatArgumentValueUInt {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct NumberFormattingOptions {
     #[brw(if(format.include_always_sign()))]
-    always_sign: i32,
-    use_grouping: i32,
-    roudning_mode: RoundingMode,
-    minimum_integral_digits: i32,
-    maximum_integral_digits: i32,
-    minimum_fractional_digits: i32,
-    maximum_fractional_digits: i32,
+    pub always_sign: i32,
+    pub use_grouping: i32,
+    pub roudning_mode: RoundingMode,
+    pub minimum_integral_digits: i32,
+    pub maximum_integral_digits: i32,
+    pub minimum_fractional_digits: i32,
+    pub maximum_fractional_digits: i32,
 }
 
 #[binrw]

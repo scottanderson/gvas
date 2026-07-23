@@ -1011,7 +1011,7 @@ pub(crate) fn expected() -> USaveGame {
     }
 }
 
-pub const VECTOR2D_JSON: &str = r#"{
+pub(crate) const VECTOR2D_JSON: &str = r#"{
   "header": {
     "file_version_ue4": 522,
     "file_version_ue5": 1009,

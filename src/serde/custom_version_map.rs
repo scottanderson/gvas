@@ -2,7 +2,7 @@ use serde::{Deserializer, Serializer, de};
 
 use crate::types::{FCustomVersion, FCustomVersionArray, FGuid};
 
-pub fn serialize<S: Serializer>(
+pub(crate) fn serialize<S: Serializer>(
     custom_versions: &FCustomVersionArray,
     serializer: S,
 ) -> Result<S::Ok, S::Error> {
@@ -13,7 +13,7 @@ pub fn serialize<S: Serializer>(
     )
 }
 
-pub fn deserialize<'de, D: Deserializer<'de>>(
+pub(crate) fn deserialize<'de, D: Deserializer<'de>>(
     deserializer: D,
 ) -> Result<FCustomVersionArray, D::Error> {
     struct VisitorType;

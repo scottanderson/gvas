@@ -445,7 +445,7 @@ pub(crate) fn expected() -> USaveGame {
     }
 }
 
-pub const SLOT1_JSON: &str = r#"{
+pub(crate) const SLOT1_JSON: &str = r#"{
   "header": {
     "file_version": 522,
     "engine_version": {

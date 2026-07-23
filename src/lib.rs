@@ -1,6 +1,7 @@
 #![warn(clippy::expect_used, clippy::panic, clippy::unwrap_used)]
 #![warn(clippy::use_self)]
 // #![warn(missing_docs)]
+#![warn(unreachable_pub)]
 
 //! Gvas
 //!
