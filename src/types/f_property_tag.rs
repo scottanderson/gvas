@@ -107,7 +107,7 @@ pub enum PropertyTag {
 
 impl PropertyTag {
     #[inline]
-    fn synthetic_incomplete(property_type: FString, size: u32) -> Self {
+    pub(crate) fn synthetic_incomplete(property_type: FString, size: u32) -> Self {
         Self::Incomplete {
             property_type,
             size,
@@ -118,7 +118,7 @@ impl PropertyTag {
     }
 
     #[inline]
-    fn synthetic_complete(property_type: FPropertyTypeName, size: u32) -> Self {
+    pub(crate) fn synthetic_complete(property_type: FPropertyTypeName, size: u32) -> Self {
         Self::Complete {
             property_type,
             size,
@@ -201,17 +201,18 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_key_type(&self) -> Result<Self, PropertyTagError> {
-        let size = 0;
+    pub fn map_key_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Map { inner_type, .. },
                 ..
-            } => Ok(Self::synthetic_incomplete(inner_type.clone(), size)),
+            } => FPropertyTypeName::from_name(inner_type.as_deref()).ok_or_else(|| {
+                PropertyTagError::Unsupported("map_key_type".into(), format!("{self:?}"))
+            }),
             Self::Complete {
                 property_type: FPropertyTypeName::Map { key, .. },
                 ..
-            } => Ok(Self::synthetic_complete(*key.clone(), size)),
+            } => Ok(*key.clone()),
             _ => Err(PropertyTagError::Unsupported(
                 "map_key_type".into(),
                 format!("{self:?}"),
@@ -220,17 +221,19 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn map_value_type(&self) -> Result<Self, PropertyTagError> {
-        let size = 0;
+    pub fn map_value_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Map { value_type, .. },
                 ..
-            } => Ok(Self::synthetic_incomplete(value_type.clone(), size)),
+            } => FPropertyTypeName::from_name(value_type.as_deref()).ok_or_else(|| {
+                PropertyTagError::Unsupported("map_value_type".into(), format!("{self:?}"))
+            }),
+
             Self::Complete {
                 property_type: FPropertyTypeName::Map { value, .. },
                 ..
-            } => Ok(Self::synthetic_complete(*value.clone(), size)),
+            } => Ok(*value.clone()),
             _ => Err(PropertyTagError::Unsupported(
                 "map_value_type".into(),
                 format!("{self:?}"),

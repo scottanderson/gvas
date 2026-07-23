@@ -1,6 +1,6 @@
 use crate::{
     format::SerializationFormat,
-    types::{EPropertyTagFlags, FProperty, PropertyTag, TArray},
+    types::{EPropertyTagFlags, FProperty, FPropertyTypeName, PropertyTag, TArray},
 };
 use binrw::binrw;
 
@@ -21,11 +21,11 @@ pub enum FMapProperty {
 
         #[br(try_calc = t.map_key_type())]
         #[bw(ignore)]
-        key_type: PropertyTag,
+        key_type: FPropertyTypeName,
 
         #[br(try_calc = t.map_value_type())]
         #[bw(ignore)]
-        value_type: PropertyTag,
+        value_type: FPropertyTypeName,
 
         #[br(args(format, &key_type, &value_type))]
         #[bw(args(format))]
@@ -35,11 +35,11 @@ pub enum FMapProperty {
     Unknown {
         #[br(try_calc = t.map_key_type())]
         #[bw(ignore)]
-        key_type: PropertyTag,
+        key_type: FPropertyTypeName,
 
         #[br(try_calc = t.map_value_type())]
         #[bw(ignore)]
-        value_type: PropertyTag,
+        value_type: FPropertyTypeName,
 
         #[br(count = t.size())]
         data: Vec<u8>,
@@ -47,14 +47,14 @@ pub enum FMapProperty {
 }
 
 impl FMapProperty {
-    pub fn key_type(&self) -> &PropertyTag {
+    pub fn key_type(&self) -> &FPropertyTypeName {
         match self {
             Self::Known { key_type, .. } => key_type,
             Self::Unknown { key_type, .. } => key_type,
         }
     }
 
-    pub fn value_type(&self) -> &PropertyTag {
+    pub fn value_type(&self) -> &FPropertyTypeName {
         match self {
             Self::Known { value_type, .. } => value_type,
             Self::Unknown { value_type, .. } => value_type,
@@ -63,16 +63,16 @@ impl FMapProperty {
 }
 
 #[binrw]
-#[br(import(format: &SerializationFormat, key_type: &PropertyTag, value_type: &PropertyTag))]
+#[br(import(format: &SerializationFormat, key_type: &FPropertyTypeName, value_type: &FPropertyTypeName))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MapEntry {
-    #[br(args(format, key_type))]
+    #[br(args(format, &key_type.as_tag(format, 0)))]
     #[bw(args(format))]
     pub key: FProperty,
 
-    #[br(args(format, value_type))]
+    #[br(args(format, &value_type.as_tag(format, 0)))]
     #[bw(args(format))]
     pub value: FProperty,
 }

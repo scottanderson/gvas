@@ -199,39 +199,10 @@ impl FProperty {
             } => CollectionProperties::Enum {
                 enum_name: enum_type.enum_class_name().clone(),
             },
-            Self::Map(map_property) => {
-                let (key_type, value_type) = match map_property {
-                    FMapProperty::Known {
-                        key_type,
-                        value_type,
-                        ..
-                    }
-                    | FMapProperty::Unknown {
-                        key_type,
-                        value_type,
-                        ..
-                    } => (key_type, value_type),
-                };
-
-                let PropertyTag::Incomplete {
-                    property_type: key_type,
-                    ..
-                } = key_type
-                else {
-                    todo!()
-                };
-                let PropertyTag::Incomplete {
-                    property_type: value_type,
-                    ..
-                } = value_type
-                else {
-                    todo!()
-                };
-                CollectionProperties::Map {
-                    inner_type: key_type.clone(),
-                    value_type: value_type.clone(),
-                }
-            }
+            Self::Map(map_property) => CollectionProperties::Map {
+                inner_type: map_property.key_type().name().into(),
+                value_type: map_property.value_type().name().into(),
+            },
             // Property::Optional(p) => CollectionProperties::Optional { inner_type },
             Self::Set(p) => CollectionProperties::Set {
                 inner_type: p.element_property_type_name().into(),
@@ -305,8 +276,8 @@ impl FProperty {
             Self::Int64 { .. } => FPropertyTypeName::Int64,
             Self::Int8 { .. } => FPropertyTypeName::Int8,
             Self::Map(map_property) => FPropertyTypeName::Map {
-                key: Box::new(map_property.key_type().property_type_name()?),
-                value: Box::new(map_property.value_type().property_type_name()?),
+                key: Box::new(map_property.key_type().clone()),
+                value: Box::new(map_property.value_type().clone()),
             },
             Self::MulticastInlineDelegate { .. } => FPropertyTypeName::MulticastInlineDelegate,
             Self::MulticastSparseDelegate { .. } => FPropertyTypeName::MulticastSparseDelegate,

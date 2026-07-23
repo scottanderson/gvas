@@ -1,11 +1,11 @@
 use std::collections::HashMap;
 
 use crate::types::{
-    CollectionProperties, FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion,
-    FFieldPathProperty, FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty,
-    FObjectProperty, FPackageFileVersion, FProperty, FSaveGameHeader, FStrProperty, FString,
-    FStructProperty, MapEntry, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties,
-    TaggedProperty, USaveGame,
+    FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion, FFieldPathProperty,
+    FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty, FObjectProperty,
+    FPackageFileVersion, FProperty, FPropertyTypeName, FSaveGameHeader, FStrProperty, FString,
+    FStructProperty, MapEntry, RawPropertyTypeName, TArray, TaggedProperties, TaggedProperty,
+    USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -265,50 +265,41 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
+                property_guid: FGuid::default(),
                 property: FProperty::from(FStructProperty::DateTime(FDateTime {
                     ticks: 638160761644140000,
                 })),
-                property_guid: FGuid::default(),
             },
             TaggedProperty {
                 property_name: FString::from("PlayerClass"),
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
+                property_guid: FGuid::default(),
                 property: FProperty::from(FObjectProperty::from(FString::from(
                     "/Game/Character/Player/Blueprints/BP_Soldier.BP_Soldier_C",
                 ))),
-                property_guid: FGuid::default(),
             },
             TaggedProperty {
                 property_name: FString::from("Version"),
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FIntProperty::from(3)),
                 property_guid: FGuid::default(),
+                property: FProperty::from(FIntProperty::from(3)),
             },
             TaggedProperty {
                 property_name: FString::from("GameplayDatabase"),
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
+                property_guid: FGuid::default(),
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
-                    key_type: PropertyTag::Incomplete {
-                        property_type: FString::from("NameProperty"),
-                        size: 0,
-                        array_index: 0,
-                        extra: CollectionProperties::None,
-                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
-                    },
-                    value_type: PropertyTag::Incomplete {
-                        property_type: FString::from("StructProperty"),
-                        size: 0,
-                        array_index: 0,
-                        extra: CollectionProperties::None,
-                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
-                    },
+                    key_type: FPropertyTypeName::Name,
+                    value_type: FPropertyTypeName::Unknown(RawPropertyTypeName::from_name(
+                        "StructProperty",
+                    )),
                     properties: TArray::from([
                         MapEntry {
                             key: FProperty::from(FNameProperty::from(FString::from(
@@ -324,18 +315,18 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
-                                        property: FProperty::from(FFloatProperty::from(0.0)),
                                         property_guid: FGuid::default(),
+                                        property: FProperty::from(FFloatProperty::from(0.0)),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AsString"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(FString(
                                             None,
                                         ))),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -354,18 +345,18 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
-                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                         property_guid: FGuid::default(),
+                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AsString"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(FString(
                                             None,
                                         ))),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -384,18 +375,18 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
-                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                         property_guid: FGuid::default(),
+                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AsString"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(FString(
                                             None,
                                         ))),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -414,18 +405,18 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
-                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                         property_guid: FGuid::default(),
+                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AsString"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(FString(
                                             None,
                                         ))),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -444,47 +435,37 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
-                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                         property_guid: FGuid::default(),
+                                        property: FProperty::from(FFloatProperty::from(1.0)),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AsString"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(FString(
                                             None,
                                         ))),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
                         },
                     ]),
                 }),
-                property_guid: FGuid::default(),
             },
             TaggedProperty {
                 property_name: FString::from("PlayerAttributes"),
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
+                property_guid: FGuid::default(),
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
-                    key_type: PropertyTag::Incomplete {
-                        property_type: FString::from("StructProperty"),
-                        size: 0,
-                        array_index: 0,
-                        extra: CollectionProperties::None,
-                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
-                    },
-                    value_type: PropertyTag::Incomplete {
-                        property_type: FString::from("FloatProperty"),
-                        size: 0,
-                        array_index: 0,
-                        extra: CollectionProperties::None,
-                        maybe_property_guid: PropertyTagIncompleteGuid::default(),
-                    },
+                    key_type: FPropertyTypeName::Unknown(RawPropertyTypeName::from_name(
+                        "StructProperty",
+                    )),
+                    value_type: FPropertyTypeName::Float,
                     properties: TArray::from([
                         MapEntry {
                             key: FProperty::from(FStructProperty::Custom {
@@ -497,16 +478,17 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(
                                             FString::from("Currency_Blueprints"),
                                         )),
-                                        property_guid: FGuid::default(),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("Attribute"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FFieldPathProperty {
                                             path: TArray::from([FString::from(
                                                 "Currency_Blueprints",
@@ -515,17 +497,16 @@ pub(crate) fn expected() -> USaveGame {
                                                 "/Script/CD.CDPlayerAttributeSet",
                                             ),
                                         }),
-                                        property_guid: FGuid::default(),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AttributeOwner"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FObjectProperty::from(
                                             FString::from("None"),
                                         )),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -542,16 +523,17 @@ pub(crate) fn expected() -> USaveGame {
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FStrProperty::from(
                                             FString::from("Currency_Electrum"),
                                         )),
-                                        property_guid: FGuid::default(),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("Attribute"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FFieldPathProperty {
                                             path: TArray::from([FString::from(
                                                 "Currency_Electrum",
@@ -560,17 +542,16 @@ pub(crate) fn expected() -> USaveGame {
                                                 "/Script/CD.CDPlayerAttributeSet",
                                             ),
                                         }),
-                                        property_guid: FGuid::default(),
                                     },
                                     TaggedProperty {
                                         property_name: FString::from("AttributeOwner"),
                                         array_index: 0,
                                         has_binary_or_native_serialize: false,
                                         has_property_extensions: false,
+                                        property_guid: FGuid::default(),
                                         property: FProperty::from(FObjectProperty::from(
                                             FString::from("None"),
                                         )),
-                                        property_guid: FGuid::default(),
                                     },
                                 ]),
                             }),
@@ -578,17 +559,16 @@ pub(crate) fn expected() -> USaveGame {
                         },
                     ]),
                 }),
-                property_guid: FGuid::default(),
             },
             TaggedProperty {
                 property_name: FString::from("SecondaryWeaponClass"),
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
+                property_guid: FGuid::default(),
                 property: FProperty::from(FObjectProperty::from(FString::from(
                     "/Game/Weapons/RocketLauncher/Blueprints/BP_RocketLauncher.BP_RocketLauncher_C",
                 ))),
-                property_guid: FGuid::default(),
             },
         ]),
     }

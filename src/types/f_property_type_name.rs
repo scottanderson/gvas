@@ -1,14 +1,17 @@
 use binrw::{BinRead, BinWrite, binrw};
 
-use crate::types::{
-    CollectionProperties, FGuid, FString, NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY,
-    NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY, NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY,
-    NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
-    NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
-    NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
-    NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
-    NAME_UINT64_PROPERTY, TArray,
+use crate::{
+    format::SerializationFormat,
+    types::{
+        CollectionProperties, FGuid, FString, NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY,
+        NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY, NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY,
+        NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
+        NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
+        NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
+        NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
+        NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
+        NAME_UINT64_PROPERTY, PropertyTag, TArray,
+    },
 };
 
 #[binrw]
@@ -21,7 +24,7 @@ pub struct RawPropertyTypeName {
 
 impl RawPropertyTypeName {
     #[inline]
-    fn from_name(name: impl Into<FString>) -> Self {
+    pub(crate) fn from_name(name: impl Into<FString>) -> Self {
         Self {
             name: name.into(),
             children: TArray::empty(),
@@ -245,6 +248,16 @@ impl FPropertyTypeName {
             class_name: class_node.name,
             struct_guid,
         })
+    }
+
+    pub(crate) fn as_tag(&self, format: &SerializationFormat, size: u32) -> PropertyTag {
+        if format.property_tag_complete_type_name() {
+            let property_type = self.clone();
+            PropertyTag::synthetic_complete(property_type, size)
+        } else {
+            let property_type = FString::from(self.name());
+            PropertyTag::synthetic_incomplete(property_type, size)
+        }
     }
 
     fn into_raw(self) -> RawPropertyTypeName {
