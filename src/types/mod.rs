@@ -37,7 +37,7 @@ pub use crate::types::{
     e_ue5_release_stream_object_version::EUE5ReleaseStreamObjectVersion,
     e_unreal_engine_object_ue4_version::EUnrealEngineObjectUE4Version,
     e_unreal_engine_object_ue5_version::EUnrealEngineObjectUE5Version,
-    f_array_property::FArrayProperty,
+    f_array_property::{FArrayProperty, ArrayPropertyTaggedStructs},
     f_bool_property::FBoolProperty,
     f_byte_property::FByteProperty,
     f_custom_version_container::{CustomVersion, FCustomVersionArray, FCustomVersionContainer},

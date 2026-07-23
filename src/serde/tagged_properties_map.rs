@@ -7,18 +7,8 @@ use ::serde::{
 
 use crate::types::{FGuid, FProperty, FString, TaggedProperty};
 
-#[inline]
-fn is_false(value: &bool) -> bool {
-    !value
-}
-
-#[inline]
-fn is_default_ref<T>(value: &&T) -> bool
-where
-    T: Default + PartialEq,
-{
-    *value == &T::default()
-}
+#[cfg(feature = "serde")]
+use crate::serde::{is_default, is_false};
 
 /// The JSON representation of a tagged property.
 ///
@@ -32,8 +22,8 @@ struct TaggedPropertyValueRef<'a> {
     #[serde(skip_serializing_if = "is_false")]
     has_property_extensions: bool,
 
-    #[serde(skip_serializing_if = "is_default_ref")]
-    property_guid: &'a FGuid,
+    #[serde(skip_serializing_if = "is_default")]
+    property_guid: FGuid,
 
     #[serde(flatten)]
     property: &'a FProperty,
@@ -44,7 +34,7 @@ impl<'a> From<&'a TaggedProperty> for TaggedPropertyValueRef<'a> {
         Self {
             has_binary_or_native_serialize: value.has_binary_or_native_serialize,
             has_property_extensions: value.has_property_extensions,
-            property_guid: &value.property_guid,
+            property_guid: value.property_guid,
             property: &value.property,
         }
     }

@@ -1,10 +1,9 @@
 use crate::types::{
-    CollectionProperties, FArrayProperty, FByteProperty, FCustomVersion, FCustomVersionContainer,
-    FDateTime, FDoubleProperty, FEngineVersion, FFloatProperty, FGuid, FInt8Property,
-    FInt16Property, FInt64Property, FIntProperty, FPackageFileVersion, FProperty, FPropertyTag,
+    ArrayPropertyTaggedStructs, FArrayProperty, FByteProperty, FCustomVersion,
+    FCustomVersionContainer, FDateTime, FDoubleProperty, FEngineVersion, FFloatProperty, FGuid,
+    FInt8Property, FInt16Property, FInt64Property, FIntProperty, FPackageFileVersion, FProperty,
     FSaveGameHeader, FStrProperty, FString, FStructProperty, FUInt16Property, FUInt32Property,
-    FUInt64Property, PropertyTag, PropertyTagIncompleteGuid, TArray, TaggedProperties,
-    TaggedProperty, USaveGame,
+    FUInt64Property, TArray, TaggedProperties, TaggedProperty, USaveGame,
 };
 
 #[allow(clippy::approx_constant)]
@@ -377,20 +376,10 @@ pub(crate) fn expected() -> USaveGame {
                 array_index: 0,
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
-                property: FProperty::from(FArrayProperty::TaggedStructs {
-                    struct_tag: FPropertyTag::Some {
-                        name: FString::from("array_of_structs"),
-                        property_tag: PropertyTag::Incomplete {
-                            property_type: FString::from("StructProperty"),
-                            size: 120,
-                            array_index: 0,
-                            extra: CollectionProperties::Struct {
-                                type_name: FString::from("CustomStruct"),
-                                struct_guid: FGuid::default(),
-                            },
-                            maybe_property_guid: PropertyTagIncompleteGuid::default(),
-                        },
-                    },
+                property: FProperty::from(FArrayProperty::from(ArrayPropertyTaggedStructs {
+                    field_name: Box::from("array_of_structs"),
+                    type_name: Box::from("CustomStruct"),
+                    struct_guid: FGuid::default(),
                     values: vec![
                         FStructProperty::Custom {
                             struct_type: FString::from("CustomStruct"),
@@ -419,7 +408,7 @@ pub(crate) fn expected() -> USaveGame {
                             }]),
                         },
                     ],
-                }),
+                })),
                 property_guid: FGuid::default(),
             },
             TaggedProperty {

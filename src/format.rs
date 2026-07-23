@@ -14,7 +14,8 @@
 
 use crate::types::{
     CustomVersion, EEditorObjectVersion, EUE5ReleaseStreamObjectVersion,
-    EUnrealEngineObjectUE4Version, EUnrealEngineObjectUE5Version, FSaveGameHeader,
+    EUnrealEngineObjectUE4Version, EUnrealEngineObjectUE5Version, FCustomVersionContainer,
+    FSaveGameHeader,
 };
 
 #[derive(Clone, Debug)]
@@ -61,68 +62,69 @@ impl SerializationFormat {
     }
 
     #[inline]
-    pub fn ftext_history_date_timezone(&self) -> bool {
+    pub const fn ftext_history_date_timezone(&self) -> bool {
         self.package_file_version >= EUnrealEngineObjectUE4Version::FtextHistoryDateTimezone as u32
     }
 
     #[inline]
-    pub fn property_tag_set_map_support(&self) -> bool {
+    pub const fn property_tag_set_map_support(&self) -> bool {
         self.package_file_version >= EUnrealEngineObjectUE4Version::PropertyTagSetMapSupport as u32
     }
 
     #[inline]
-    pub fn property_guid_in_property_tag(&self) -> bool {
+    pub const fn property_guid_in_property_tag(&self) -> bool {
         self.package_file_version >= EUnrealEngineObjectUE4Version::PropertyGuidInPropertyTag as u32
     }
 
     #[inline]
-    pub fn property_tag_complete_type_name(&self) -> bool {
+    pub const fn property_tag_complete_type_name(&self) -> bool {
         self.package_file_version_ue5
             >= EUnrealEngineObjectUE5Version::PropertyTagCompleteTypeName as u32
     }
 
     #[inline]
-    pub fn fsoftobjectpath_remove_asset_path_fnames(&self) -> bool {
+    pub const fn fsoftobjectpath_remove_asset_path_fnames(&self) -> bool {
         self.package_file_version_ue5
             >= EUnrealEngineObjectUE5Version::FsoftobjectpathRemoveAssetPathFnames as u32
     }
 
     #[inline]
-    pub fn text_64bit_support(&self) -> bool {
+    pub const fn text_64bit_support(&self) -> bool {
         self.release_version
             >= EUE5ReleaseStreamObjectVersion::TextFormatArgumentData64bitSupport as u32
     }
 
     #[inline]
-    pub fn large_world_coordinates(&self) -> bool {
+    pub const fn large_world_coordinates(&self) -> bool {
         self.release_version >= EUE5ReleaseStreamObjectVersion::LargeWorldCoordinates as u32
     }
 
     #[inline]
-    pub fn include_always_sign(&self) -> bool {
+    pub const fn include_always_sign(&self) -> bool {
         self.editor_version >= EEditorObjectVersion::AddedAlwaysSignNumberFormattingOption as u32
     }
 
     #[inline]
-    pub fn culture_invariant_stability(&self) -> bool {
+    pub const fn culture_invariant_stability(&self) -> bool {
         self.editor_version
             >= EEditorObjectVersion::CultureInvariantTextSerializationKeyStability as u32
     }
 }
 
 impl FSaveGameHeader {
+    fn get_custom<T: CustomVersion>(&self) -> u32 {
+        self.custom_versions
+            .as_ref()
+            .map(FCustomVersionContainer::get_custom::<T>)
+            .unwrap_or(0)
+    }
+
     #[inline]
     pub fn serialization_format(&self) -> SerializationFormat {
-        fn get_custom<T: CustomVersion>(header: &FSaveGameHeader) -> u32 {
-            match &header.custom_versions {
-                Some(container) => container.get_custom::<T>(),
-                None => 0,
-            }
-        }
         let package_file_version = self.package_file_version.version_ue4();
         let package_file_version_ue5 = self.package_file_version.version_ue5();
-        let release_version = get_custom::<EUE5ReleaseStreamObjectVersion>(self);
-        let editor_version = get_custom::<EEditorObjectVersion>(self);
+        let release_version = self.get_custom::<EUE5ReleaseStreamObjectVersion>();
+        let editor_version = self.get_custom::<EEditorObjectVersion>();
         SerializationFormat::from_versions(
             package_file_version,
             package_file_version_ue5,

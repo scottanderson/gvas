@@ -10,6 +10,9 @@ use crate::types::{
     NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
 };
 
+#[cfg(feature = "serde")]
+use crate::serde::is_default;
+
 #[derive(Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FPropertyTag {
@@ -18,6 +21,22 @@ pub enum FPropertyTag {
         name: FString,
         property_tag: PropertyTag,
     },
+}
+
+impl FPropertyTag {
+    pub fn name(&self) -> Option<&str> {
+        match self {
+            Self::Some { name, .. } => name.as_deref(),
+            Self::None => None,
+        }
+    }
+
+    pub fn as_ref(&self) -> Option<&PropertyTag> {
+        match self {
+            Self::Some { property_tag, .. } => Some(property_tag),
+            Self::None => None,
+        }
+    }
 }
 
 impl BinRead for FPropertyTag {
@@ -460,12 +479,6 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
     fn from(value: &PropertyTagIncompleteGuid) -> Self {
         value.0.unwrap_or_default()
     }
-}
-
-#[cfg(feature = "serde")]
-#[inline]
-pub fn is_default<T: Default + PartialEq>(value: &T) -> bool {
-    value == &T::default()
 }
 
 #[derive(Debug, PartialEq)]

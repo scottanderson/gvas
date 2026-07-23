@@ -10,15 +10,6 @@ use crate::{
     },
 };
 
-#[cfg(feature = "serde")]
-#[inline]
-fn is_default<T>(value: &T) -> bool
-where
-    T: Default + PartialEq,
-{
-    *value == T::default()
-}
-
 #[binrw]
 #[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: &SerializationFormat))]
@@ -58,7 +49,10 @@ pub enum FStructProperty {
         class_name: FString,
         #[br(calc = guid)]
         #[bw(ignore)]
-        #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
+        #[cfg_attr(
+            feature = "serde",
+            serde(default, skip_serializing_if = "crate::serde::is_default")
+        )]
         struct_guid: FGuid,
         #[brw(args(format))]
         properties: TaggedProperties,

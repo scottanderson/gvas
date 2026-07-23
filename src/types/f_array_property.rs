@@ -1,7 +1,9 @@
-use binrw::binrw;
+use std::io::Cursor;
+
+use binrw::{BinRead, BinWrite, binrw};
 
 use crate::{
-    error::PropertyTagError,
+    error::binrw_custom,
     format::SerializationFormat,
     types::{
         CollectionProperties, FFloatProperty, FGuid, FIntProperty, FNameProperty, FObjectProperty,
@@ -9,62 +11,9 @@ use crate::{
         FStructProperty, FTextProperty, NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY,
         NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
         NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
-        PropertyTag, TArray,
+        PropertyTag, PropertyTagIncompleteGuid, TArray,
     },
 };
-
-impl FPropertyTag {
-    #[inline]
-    fn array_struct_type_name(&self) -> Result<&str, PropertyTagError> {
-        match self {
-            Self::Some {
-                property_tag:
-                    PropertyTag::Incomplete {
-                        extra:
-                            CollectionProperties::Struct {
-                                type_name: FString(Some(type_name)),
-                                ..
-                            },
-                        ..
-                    },
-                ..
-            } => Ok(type_name.as_ref()),
-            _ => Err(PropertyTagError::Unsupported(
-                "array_struct_type_name".into(),
-                format!("{self:?}"),
-            )),
-        }
-    }
-
-    #[inline]
-    fn array_struct_guid(&self) -> Result<FGuid, PropertyTagError> {
-        match self {
-            Self::Some {
-                property_tag:
-                    PropertyTag::Incomplete {
-                        extra: CollectionProperties::Struct { struct_guid, .. },
-                        ..
-                    },
-                ..
-            } => Ok(*struct_guid),
-            _ => Err(PropertyTagError::Unsupported(
-                "array_struct_guid".into(),
-                format!("{self:?}"),
-            )),
-        }
-    }
-
-    #[inline]
-    fn as_some(&self) -> Result<&PropertyTag, PropertyTagError> {
-        match self {
-            Self::Some { property_tag, .. } => Ok(property_tag),
-            Self::None => Err(PropertyTagError::Unsupported(
-                "as_some".into(),
-                format!("{self:?}"),
-            )),
-        }
-    }
-}
 
 impl PropertyTag {
     #[inline]
@@ -172,50 +121,11 @@ pub enum FArrayProperty {
     /// An array of StructProperty values.
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name()))]
     #[bw(assert(!format.property_tag_complete_type_name()))]
-    TaggedStructs {
-        #[br(temp)]
-        #[bw(try_calc = u32::try_from(values.len()))]
-        count: u32,
-
-        // TODO: #[br(temp)]
-        // TODO: #[bw(try_calc = ...)]
-        #[brw(args(format))]
-        struct_tag: FPropertyTag,
-
-        #[br(temp)]
-        #[br(try_calc = struct_tag.as_some())]
-        #[bw(ignore)]
-        struct_t: &PropertyTag,
-
-        #[br(temp)]
-        #[br(try_calc = struct_tag.array_struct_type_name())]
-        #[bw(ignore)]
-        type_name: &str,
-
-        #[br(temp)]
-        #[br(try_calc = struct_tag.array_struct_guid())]
-        #[bw(ignore)]
-        struct_guid: FGuid,
-
-        #[br(temp, restore_position)]
-        #[bw(ignore)]
-        property_count: u32,
-
-        #[br(temp, calc = {
-            if property_count > 0 && let size = t.size() && size >= 4 {
-                Some((size - 4) / property_count)
-            } else {
-                None
-            }
-        })]
-        #[bw(ignore)]
-        size: Option<u32>,
-
-        #[br(count = count)]
-        #[br(args { inner: (format, t.array_struct_suggested_size(property_count), type_name, None, struct_guid, ) })]
+    TaggedStructs(
+        #[br(args(format, t))]
         #[bw(args(format))]
-        values: Vec<FStructProperty>,
-    },
+        ArrayPropertyTaggedStructs,
+    ),
 
     /// An array of TextProperty values.
     #[br(pre_assert(inner_type == NAME_TEXT_PROPERTY))]
@@ -238,8 +148,149 @@ impl FArrayProperty {
             Self::SoftObjects { .. } => NAME_SOFT_OBJECT_PROPERTY,
             Self::Strs { .. } => NAME_STR_PROPERTY,
             Self::Structs { .. } => NAME_STRUCT_PROPERTY,
-            Self::TaggedStructs { .. } => NAME_STRUCT_PROPERTY,
+            Self::TaggedStructs(..) => NAME_STRUCT_PROPERTY,
             Self::Texts { .. } => NAME_TEXT_PROPERTY,
         }
+    }
+}
+
+impl From<ArrayPropertyTaggedStructs> for FArrayProperty {
+    fn from(value: ArrayPropertyTaggedStructs) -> Self {
+        Self::TaggedStructs(value)
+    }
+}
+
+#[derive(Debug, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+pub struct ArrayPropertyTaggedStructs {
+    pub field_name: Box<str>,
+    pub type_name: Box<str>,
+
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, skip_serializing_if = "crate::serde::is_default")
+    )]
+    pub struct_guid: FGuid,
+
+    #[cfg_attr(feature = "serde", serde(rename = "structs"))]
+    pub values: Vec<FStructProperty>,
+}
+
+impl BinWrite for ArrayPropertyTaggedStructs {
+    type Args<'a> = (&'a SerializationFormat,);
+
+    fn write_options<W>(
+        &self,
+        writer: &mut W,
+        endian: binrw::Endian,
+        (format,): Self::Args<'_>,
+    ) -> binrw::BinResult<()>
+    where
+        W: std::io::Write + std::io::Seek,
+    {
+        let start = writer.stream_position()?;
+        let count = u32::try_from(self.values.len()).map_err(binrw_custom(start))?;
+        let mut buf = Cursor::new(Vec::new());
+        for value in &self.values {
+            value.write_options(&mut buf, endian, (format,))?;
+        }
+        let buf = buf.into_inner();
+        let size = u32::try_from(buf.len()).map_err(binrw_custom(start))?;
+
+        let struct_tag = FPropertyTag::Some {
+            name: self.field_name.as_ref().into(),
+            property_tag: PropertyTag::Incomplete {
+                property_type: NAME_STRUCT_PROPERTY.into(),
+                size,
+                array_index: 0,
+                extra: CollectionProperties::Struct {
+                    type_name: self.type_name.as_ref().into(),
+                    struct_guid: self.struct_guid,
+                },
+                maybe_property_guid: PropertyTagIncompleteGuid::default(),
+            },
+        };
+
+        count.write_options(writer, endian, ())?;
+        struct_tag.write_options(writer, endian, (format,))?;
+        writer.write_all(&buf)?;
+
+        Ok(())
+    }
+}
+
+impl BinRead for ArrayPropertyTaggedStructs {
+    type Args<'a> = (&'a SerializationFormat, &'a PropertyTag);
+
+    fn read_options<R>(
+        reader: &mut R,
+        endian: binrw::Endian,
+        (format, _outer_tag): Self::Args<'_>,
+    ) -> binrw::BinResult<Self>
+    where
+        R: std::io::Read + std::io::Seek,
+    {
+        let position = reader.stream_position()?;
+        let count = u32::read_options(reader, endian, ())?;
+        let struct_tag = FPropertyTag::read_options(reader, endian, (format,))?;
+
+        let FPropertyTag::Some {
+            name: FString(Some(field_name)),
+            property_tag:
+                PropertyTag::Incomplete {
+                    property_type: FString(Some(property_type)),
+                    size,
+                    array_index: 0,
+                    extra:
+                        CollectionProperties::Struct {
+                            type_name,
+                            struct_guid,
+                        },
+                    ..
+                },
+        } = struct_tag
+        else {
+            return Err(binrw::Error::AssertFail {
+                pos: position,
+                message: format!("invalid tagged-struct array tag: {struct_tag:?}"),
+            });
+        };
+
+        if property_type != NAME_STRUCT_PROPERTY {
+            return Err(binrw::Error::AssertFail {
+                pos: position,
+                message: format!("expected {NAME_STRUCT_PROPERTY}, found {property_type}"),
+            });
+        }
+
+        let type_name = type_name
+            .as_deref()
+            .ok_or_else(|| binrw::Error::AssertFail {
+                pos: position,
+                message: "array struct type name cannot be null".into(),
+            })?;
+
+        let suggested_size = size.checked_div(count);
+
+        let capacity = usize::try_from(count).map_err(binrw_custom(position))?;
+        let mut values = Vec::with_capacity(capacity);
+
+        for _ in 0..count {
+            values.push(FStructProperty::read_options(
+                reader,
+                endian,
+                (format, suggested_size, type_name, None, struct_guid),
+            )?);
+        }
+
+        let field_name = Box::from(field_name);
+        let type_name = Box::from(type_name);
+
+        Ok(Self {
+            field_name,
+            type_name,
+            struct_guid,
+            values,
+        })
     }
 }

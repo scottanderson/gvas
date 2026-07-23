@@ -29,8 +29,14 @@
 pub mod detect;
 pub mod error;
 pub mod format;
+/// Palworld save wrapper support.
+///
+/// Palworld save files contain a 12-byte header followed by a [`USaveGame`]
+/// which may be Zlib-deflated.
+#[cfg(feature = "palworld")]
 pub mod palworld;
+#[cfg(feature = "serde")]
 pub(crate) mod serde;
-pub mod types;
-
+#[cfg(test)]
 mod test;
+pub mod types;
