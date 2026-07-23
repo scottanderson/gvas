@@ -8,7 +8,7 @@ use crate::{
         NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
         NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
         NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-        NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
+        NAME_OPTIONAL_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
         NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
         NAME_UINT64_PROPERTY, PropertyTag, TArray,
     },
@@ -17,7 +17,7 @@ use crate::{
 #[binrw]
 #[derive(Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct RawPropertyTypeName {
+struct RawPropertyTypeName {
     name: FString,
     children: TArray<Self>,
 }
@@ -49,8 +49,20 @@ pub enum FPropertyTypeName {
     Delegate,
     Double,
     Enum {
+        #[cfg_attr(
+            feature = "serde",
+            serde(default = "FString::null", skip_serializing_if = "FString::is_null")
+        )]
         enum_class: FString,
+        #[cfg_attr(
+            feature = "serde",
+            serde(default, skip_serializing_if = "crate::serde::is_default")
+        )]
         class_path: Option<FString>,
+        #[cfg_attr(
+            feature = "serde",
+            serde(default, skip_serializing_if = "crate::serde::is_default")
+        )]
         inner_type: Option<Box<Self>>,
     },
     Float,
@@ -66,19 +78,31 @@ pub enum FPropertyTypeName {
     MulticastSparseDelegate,
     Name,
     Object,
+    Optional(Box<Self>),
     Set(Box<Self>),
     SoftObject,
     Str,
     Struct {
+        #[cfg_attr(
+            feature = "serde",
+            serde(default = "FString::null", skip_serializing_if = "FString::is_null")
+        )]
         type_name: FString,
+        #[cfg_attr(
+            feature = "serde",
+            serde(default = "FString::null", skip_serializing_if = "FString::is_null")
+        )]
         class_name: FString,
+        #[cfg_attr(
+            feature = "serde",
+            serde(default, skip_serializing_if = "crate::serde::is_default")
+        )]
         struct_guid: FGuid,
     },
     Text,
     UInt16,
     UInt32,
     UInt64,
-    Unknown(RawPropertyTypeName),
 }
 
 impl FPropertyTypeName {
@@ -105,10 +129,8 @@ impl FPropertyTypeName {
                 value: Box::new(Self::from_name(value_type.clone())?),
             },
             CollectionProperties::Option { inner_type } => {
-                Self::Unknown(RawPropertyTypeName::with_children(
-                    NAME_OPTION_PROPERTY,
-                    [RawPropertyTypeName::from_name(inner_type.clone())],
-                ))
+                let inner_type = Self::from_name(inner_type.clone())?;
+                Self::Optional(Box::new(inner_type))
             }
             CollectionProperties::Set { inner_type } => {
                 Self::Set(Box::new(Self::from_name(inner_type.clone())?))
@@ -159,7 +181,7 @@ impl FPropertyTypeName {
             }
             (NAME_DELEGATE_PROPERTY, 0) => Some(Self::Delegate),
             (NAME_DOUBLE_PROPERTY, 0) => Some(Self::Double),
-            (NAME_ENUM_PROPERTY, 1 | 2) => Self::from_raw_enum(children),
+            (NAME_ENUM_PROPERTY, 0..=2) => Self::from_raw_enum(children),
             (NAME_FLOAT_PROPERTY, 0) => Some(Self::Float),
             (NAME_INT_PROPERTY, 0) => Some(Self::Int),
             (NAME_INT8_PROPERTY, 0) => Some(Self::Int8),
@@ -182,6 +204,11 @@ impl FPropertyTypeName {
             }
             (NAME_SOFT_OBJECT_PROPERTY, 0) => Some(Self::SoftObject),
             (NAME_STR_PROPERTY, 0) => Some(Self::Str),
+            (NAME_STRUCT_PROPERTY, 0) => Some(Self::Struct {
+                type_name: FString(None),
+                class_name: FString(None),
+                struct_guid: FGuid::default(),
+            }),
             (NAME_STRUCT_PROPERTY, 1) => {
                 let [type_node] = children.0.try_into().ok()?;
                 Self::from_raw_struct(type_node, None)
@@ -194,13 +221,19 @@ impl FPropertyTypeName {
             (NAME_UINT16_PROPERTY, 0) => Some(Self::UInt16),
             (NAME_UINT32_PROPERTY, 0) => Some(Self::UInt32),
             (NAME_UINT64_PROPERTY, 0) => Some(Self::UInt64),
-            _ => Some(Self::Unknown(RawPropertyTypeName { name, children })),
+            _ => todo!("{name} {children:?}"), // None
         }
     }
 
     fn from_raw_enum(children: impl IntoIterator<Item = RawPropertyTypeName>) -> Option<Self> {
         let mut children = children.into_iter();
-        let enum_node = children.next()?;
+        let Some(enum_node) = children.next() else {
+            return Some(Self::Enum {
+                enum_class: FString(None),
+                class_path: None,
+                inner_type: None,
+            });
+        };
         let inner_type = children.next().and_then(Self::from_raw).map(Box::new);
         if children.next().is_some() {
             return None;
@@ -308,6 +341,7 @@ impl FPropertyTypeName {
             Self::MulticastSparseDelegate => zero(NAME_MULTICAST_SPARSE_DELGATE_PROPERTY),
             Self::Name => zero(NAME_NAME_PROPERTY),
             Self::Object => zero(NAME_OBJECT_PROPERTY),
+            Self::Optional(i) => one(NAME_OPTIONAL_PROPERTY, i.into_raw()),
             Self::Set(i) => one(NAME_SET_PROPERTY, i.into_raw()),
             Self::SoftObject => zero(NAME_SOFT_OBJECT_PROPERTY),
             Self::Str => zero(NAME_STR_PROPERTY),
@@ -338,7 +372,6 @@ impl FPropertyTypeName {
             Self::UInt16 => zero(NAME_UINT16_PROPERTY),
             Self::UInt32 => zero(NAME_UINT32_PROPERTY),
             Self::UInt64 => zero(NAME_UINT64_PROPERTY),
-            Self::Unknown(raw) => raw,
         }
     }
 
@@ -367,6 +400,7 @@ impl FPropertyTypeName {
             Self::MulticastSparseDelegate => NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
             Self::Name => NAME_NAME_PROPERTY,
             Self::Object => NAME_OBJECT_PROPERTY,
+            Self::Optional(_) => NAME_OPTIONAL_PROPERTY,
             Self::Set(_) => NAME_SET_PROPERTY,
             Self::SoftObject => NAME_SOFT_OBJECT_PROPERTY,
             Self::Str => NAME_STR_PROPERTY,
@@ -375,11 +409,6 @@ impl FPropertyTypeName {
             Self::UInt16 => NAME_UINT16_PROPERTY,
             Self::UInt32 => NAME_UINT32_PROPERTY,
             Self::UInt64 => NAME_UINT64_PROPERTY,
-            Self::Unknown(RawPropertyTypeName {
-                name: FString(Some(name)),
-                ..
-            }) => name,
-            Self::Unknown(RawPropertyTypeName { .. }) => todo!("{self:?}"),
         }
     }
 

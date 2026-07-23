@@ -50,7 +50,7 @@ pub use crate::types::{
         CollectionProperties, FPropertyTag, PropertyTag, PropertyTagIncompleteGuid,
         TaggedProperties, TaggedProperty,
     },
-    f_property_type_name::{FPropertyTypeName, RawPropertyTypeName},
+    f_property_type_name::FPropertyTypeName,
     f_save_game_header::{FSaveGameHeader, SaveGameFileVersion},
     f_set_property::FSetProperty,
     f_soft_object_property::FSoftObjectProperty,
@@ -82,7 +82,7 @@ pub const NAME_MULTICAST_INLINE_DELGATE_PROPERTY: &str = "MulticastInlineDelegat
 pub const NAME_MULTICAST_SPARSE_DELGATE_PROPERTY: &str = "MulticastSparseDelegateProperty";
 pub const NAME_NAME_PROPERTY: &str = "NameProperty";
 pub const NAME_OBJECT_PROPERTY: &str = "ObjectProperty";
-pub const NAME_OPTION_PROPERTY: &str = "OptionProperty";
+pub const NAME_OPTIONAL_PROPERTY: &str = "OptionalProperty";
 pub const NAME_SET_PROPERTY: &str = "SetProperty";
 pub const NAME_SOFT_OBJECT_PROPERTY: &str = "SoftObjectProperty";
 pub const NAME_STRUCT_PROPERTY: &str = "StructProperty";

@@ -7,7 +7,7 @@ use crate::format::SerializationFormat;
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
-    NAME_OPTION_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
+    NAME_OPTIONAL_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
 };
 
 #[cfg(feature = "serde")]
@@ -229,7 +229,6 @@ impl PropertyTag {
             } => FPropertyTypeName::from_name(value_type.as_deref()).ok_or_else(|| {
                 PropertyTagError::Unsupported("map_value_type".into(), format!("{self:?}"))
             }),
-
             Self::Complete {
                 property_type: FPropertyTypeName::Map { value, .. },
                 ..
@@ -242,17 +241,18 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn set_element_tag(&self) -> Result<Self, PropertyTagError> {
-        let size = 0;
+    pub fn set_element_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Set { inner_type },
                 ..
-            } => Ok(Self::synthetic_incomplete(inner_type.clone(), size)),
+            } => FPropertyTypeName::from_name(inner_type.as_deref()).ok_or_else(|| {
+                PropertyTagError::Unsupported("set_element_type".into(), format!("{self:?}"))
+            }),
             Self::Complete {
                 property_type: FPropertyTypeName::Set(e),
                 ..
-            } => Ok(Self::synthetic_complete(*e.clone(), size)),
+            } => Ok(*e.clone()),
             _ => Err(PropertyTagError::Unsupported(
                 "set_element_tag".into(),
                 format!("{self:?}"),
@@ -392,7 +392,7 @@ pub enum CollectionProperties {
         value_type: FString,
     },
 
-    #[br(pre_assert(matches!(property_type, NAME_OPTION_PROPERTY)))]
+    #[br(pre_assert(matches!(property_type, NAME_OPTIONAL_PROPERTY)))]
     Option {
         inner_type: FString,
     },

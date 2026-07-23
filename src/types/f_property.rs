@@ -205,7 +205,7 @@ impl FProperty {
             },
             // Property::Optional(p) => CollectionProperties::Optional { inner_type },
             Self::Set(p) => CollectionProperties::Set {
-                inner_type: p.element_property_type_name().into(),
+                inner_type: p.element_type.name().into(),
             },
             Self::Struct(p) => CollectionProperties::Struct {
                 type_name: p.struct_type(),

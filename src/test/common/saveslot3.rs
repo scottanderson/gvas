@@ -4,8 +4,7 @@ use crate::types::{
     FCustomVersion, FCustomVersionContainer, FDateTime, FEngineVersion, FFieldPathProperty,
     FFloatProperty, FGuid, FIntProperty, FMapProperty, FNameProperty, FObjectProperty,
     FPackageFileVersion, FProperty, FPropertyTypeName, FSaveGameHeader, FStrProperty, FString,
-    FStructProperty, MapEntry, RawPropertyTypeName, TArray, TaggedProperties, TaggedProperty,
-    USaveGame,
+    FStructProperty, MapEntry, TArray, TaggedProperties, TaggedProperty, USaveGame,
 };
 
 pub(crate) fn hints() -> HashMap<String, String> {
@@ -297,9 +296,11 @@ pub(crate) fn expected() -> USaveGame {
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
                     key_type: FPropertyTypeName::Name,
-                    value_type: FPropertyTypeName::Unknown(RawPropertyTypeName::from_name(
-                        "StructProperty",
-                    )),
+                    value_type: FPropertyTypeName::Struct {
+                        type_name: FString(None),
+                        class_name: FString(None),
+                        struct_guid: FGuid::default(),
+                    },
                     properties: TArray::from([
                         MapEntry {
                             key: FProperty::from(FNameProperty::from(FString::from(
@@ -462,9 +463,11 @@ pub(crate) fn expected() -> USaveGame {
                 property_guid: FGuid::default(),
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
-                    key_type: FPropertyTypeName::Unknown(RawPropertyTypeName::from_name(
-                        "StructProperty",
-                    )),
+                    key_type: FPropertyTypeName::Struct {
+                        type_name: FString(None),
+                        class_name: FString(None),
+                        struct_guid: FGuid::default(),
+                    },
                     value_type: FPropertyTypeName::Float,
                     properties: TArray::from([
                         MapEntry {
