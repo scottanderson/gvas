@@ -82,11 +82,8 @@ pub enum FPropertyTypeName {
     Set(Box<Self>),
     SoftObject,
     Str,
-    Struct {
-        #[cfg_attr(
-            feature = "serde",
-            serde(default = "FString::null", skip_serializing_if = "FString::is_null")
-        )]
+    Struct,
+    StructComplete {
         type_name: FString,
         #[cfg_attr(
             feature = "serde",
@@ -138,7 +135,7 @@ impl FPropertyTypeName {
             CollectionProperties::Struct {
                 type_name,
                 struct_guid,
-            } => Self::Struct {
+            } => Self::StructComplete {
                 type_name: type_name.clone(),
                 class_name: FString(None),
                 struct_guid: *struct_guid,
@@ -204,7 +201,7 @@ impl FPropertyTypeName {
             }
             (NAME_SOFT_OBJECT_PROPERTY, 0) => Some(Self::SoftObject),
             (NAME_STR_PROPERTY, 0) => Some(Self::Str),
-            (NAME_STRUCT_PROPERTY, 0) => Some(Self::Struct {
+            (NAME_STRUCT_PROPERTY, 0) => Some(Self::StructComplete {
                 type_name: FString(None),
                 class_name: FString(None),
                 struct_guid: FGuid::default(),
@@ -276,7 +273,7 @@ impl FPropertyTypeName {
             FGuid::default()
         };
 
-        Some(Self::Struct {
+        Some(Self::StructComplete {
             type_name: type_node.name,
             class_name: class_node.name,
             struct_guid,
@@ -345,7 +342,8 @@ impl FPropertyTypeName {
             Self::Set(i) => one(NAME_SET_PROPERTY, i.into_raw()),
             Self::SoftObject => zero(NAME_SOFT_OBJECT_PROPERTY),
             Self::Str => zero(NAME_STR_PROPERTY),
-            Self::Struct {
+            Self::Struct => zero(NAME_STRUCT_PROPERTY),
+            Self::StructComplete {
                 type_name,
                 class_name,
                 struct_guid,
@@ -404,7 +402,8 @@ impl FPropertyTypeName {
             Self::Set(_) => NAME_SET_PROPERTY,
             Self::SoftObject => NAME_SOFT_OBJECT_PROPERTY,
             Self::Str => NAME_STR_PROPERTY,
-            Self::Struct { .. } => NAME_STRUCT_PROPERTY,
+            Self::Struct => NAME_STRUCT_PROPERTY,
+            Self::StructComplete { .. } => NAME_STRUCT_PROPERTY,
             Self::Text => NAME_TEXT_PROPERTY,
             Self::UInt16 => NAME_UINT16_PROPERTY,
             Self::UInt32 => NAME_UINT32_PROPERTY,
@@ -414,7 +413,7 @@ impl FPropertyTypeName {
 
     pub fn struct_guid(&self) -> Option<FGuid> {
         match self {
-            Self::Struct { struct_guid, .. } => Some(*struct_guid),
+            Self::StructComplete { struct_guid, .. } => Some(*struct_guid),
             _ => None,
         }
     }

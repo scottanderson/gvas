@@ -322,11 +322,11 @@ impl PropertyTag {
             _ => None,
         }
         .and_then(|inner_type| match inner_type {
-            FPropertyTypeName::Struct {
+            FPropertyTypeName::StructComplete {
                 type_name: FString(Some(type_name)),
                 class_name: FString(Some(class_name)),
-                struct_guid: guid,
-            } => Some((type_name.as_str(), class_name.as_str(), *guid)),
+                struct_guid,
+            } => Some((type_name.as_str(), class_name.as_str(), *struct_guid)),
             _ => None,
         })
         .ok_or_else(|| {
@@ -342,7 +342,7 @@ impl PropertyTag {
                 ..
             } => type_name.as_deref(),
             Self::Complete {
-                property_type: FPropertyTypeName::Struct { type_name, .. },
+                property_type: FPropertyTypeName::StructComplete { type_name, .. },
                 ..
             } => type_name.as_deref(),
             _ => None,
@@ -353,7 +353,7 @@ impl PropertyTag {
     pub fn struct_class_name(&self) -> Option<&str> {
         match self {
             Self::Complete {
-                property_type: FPropertyTypeName::Struct { class_name, .. },
+                property_type: FPropertyTypeName::StructComplete { class_name, .. },
                 ..
             } => class_name.as_deref(),
             _ => None,
@@ -717,7 +717,7 @@ mod test {
             FPropertyTag::Some {
                 name: FString::from("test"),
                 property_tag: PropertyTag::Complete {
-                    property_type: FPropertyTypeName::Struct {
+                    property_type: FPropertyTypeName::StructComplete {
                         type_name: "TestClass".into(),
                         class_name: "/path".into(),
                         struct_guid: FGuid::from_u32(

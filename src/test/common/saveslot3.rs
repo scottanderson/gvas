@@ -296,7 +296,7 @@ pub(crate) fn expected() -> USaveGame {
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
                     key_type: FPropertyTypeName::Name,
-                    value_type: FPropertyTypeName::Struct {
+                    value_type: FPropertyTypeName::StructComplete {
                         type_name: FString(None),
                         class_name: FString(None),
                         struct_guid: FGuid::default(),
@@ -463,7 +463,7 @@ pub(crate) fn expected() -> USaveGame {
                 property_guid: FGuid::default(),
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
-                    key_type: FPropertyTypeName::Struct {
+                    key_type: FPropertyTypeName::StructComplete {
                         type_name: FString(None),
                         class_name: FString(None),
                         struct_guid: FGuid::default(),

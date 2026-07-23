@@ -236,7 +236,7 @@ impl FProperty {
     fn generate_complete_property_type(&self) -> Result<FPropertyTypeName, PropertyTagError> {
         Ok(match self {
             Self::Array(array_property) => {
-                let x = match array_property {
+                let inner_type = match array_property {
                     FArrayProperty::Bools { .. } => FPropertyTypeName::Bool,
                     FArrayProperty::Bytes { .. } => FPropertyTypeName::Byte(None),
                     FArrayProperty::Enums { type_name, .. } => match type_name {
@@ -254,7 +254,7 @@ impl FProperty {
                         class_name,
                         struct_guid,
                         values: _,
-                    } => FPropertyTypeName::Struct {
+                    } => FPropertyTypeName::StructComplete {
                         type_name: type_name.as_ref().into(),
                         class_name: class_name.as_ref().into(),
                         struct_guid: *struct_guid,
@@ -262,7 +262,7 @@ impl FProperty {
                     FArrayProperty::TaggedStructs { .. } => unimplemented!(),
                     FArrayProperty::Texts { .. } => FPropertyTypeName::Text,
                 };
-                FPropertyTypeName::Array(Box::new(x))
+                FPropertyTypeName::Array(Box::new(inner_type))
             }
             Self::Bool { .. } => FPropertyTypeName::Bool,
             Self::Delegate { .. } => FPropertyTypeName::Delegate,
@@ -285,7 +285,7 @@ impl FProperty {
             Self::Object { .. } => FPropertyTypeName::Object,
             Self::SoftObject { .. } => FPropertyTypeName::SoftObject,
             Self::Str { .. } => FPropertyTypeName::Str,
-            Self::Struct(struct_property) => FPropertyTypeName::Struct {
+            Self::Struct(struct_property) => FPropertyTypeName::StructComplete {
                 type_name: struct_property.struct_type(),
                 class_name: struct_property.struct_class(),
                 struct_guid: struct_property.struct_guid(),
