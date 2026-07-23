@@ -5,14 +5,19 @@ use crate::{
     types::{FString, TArray, TOptional},
 };
 
+#[cfg(feature = "serde")]
+use crate::serde::is_default;
+
 #[binrw]
 #[brw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FText {
+    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub flags: u32,
-    // #[br(dbg)]
+
     #[brw(args(format))]
+    #[cfg_attr(feature = "serde", serde(flatten))]
     pub history: FTextHistory,
 }
 

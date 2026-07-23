@@ -23,7 +23,6 @@ mod f_soft_object_property;
 mod f_string;
 mod f_struct_property;
 mod f_text;
-mod f_text_property;
 mod t_array;
 mod t_optional;
 mod u_save_game;
@@ -57,7 +56,6 @@ pub use crate::types::{
     f_string::FString,
     f_struct_property::FStructProperty,
     f_text::FText,
-    f_text_property::FTextProperty,
     t_array::TArray,
     t_optional::TOptional,
     u_save_game::USaveGame,
@@ -124,11 +122,20 @@ macro_rules! ue_struct {
             },
         }
     };
-    ($name:ident, $ty:ty) => {
+    (
+        $(#[$struct_attr:meta])*
+        $name:ident,
+        $(#[$field_attr:meta])*
+        $ty:ty
+    ) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
         #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-        pub struct $name($ty);
+        $(#[$struct_attr])*
+        pub struct $name(
+            $(#[$field_attr])*
+            $ty
+        );
 
         impl From<$ty> for $name {
             #[inline]
@@ -137,11 +144,18 @@ macro_rules! ue_struct {
             }
         }
     };
-    ($name:ident, $field_name:ident : $ty:ty) => {
+    (
+        $(#[$struct_attr:meta])*
+        $name:ident,
+        $(#[$field_attr:meta])*
+        $field_name:ident : $ty:ty
+    ) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
         #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        $(#[$struct_attr])*
         pub struct $name {
+            $(#[$field_attr])*
             $field_name: $ty
         }
 
@@ -160,12 +174,23 @@ macro_rules! ue_struct {
             $(pub $ty),+
         );
     };
-    ($name:ident, $($(#[$field_attr:meta])* $field_name:ident : $ty:ty),+) => {
+    (
+        $(#[$struct_attr:meta])*
+        $name:ident,
+        $(
+            $(#[$field_attr:meta])*
+            $field_name:ident : $ty:ty
+        ),+
+    ) => {
         #[binrw]
         #[derive(Debug, PartialEq)]
         #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+        $(#[$struct_attr])*
         pub struct $name {
-            $(pub $field_name: $ty),+
+            $(
+                $(#[$field_attr])*
+                pub $field_name: $ty
+            ),+
         }
     };
     ($name:ident, SerdeString, $($field_name:ident : $ty:ty),+) => {
@@ -186,8 +211,8 @@ ue_struct!(FEngineVersion, major: u16, minor: u16, patch: u16, change_list: u32,
 // Properties
 ue_struct!(FDelegateProperty, object: FString, function_name: FString);
 ue_struct!(FDoubleProperty, f64);
-ue_struct!(FFloatProperty, f32);
 ue_struct!(FFieldPathProperty, path: TArray<FString>, resolved_owner: FString);
+ue_struct!(FFloatProperty, f32);
 ue_struct!(FInt16Property, i16);
 ue_struct!(FInt64Property, i64);
 ue_struct!(FInt8Property, i8);
@@ -197,6 +222,12 @@ ue_struct!(FMulticastSparseDelegateProperty, delegates: TArray<FDelegateProperty
 ue_struct!(FNameProperty, FString);
 ue_struct!(FObjectProperty, FString);
 ue_struct!(FStrProperty, FString);
+ue_struct!(
+    #[brw(import(format: &SerializationFormat))]
+    FTextProperty,
+    #[brw(args(format))]
+    FText
+);
 ue_struct!(FUInt16Property, u16);
 ue_struct!(FUInt32Property, u32);
 ue_struct!(FUInt64Property, u64);
