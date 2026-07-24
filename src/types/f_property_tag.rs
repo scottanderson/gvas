@@ -107,33 +107,10 @@ pub enum PropertyTag {
 
 impl PropertyTag {
     #[inline]
-    pub(crate) fn synthetic_incomplete(property_type: FString, size: u32) -> Self {
-        Self::Incomplete {
-            property_type,
-            size,
-            array_index: 0,
-            extra: CollectionProperties::None,
-            maybe_property_guid: PropertyTagIncompleteGuid::default(),
-        }
-    }
-
-    #[inline]
-    pub(crate) fn synthetic_complete(property_type: FPropertyTypeName, size: u32) -> Self {
-        Self::Complete {
-            property_type,
-            size,
-            flags: EPropertyTagFlags::new(),
-            array_index: 0,
-            property_guid: FGuid::default(),
-        }
-    }
-
-    #[inline]
     pub const fn array_index(&self) -> u32 {
         match self {
-            Self::Incomplete { array_index, .. } | Self::Complete { array_index, .. } => {
-                *array_index
-            }
+            Self::Incomplete { array_index, .. } => *array_index,
+            Self::Complete { array_index, .. } => *array_index,
         }
     }
 

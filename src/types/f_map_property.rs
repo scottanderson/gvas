@@ -61,11 +61,11 @@ impl FMapProperty {
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MapEntry {
-    #[br(args(format, &key_type.as_tag(format, 0)))]
+    #[br(args(format, &key_type.as_tag(format)))]
     #[bw(args(format))]
     pub key: FProperty,
 
-    #[br(args(format, &value_type.as_tag(format, 0)))]
+    #[br(args(format, &value_type.as_tag(format)))]
     #[bw(args(format))]
     pub value: FProperty,
 }

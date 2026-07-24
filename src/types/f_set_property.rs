@@ -17,7 +17,7 @@ pub struct FSetProperty {
     #[bw(ignore)]
     pub element_type: FPropertyTypeName,
 
-    #[br(args(format, &element_type.as_tag(format, 0)))]
+    #[br(args(format, &element_type.as_tag(format)))]
     #[bw(args(format))]
     pub properties: TArray<FProperty>,
 }

@@ -3,14 +3,15 @@ use binrw::{BinRead, BinWrite, binrw};
 use crate::{
     format::SerializationFormat,
     types::{
-        CollectionProperties, FGuid, FString, NAME_ARRAY_PROPERTY, NAME_BOOL_PROPERTY,
-        NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY, NAME_DOUBLE_PROPERTY, NAME_ENUM_PROPERTY,
-        NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY, NAME_INT16_PROPERTY,
-        NAME_INT64_PROPERTY, NAME_MAP_PROPERTY, NAME_MULTICAST_INLINE_DELGATE_PROPERTY,
-        NAME_MULTICAST_SPARSE_DELGATE_PROPERTY, NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY,
-        NAME_OPTIONAL_PROPERTY, NAME_SET_PROPERTY, NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY,
-        NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY, NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY,
-        NAME_UINT64_PROPERTY, PropertyTag, TArray,
+        CollectionProperties, EPropertyTagFlags, FGuid, FString, NAME_ARRAY_PROPERTY,
+        NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_DELEGATE_PROPERTY, NAME_DOUBLE_PROPERTY,
+        NAME_ENUM_PROPERTY, NAME_FLOAT_PROPERTY, NAME_INT_PROPERTY, NAME_INT8_PROPERTY,
+        NAME_INT16_PROPERTY, NAME_INT64_PROPERTY, NAME_MAP_PROPERTY,
+        NAME_MULTICAST_INLINE_DELGATE_PROPERTY, NAME_MULTICAST_SPARSE_DELGATE_PROPERTY,
+        NAME_NAME_PROPERTY, NAME_OBJECT_PROPERTY, NAME_OPTIONAL_PROPERTY, NAME_SET_PROPERTY,
+        NAME_SOFT_OBJECT_PROPERTY, NAME_STR_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
+        NAME_UINT16_PROPERTY, NAME_UINT32_PROPERTY, NAME_UINT64_PROPERTY, PropertyTag,
+        PropertyTagIncompleteGuid, TArray,
     },
 };
 
@@ -280,13 +281,73 @@ impl FPropertyTypeName {
         })
     }
 
-    pub(crate) fn as_tag(&self, format: &SerializationFormat, size: u32) -> PropertyTag {
+    pub(crate) fn as_tag(&self, format: &SerializationFormat) -> PropertyTag {
+        let size = 0;
+        let array_index = 0;
+
         if format.property_tag_complete_type_name() {
-            let property_type = self.clone();
-            PropertyTag::synthetic_complete(property_type, size)
+            PropertyTag::Complete {
+                property_type: self.clone(),
+                size,
+                flags: EPropertyTagFlags::new(),
+                array_index,
+                property_guid: FGuid::default(),
+            }
         } else {
-            let property_type = FString::from(self.name());
-            PropertyTag::synthetic_incomplete(property_type, size)
+            PropertyTag::Incomplete {
+                property_type: self.name().into(),
+                size,
+                array_index,
+                extra: match self {
+                    Self::Array(inner_type) => CollectionProperties::Array {
+                        inner_type: inner_type.name().into(),
+                    },
+                    Self::Byte(maybe_enum_class) => CollectionProperties::Byte {
+                        enum_name: maybe_enum_class.clone().unwrap_or_else(FString::null),
+                    },
+                    Self::Enum { enum_class, .. } => CollectionProperties::Enum {
+                        enum_name: enum_class.clone(),
+                    },
+                    Self::Map { key, value } => CollectionProperties::Map {
+                        inner_type: key.name().into(),
+                        value_type: value.name().into(),
+                    },
+                    Self::Optional(inner_type) => CollectionProperties::Option {
+                        inner_type: inner_type.name().into(),
+                    },
+                    Self::Set(inner_type) => CollectionProperties::Set {
+                        inner_type: inner_type.name().into(),
+                    },
+                    Self::StructComplete {
+                        type_name,
+                        struct_guid,
+                        ..
+                    } => CollectionProperties::Struct {
+                        type_name: type_name.clone(),
+                        struct_guid: *struct_guid,
+                    },
+                    Self::Bool
+                    | Self::Delegate
+                    | Self::Double
+                    | Self::Float
+                    | Self::Int
+                    | Self::Int8
+                    | Self::Int16
+                    | Self::Int64
+                    | Self::MulticastInlineDelegate
+                    | Self::MulticastSparseDelegate
+                    | Self::Name
+                    | Self::Object
+                    | Self::SoftObject
+                    | Self::Str
+                    | Self::Struct
+                    | Self::Text
+                    | Self::UInt16
+                    | Self::UInt32
+                    | Self::UInt64 => CollectionProperties::None,
+                },
+                maybe_property_guid: PropertyTagIncompleteGuid::default(),
+            }
         }
     }
 
