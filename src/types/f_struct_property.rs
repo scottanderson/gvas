@@ -10,8 +10,11 @@ use crate::{
     },
 };
 
+#[cfg(feature = "serde")]
+use crate::serde::is_default;
+
 #[binrw]
-#[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &str, class_name: Option<&str>, guid: FGuid))]
+#[br(import(format: &SerializationFormat, size: Option<u32>, struct_type: &FString, class_name: Option<&str>, guid: FGuid))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -37,8 +40,12 @@ pub enum FStructProperty {
     #[br(pre_assert(struct_type == NAME_VECTOR2D))]
     Vector2D(FVector2D),
     Custom {
-        #[br(calc = struct_type.into())]
+        #[br(calc = struct_type.clone())]
         #[bw(ignore)]
+        #[cfg_attr(
+            feature = "serde",
+            serde(default = "FString::null", skip_serializing_if = "FString::is_null")
+        )]
         struct_type: FString,
         #[br(calc = class_name.into())]
         #[bw(ignore)]
@@ -49,16 +56,13 @@ pub enum FStructProperty {
         class_name: FString,
         #[br(calc = guid)]
         #[bw(ignore)]
-        #[cfg_attr(
-            feature = "serde",
-            serde(default, skip_serializing_if = "crate::serde::is_default")
-        )]
+        #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
         struct_guid: FGuid,
         #[brw(args(format))]
         properties: TaggedProperties,
     },
     Unknown {
-        #[br(calc = struct_type.into())]
+        #[br(calc = struct_type.clone())]
         #[bw(ignore)]
         struct_type: FString,
         #[br(calc = class_name.into())]

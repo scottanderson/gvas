@@ -99,7 +99,7 @@ pub enum FArrayProperty {
 
         #[br(calc = meta.0.into())]
         #[bw(ignore)]
-        type_name: Box<str>,
+        type_name: FString,
 
         #[br(calc = meta.1.into())]
         #[bw(ignore)]
@@ -163,8 +163,8 @@ impl From<ArrayPropertyTaggedStructs> for FArrayProperty {
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ArrayPropertyTaggedStructs {
-    pub field_name: Box<str>,
-    pub type_name: Box<str>,
+    pub field_name: FString,
+    pub type_name: FString,
 
     #[cfg_attr(
         feature = "serde",
@@ -198,13 +198,13 @@ impl BinWrite for ArrayPropertyTaggedStructs {
         let size = u32::try_from(buf.len()).map_err(binrw_custom(start))?;
 
         let struct_tag = FPropertyTag::Some {
-            name: self.field_name.as_ref().into(),
+            name: self.field_name.clone(),
             property_tag: PropertyTag::Incomplete {
                 property_type: NAME_STRUCT_PROPERTY.into(),
                 size,
                 array_index: 0,
                 extra: CollectionProperties::Struct {
-                    type_name: self.type_name.as_ref().into(),
+                    type_name: self.type_name.clone(),
                     struct_guid: self.struct_guid,
                 },
                 maybe_property_guid: PropertyTagIncompleteGuid::default(),
@@ -235,7 +235,7 @@ impl BinRead for ArrayPropertyTaggedStructs {
         let struct_tag = FPropertyTag::read_options(reader, endian, (format,))?;
 
         let FPropertyTag::Some {
-            name: FString(Some(field_name)),
+            name: field_name,
             property_tag:
                 PropertyTag::Incomplete {
                     property_type: FString(Some(property_type)),
@@ -246,7 +246,7 @@ impl BinRead for ArrayPropertyTaggedStructs {
                             type_name,
                             struct_guid,
                         },
-                    ..
+                    maybe_property_guid: PropertyTagIncompleteGuid(None),
                 },
         } = struct_tag
         else {
@@ -263,13 +263,6 @@ impl BinRead for ArrayPropertyTaggedStructs {
             });
         }
 
-        let type_name = type_name
-            .as_deref()
-            .ok_or_else(|| binrw::Error::AssertFail {
-                pos: position,
-                message: "array struct type name cannot be null".into(),
-            })?;
-
         let suggested_size = size.checked_div(count);
 
         let capacity = usize::try_from(count).map_err(binrw_custom(position))?;
@@ -279,12 +272,9 @@ impl BinRead for ArrayPropertyTaggedStructs {
             values.push(FStructProperty::read_options(
                 reader,
                 endian,
-                (format, suggested_size, type_name, None, struct_guid),
+                (format, suggested_size, &type_name, None, struct_guid),
             )?);
         }
-
-        let field_name = Box::from(field_name);
-        let type_name = Box::from(type_name);
 
         Ok(Self {
             field_name,

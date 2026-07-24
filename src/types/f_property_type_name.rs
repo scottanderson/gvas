@@ -137,7 +137,7 @@ impl FPropertyTypeName {
                 struct_guid,
             } => Self::StructComplete {
                 type_name: type_name.clone(),
-                class_name: FString(None),
+                class_name: FString::null(),
                 struct_guid: *struct_guid,
             },
             CollectionProperties::Bool { .. } | CollectionProperties::None => {
@@ -202,8 +202,8 @@ impl FPropertyTypeName {
             (NAME_SOFT_OBJECT_PROPERTY, 0) => Some(Self::SoftObject),
             (NAME_STR_PROPERTY, 0) => Some(Self::Str),
             (NAME_STRUCT_PROPERTY, 0) => Some(Self::StructComplete {
-                type_name: FString(None),
-                class_name: FString(None),
+                type_name: FString::null(),
+                class_name: FString::null(),
                 struct_guid: FGuid::default(),
             }),
             (NAME_STRUCT_PROPERTY, 1) => {
@@ -226,7 +226,7 @@ impl FPropertyTypeName {
         let mut children = children.into_iter();
         let Some(enum_node) = children.next() else {
             return Some(Self::Enum {
-                enum_class: FString(None),
+                enum_class: FString::null(),
                 class_path: None,
                 inner_type: None,
             });

@@ -879,7 +879,7 @@ pub(crate) fn expected() -> USaveGame {
                 has_property_extensions: false,
                 property: FProperty::from(FStructProperty::Custom {
                     struct_type: FString::from("GameAudioSettings"),
-                    class_name: FString(None),
+                    class_name: FString::null(),
                     struct_guid: FGuid::default(),
                     properties: TaggedProperties::from([
                         TaggedProperty {
@@ -917,7 +917,7 @@ pub(crate) fn expected() -> USaveGame {
                 has_property_extensions: false,
                 property: FProperty::from(FStructProperty::Custom {
                     struct_type: FString::from("GameSettings"),
-                    class_name: FString(None),
+                    class_name: FString::null(),
                     struct_guid: FGuid::default(),
                     properties: TaggedProperties::from([
                         TaggedProperty {

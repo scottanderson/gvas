@@ -348,7 +348,7 @@ pub(crate) fn expected() -> USaveGame {
                 has_property_extensions: false,
                 property: FProperty::from(FStructProperty::Custom {
                     struct_type: FString::from("CustomStruct"),
-                    class_name: FString(None),
+                    class_name: FString::null(),
                     struct_guid: FGuid::default(),
                     properties: TaggedProperties::from([TaggedProperty {
                         property_name: FString::from("test_field"),
@@ -377,13 +377,13 @@ pub(crate) fn expected() -> USaveGame {
                 has_binary_or_native_serialize: false,
                 has_property_extensions: false,
                 property: FProperty::from(FArrayProperty::from(ArrayPropertyTaggedStructs {
-                    field_name: Box::from("array_of_structs"),
-                    type_name: Box::from("CustomStruct"),
+                    field_name: FString::from("array_of_structs"),
+                    type_name: FString::from("CustomStruct"),
                     struct_guid: FGuid::default(),
                     values: vec![
                         FStructProperty::Custom {
                             struct_type: FString::from("CustomStruct"),
-                            class_name: FString(None),
+                            class_name: FString::null(),
                             struct_guid: FGuid::default(),
                             properties: TaggedProperties::from([TaggedProperty {
                                 property_name: FString::from("test_field"),
@@ -396,7 +396,7 @@ pub(crate) fn expected() -> USaveGame {
                         },
                         FStructProperty::Custom {
                             struct_type: FString::from("CustomStruct"),
-                            class_name: FString(None),
+                            class_name: FString::null(),
                             struct_guid: FGuid::default(),
                             properties: TaggedProperties::from([TaggedProperty {
                                 property_name: FString::from("test_field"),

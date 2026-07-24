@@ -297,8 +297,8 @@ pub(crate) fn expected() -> USaveGame {
                     allocation_flags: 0,
                     key_type: FPropertyTypeName::Name,
                     value_type: FPropertyTypeName::StructComplete {
-                        type_name: FString(None),
-                        class_name: FString(None),
+                        type_name: FString::null(),
+                        class_name: FString::null(),
                         struct_guid: FGuid::default(),
                     },
                     properties: TArray::from([
@@ -307,8 +307,8 @@ pub(crate) fn expected() -> USaveGame {
                                 "unlock.welcomescreen.seen",
                             ))),
                             value: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -337,8 +337,8 @@ pub(crate) fn expected() -> USaveGame {
                                 "game.tutorial.finished",
                             ))),
                             value: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -367,8 +367,8 @@ pub(crate) fn expected() -> USaveGame {
                                 "game.tutorial.skipped",
                             ))),
                             value: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -397,8 +397,8 @@ pub(crate) fn expected() -> USaveGame {
                                 "dialogs.messages.seen.Rumiko.0.50",
                             ))),
                             value: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -427,8 +427,8 @@ pub(crate) fn expected() -> USaveGame {
                                 "codex.Rumiko",
                             ))),
                             value: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -464,16 +464,16 @@ pub(crate) fn expected() -> USaveGame {
                 property: FProperty::from(FMapProperty::Known {
                     allocation_flags: 0,
                     key_type: FPropertyTypeName::StructComplete {
-                        type_name: FString(None),
-                        class_name: FString(None),
+                        type_name: FString::null(),
+                        class_name: FString::null(),
                         struct_guid: FGuid::default(),
                     },
                     value_type: FPropertyTypeName::Float,
                     properties: TArray::from([
                         MapEntry {
                             key: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -517,8 +517,8 @@ pub(crate) fn expected() -> USaveGame {
                         },
                         MapEntry {
                             key: FProperty::from(FStructProperty::Custom {
-                                struct_type: FString::from(""),
-                                class_name: FString(None),
+                                struct_type: FString::null(),
+                                class_name: FString::null(),
                                 struct_guid: FGuid::default(),
                                 properties: TaggedProperties::from([
                                     TaggedProperty {
@@ -663,83 +663,78 @@ pub(crate) const SAVESLOT_03_JSON: &str = r#"{
       "value_type": "StructProperty",
       "name_props": {
         "unlock.welcomescreen.seen": {
-          "type": "StructPropertyValue",
-          "CustomStruct": {
-            "AsFloat": [
-              {
+          "type": "StructProperty",
+          "Custom": {
+            "properties": {
+              "AsFloat": {
                 "type": "FloatProperty",
                 "value": 0.0
+              },
+              "AsString": {
+                "type": "StrProperty",
+                "value": null
               }
-            ],
-            "AsString": [
-              {
-                "type": "StrProperty"
-              }
-            ]
+            }
           }
         },
         "game.tutorial.finished": {
-          "type": "StructPropertyValue",
-          "CustomStruct": {
-            "AsFloat": [
-              {
+          "type": "StructProperty",
+          "Custom": {
+            "properties": {
+              "AsFloat": {
                 "type": "FloatProperty",
                 "value": 1.0
+              },
+              "AsString": {
+                "type": "StrProperty",
+                "value": null
               }
-            ],
-            "AsString": [
-              {
-                "type": "StrProperty"
-              }
-            ]
+            }
           }
         },
         "game.tutorial.skipped": {
-          "type": "StructPropertyValue",
-          "CustomStruct": {
-            "AsFloat": [
-              {
+          "type": "StructProperty",
+          "Custom": {
+            "properties": {
+              "AsFloat": {
                 "type": "FloatProperty",
                 "value": 1.0
+              },
+              "AsString": {
+                "type": "StrProperty",
+                "value": null
               }
-            ],
-            "AsString": [
-              {
-                "type": "StrProperty"
-              }
-            ]
+            }
           }
         },
         "dialogs.messages.seen.Rumiko.0.50": {
-          "type": "StructPropertyValue",
-          "CustomStruct": {
-            "AsFloat": [
-              {
+          "type": "StructProperty",
+          "Custom": {
+            "properties": {
+              "AsFloat": {
                 "type": "FloatProperty",
                 "value": 1.0
+              },
+              "AsString": {
+                "type": "StrProperty",
+                "value": null
               }
-            ],
-            "AsString": [
-              {
-                "type": "StrProperty"
-              }
-            ]
+            }
           }
         },
         "codex.Rumiko": {
-          "type": "StructPropertyValue",
-          "CustomStruct": {
-            "AsFloat": [
-              {
+          "type": "StructProperty",
+          "Custom": {
+            "properties": {
+              "AsFloat": {
                 "type": "FloatProperty",
                 "value": 1.0
+              },
+              "AsString": {
+                "type": "StrProperty",
+                "value": null
               }
-            ],
-            "AsString": [
-              {
-                "type": "StrProperty"
-              }
-            ]
+            }
           }
         }
       }
@@ -748,20 +743,17 @@ pub(crate) const SAVESLOT_03_JSON: &str = r#"{
       "type": "MapProperty",
       "key_type": "StructProperty",
       "value_type": "FloatProperty",
-      "allocation_flags": 0,
       "value": [
         [
           {
-            "type": "StructPropertyValue",
-            "CustomStruct": {
-              "AttributeName": [
-                {
+            "type": "StructProperty",
+            "Custom": {
+              "properties": {
+                "AttributeName": {
                   "type": "StrProperty",
                   "value": "Currency_Blueprints"
-                }
-              ],
-              "Attribute": [
-                {
+                },
+                "Attribute": {
                   "type": "FieldPathProperty",
                   "value": {
                     "path": [
@@ -769,14 +761,12 @@ pub(crate) const SAVESLOT_03_JSON: &str = r#"{
                     ],
                     "resolved_owner": "/Script/CD.CDPlayerAttributeSet"
                   }
-                }
-              ],
-              "AttributeOwner": [
-                {
+                },
+                "AttributeOwner": {
                   "type": "ObjectProperty",
                   "value": "None"
                 }
-              ]
+              }
             }
           },
           {
@@ -786,16 +776,14 @@ pub(crate) const SAVESLOT_03_JSON: &str = r#"{
         ],
         [
           {
-            "type": "StructPropertyValue",
-            "CustomStruct": {
-              "AttributeName": [
-                {
+            "type": "StructProperty",
+            "Custom": {
+              "properties": {
+                "AttributeName": {
                   "type": "StrProperty",
                   "value": "Currency_Electrum"
-                }
-              ],
-              "Attribute": [
-                {
+                },
+                "Attribute": {
                   "type": "FieldPathProperty",
                   "value": {
                     "path": [
@@ -803,14 +791,12 @@ pub(crate) const SAVESLOT_03_JSON: &str = r#"{
                     ],
                     "resolved_owner": "/Script/CD.CDPlayerAttributeSet"
                   }
-                }
-              ],
-              "AttributeOwner": [
-                {
+                },
+                "AttributeOwner": {
                   "type": "ObjectProperty",
                   "value": "None"
                 }
-              ]
+              }
             }
           },
           {

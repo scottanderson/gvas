@@ -19,7 +19,7 @@ impl FString {
 impl std::fmt::Debug for FString {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self.0 {
-            None => f.write_str("FString(None)"),
+            None => f.write_str("FString::null()"),
             Some(s) => write!(f, "FString::from({s:?})"),
         }
     }
@@ -208,7 +208,7 @@ mod test {
     fn read_fstring_null() -> Result<()> {
         let mut cursor = Cursor::new(BYTES_NULL);
         let string = FString::read_le(&mut cursor)?;
-        assert_eq!(string, FString(None));
+        assert_eq!(string, FString::null());
         Ok(())
     }
 
@@ -239,7 +239,7 @@ mod test {
     #[test]
     fn write_fstring_null() -> Result<()> {
         let mut cursor = Cursor::new(vec![]);
-        let string = FString(None);
+        let string = FString::null();
         string.write_le(&mut cursor)?;
         assert_eq!(cursor.into_inner().as_slice(), BYTES_NULL);
         Ok(())

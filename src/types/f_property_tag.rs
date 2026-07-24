@@ -148,9 +148,9 @@ impl PropertyTag {
                 enum_class: match extra {
                     CollectionProperties::Byte { enum_name }
                     | CollectionProperties::Enum { enum_name } => enum_name.clone(),
-                    CollectionProperties::Array { .. } => FString(None),
+                    CollectionProperties::Array { .. } => FString::null(),
                     CollectionProperties::None if property_type == NAME_ENUM_PROPERTY => {
-                        FString(None)
+                        FString::null()
                     }
                     _ => Err(PropertyTagError::Unsupported(
                         "enum_type".into(),
