@@ -335,17 +335,20 @@ impl PropertyTag {
     }
 
     #[inline]
-    pub fn struct_type_name(&self) -> Option<&str> {
+    pub fn struct_type_name(&self) -> Result<&FString, PropertyTagError> {
         match self {
             Self::Incomplete {
                 extra: CollectionProperties::Struct { type_name, .. },
                 ..
-            } => type_name.as_deref(),
+            } => Ok(type_name),
             Self::Complete {
                 property_type: FPropertyTypeName::StructComplete { type_name, .. },
                 ..
-            } => type_name.as_deref(),
-            _ => None,
+            } => Ok(type_name),
+            _ => Err(PropertyTagError::Unsupported(
+                "struct_type_name".into(),
+                format!("{self:?}"),
+            )),
         }
     }
 

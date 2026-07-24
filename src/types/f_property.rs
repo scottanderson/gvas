@@ -340,10 +340,10 @@ impl BinRead for FProperty {
             NAME_SET_PROPERTY    => Self::from(   FSetProperty::read_options(reader, endian, (format, t))?),
             NAME_SOFT_OBJECT_PROPERTY => Self::from(FSoftObjectProperty::read_options(reader, endian, (format,))?),
             NAME_STRUCT_PROPERTY => {
-                let type_name = FString::from(t.struct_type_name());
+                let type_name = t.struct_type_name().map_err(binrw_custom(start))?;
                 let class_name = t.struct_class_name();
                 let guid = t.struct_guid().map_err(binrw_custom(start))?;
-                                    Self::from(FStructProperty::read_options(reader, endian, (format, Some(t.size()), &type_name, class_name, guid))?)
+                                    Self::from(FStructProperty::read_options(reader, endian, (format, Some(t.size()), type_name, class_name, guid))?)
             },
             NAME_STR_PROPERTY    => Self::from(   FStrProperty::read_options(reader, endian, ())?),
             NAME_TEXT_PROPERTY   => Self::from(  FTextProperty::read_options(reader, endian, (format,))?),
