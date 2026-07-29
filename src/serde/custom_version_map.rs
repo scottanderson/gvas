@@ -1,6 +1,6 @@
 use serde::{Deserializer, Serializer, de};
 
-use crate::types::{FCustomVersion, FCustomVersionArray, FGuid};
+use crate::types::{FCustomVersion, FCustomVersionArray, TArray};
 
 pub(crate) fn serialize<S: Serializer>(
     custom_versions: &FCustomVersionArray,
@@ -29,13 +29,12 @@ pub(crate) fn deserialize<'de, D: Deserializer<'de>>(
         where
             A: de::MapAccess<'de>,
         {
-            let mut custom_versions = Vec::with_capacity(map.size_hint().unwrap_or_default());
-
-            while let Some((key, value)) = map.next_entry::<FGuid, u32>()? {
+            let capacity = map.size_hint().unwrap_or_default();
+            let mut custom_versions = Vec::with_capacity(capacity);
+            while let Some((key, value)) = map.next_entry()? {
                 custom_versions.push(FCustomVersion { key, value });
             }
-
-            Ok(custom_versions.into())
+            Ok(TArray(custom_versions))
         }
     }
 

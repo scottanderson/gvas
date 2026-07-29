@@ -8,8 +8,3 @@ where
 {
     *value == T::default()
 }
-
-#[inline]
-pub(crate) fn is_false(value: &bool) -> bool {
-    !value
-}

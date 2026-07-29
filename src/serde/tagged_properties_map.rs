@@ -8,7 +8,7 @@ use ::serde::{
 use crate::types::{FGuid, FProperty, FString, TaggedProperty};
 
 #[cfg(feature = "serde")]
-use crate::serde::{is_default, is_false};
+use crate::serde::is_default;
 
 /// The JSON representation of a tagged property.
 ///
@@ -16,10 +16,10 @@ use crate::serde::{is_default, is_false};
 /// `array_index` is represented by the value's position in its array.
 #[derive(Serialize)]
 struct TaggedPropertyValueRef<'a> {
-    #[serde(skip_serializing_if = "is_false")]
+    #[serde(skip_serializing_if = "is_default")]
     has_binary_or_native_serialize: bool,
 
-    #[serde(skip_serializing_if = "is_false")]
+    #[serde(skip_serializing_if = "is_default")]
     has_property_extensions: bool,
 
     #[serde(skip_serializing_if = "is_default")]

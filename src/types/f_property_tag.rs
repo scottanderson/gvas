@@ -10,9 +10,6 @@ use crate::types::{
     NAME_OPTIONAL_PROPERTY, NAME_SET_PROPERTY, NAME_STRUCT_PROPERTY, NAME_TEXT_PROPERTY,
 };
 
-#[cfg(feature = "serde")]
-use crate::serde::is_default;
-
 #[derive(Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum FPropertyTag {
@@ -465,18 +462,12 @@ impl From<&PropertyTagIncompleteGuid> for FGuid {
 }
 
 #[derive(Debug, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct TaggedProperty {
     pub property_name: FString,
-    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub array_index: u32,
-    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub has_binary_or_native_serialize: bool,
-    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub has_property_extensions: bool,
-    #[cfg_attr(feature = "serde", serde(default, skip_serializing_if = "is_default"))]
     pub property_guid: FGuid,
-    #[cfg_attr(feature = "serde", serde(flatten))]
     pub property: FProperty,
 }
 
