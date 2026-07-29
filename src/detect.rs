@@ -40,7 +40,7 @@ pub enum AutoDetectFile {
 
 #[cfg(feature = "palworld")]
 #[binrw]
-#[br(little)]
+#[brw(little)]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AutoDetectFile {
