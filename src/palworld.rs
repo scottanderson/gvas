@@ -10,11 +10,7 @@ use std::io::{Cursor, Read, Seek, Write};
 use binrw::{BinRead, BinResult, BinWrite, Endian, binrw};
 use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
 
-use crate::{
-    error::binrw_custom,
-    hints::Path,
-    types::USaveGame,
-};
+use crate::{error::binrw_custom, hints::HintMap, types::USaveGame};
 
 #[binrw]
 #[derive(Debug, PartialEq)]
@@ -93,7 +89,7 @@ impl BinRead for PalworldSaveGame {
         };
 
         let reader = &mut Cursor::new(uncompressed);
-        let content = USaveGame::read_options(reader, endian, (Path::root(),))?;
+        let content = USaveGame::read_options(reader, endian, (HintMap::new(),))?;
 
         let result = Self {
             compression,
