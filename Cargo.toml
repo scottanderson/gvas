@@ -26,3 +26,4 @@ serde_json = { version = "1.0.145", features = ["float_roundtrip", "preserve_ord
 [features]
 palworld = ["dep:flate2"]
 serde = ["dep:serde", "dep:serde_with"]
+hints = []

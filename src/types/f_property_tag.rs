@@ -4,6 +4,7 @@ use binrw::{BinRead, BinWrite, binrw};
 
 use crate::error::{ParseGuidError, PropertyTagError, binrw_custom};
 use crate::format::SerializationFormat;
+use crate::hints::{HintMap, Path};
 use crate::types::{
     EPropertyTagFlags, FGuid, FProperty, FPropertyTypeName, FString, NAME_ARRAY_PROPERTY,
     NAME_BOOL_PROPERTY, NAME_BYTE_PROPERTY, NAME_ENUM_PROPERTY, NAME_MAP_PROPERTY, NAME_NONE,
@@ -499,20 +500,28 @@ pub struct TaggedProperties(
 );
 
 impl BinRead for TaggedProperties {
-    type Args<'a> = (&'a SerializationFormat,);
+    type Args<'a> = (&'a SerializationFormat, &'a HintMap, Path);
 
     fn read_options<R: std::io::Read + std::io::Seek>(
         reader: &mut R,
         endian: binrw::Endian,
-        (format,): Self::Args<'_>,
+        (format, hint_map, path): Self::Args<'_>,
     ) -> binrw::BinResult<Self> {
         let mut properties = Vec::new();
         loop {
             match FPropertyTag::read_options(reader, endian, (format,))? {
                 FPropertyTag::None => break,
                 FPropertyTag::Some { name, property_tag } => {
-                    let property =
-                        FProperty::read_options(reader, endian, (format, &property_tag))?;
+                    let property = FProperty::read_options(
+                        reader,
+                        endian,
+                        (
+                            format,
+                            &property_tag,
+                            hint_map,
+                            path.child(name.to_string()),
+                        ),
+                    )?;
                     // println!("Read {property:?}");
                     let property = TaggedProperty::new(name, property_tag, property);
                     properties.push(property);

@@ -1,11 +1,12 @@
 use crate::{
     format::SerializationFormat,
+    hints::{HintMap, Path},
     types::{EPropertyTagFlags, FProperty, FPropertyTypeName, PropertyTag, TArray},
 };
 use binrw::binrw;
 
 #[binrw]
-#[br(import(format: &SerializationFormat, t: &PropertyTag))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag, hint_map: &HintMap, path: Path))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 pub enum FMapProperty {
@@ -21,7 +22,7 @@ pub enum FMapProperty {
         #[bw(ignore)]
         value_type: FPropertyTypeName,
 
-        #[br(args(format, &key_type, &value_type))]
+        #[br(args(format, &key_type, &value_type, hint_map, path.clone()))]
         #[bw(args(format))]
         properties: TArray<MapEntry>,
     },
@@ -56,16 +57,16 @@ impl FMapProperty {
 }
 
 #[binrw]
-#[br(import(format: &SerializationFormat, key_type: &FPropertyTypeName, value_type: &FPropertyTypeName))]
+#[br(import(format: &SerializationFormat, key_type: &FPropertyTypeName, value_type: &FPropertyTypeName, hint_map: &HintMap, path: Path))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct MapEntry {
-    #[br(args(format, &key_type.as_tag(format)))]
+    #[br(args(format, &key_type.as_tag(format), hint_map, path.child("Key")))]
     #[bw(args(format))]
     pub key: FProperty,
 
-    #[br(args(format, &value_type.as_tag(format)))]
+    #[br(args(format, &value_type.as_tag(format), hint_map, path.child("Value")))]
     #[bw(args(format))]
     pub value: FProperty,
 }

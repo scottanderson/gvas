@@ -14,7 +14,7 @@ impl<T> TArray<T> {
 
 impl<T: BinRead> BinRead for TArray<T>
 where
-    for<'a> T::Args<'a>: Copy,
+    for<'a> T::Args<'a>: Clone,
 {
     type Args<'a> = T::Args<'a>;
 
@@ -26,7 +26,7 @@ where
         let count = u32::read_options(reader, endian, ())?;
         let mut items = Vec::with_capacity(count as usize);
         for _ in 0..count {
-            items.push(T::read_options(reader, endian, args)?);
+            items.push(T::read_options(reader, endian, args.clone())?);
         }
         Ok(Self(items))
     }

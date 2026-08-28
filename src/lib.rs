@@ -89,6 +89,7 @@
 pub mod detect;
 pub mod error;
 pub mod format;
+pub mod hints;
 /// Palworld save wrapper support.
 ///
 /// Palworld save files contain a 12-byte header followed by a [`USaveGame`]

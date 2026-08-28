@@ -5,6 +5,7 @@ use binrw::{BinRead, BinWrite, binrw};
 use crate::{
     error::binrw_custom,
     format::SerializationFormat,
+    hints::{HintMap, Path},
     types::{
         CollectionProperties, FFloatProperty, FGuid, FIntProperty, FNameProperty, FObjectProperty,
         FPropertyTag, FPropertyTypeName, FSoftObjectProperty, FStrProperty, FString,
@@ -30,7 +31,7 @@ impl PropertyTag {
 }
 
 #[binrw]
-#[br(import(format: &SerializationFormat, t: &PropertyTag, inner_type: &str))]
+#[br(import(format: &SerializationFormat, t: &PropertyTag, inner_type: &str, hint_map: &HintMap, path: Path))]
 #[bw(import(format: &SerializationFormat))]
 #[derive(Debug, PartialEq)]
 #[cfg_attr(feature = "serde", serde_with::serde_as)]
@@ -113,7 +114,7 @@ pub enum FArrayProperty {
         #[bw(ignore)]
         property_count: u32,
 
-        #[br(args(format, t.array_struct_suggested_size(property_count), &type_name, Some(&class_name), struct_guid,))]
+        #[br(args(format, t.array_struct_suggested_size(property_count), &type_name, Some(&class_name), struct_guid, hint_map, path.child("Structs")))]
         #[bw(args(format))]
         values: TArray<FStructProperty>,
     },
@@ -122,7 +123,7 @@ pub enum FArrayProperty {
     #[br(pre_assert(inner_type == NAME_STRUCT_PROPERTY && !format.property_tag_complete_type_name()))]
     #[bw(assert(!format.property_tag_complete_type_name()))]
     TaggedStructs(
-        #[br(args(format, t))]
+        #[br(args(format, t, hint_map, path.child("TaggedStructs")))]
         #[bw(args(format))]
         ArrayPropertyTaggedStructs,
     ),
@@ -220,12 +221,12 @@ impl BinWrite for ArrayPropertyTaggedStructs {
 }
 
 impl BinRead for ArrayPropertyTaggedStructs {
-    type Args<'a> = (&'a SerializationFormat, &'a PropertyTag);
+    type Args<'a> = (&'a SerializationFormat, &'a PropertyTag, &'a HintMap, Path);
 
     fn read_options<R>(
         reader: &mut R,
         endian: binrw::Endian,
-        (format, _outer_tag): Self::Args<'_>,
+        (format, _outer_tag, hint_map, path): Self::Args<'_>,
     ) -> binrw::BinResult<Self>
     where
         R: std::io::Read + std::io::Seek,
@@ -272,7 +273,15 @@ impl BinRead for ArrayPropertyTaggedStructs {
             values.push(FStructProperty::read_options(
                 reader,
                 endian,
-                (format, suggested_size, &type_name, None, struct_guid),
+                (
+                    format,
+                    suggested_size,
+                    &type_name,
+                    None,
+                    struct_guid,
+                    hint_map,
+                    path.child("Element"),
+                ),
             )?);
         }
 

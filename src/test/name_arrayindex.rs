@@ -5,6 +5,7 @@ use binrw::{BinRead, BinWrite};
 use crate::{
     error::Result,
     format::SerializationFormat,
+    hints::{HintMap, Path},
     types::{
         CollectionProperties, EEditorObjectVersion, EUE5ReleaseStreamObjectVersion,
         EUnrealEngineObjectUE4Version, FNameProperty, FProperty, FString, NAME_NAME_PROPERTY,
@@ -31,7 +32,7 @@ fn name_property_with_array_index() -> Result<()> {
     // Convert the Vec<u8> to a NameProperty
     let mut cursor = Cursor::new(data);
     let tag = PropertyTag::read_le_args(&mut cursor, (format,))?;
-    let prop = FProperty::read_le_args(&mut cursor, (format, &tag))?;
+    let prop = FProperty::read_le_args(&mut cursor, (format, &tag, &HintMap::new(), Path::root()))?;
 
     // Compare the parsed value to its expected value
     assert_matches!(
